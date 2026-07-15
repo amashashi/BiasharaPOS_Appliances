@@ -4,6 +4,15 @@
 
 ---
 
+### D-016 — Repo SVGs are the canonical logo assets
+**Date:** 2026-07-15 · **Mode:** Builder (product-owner decision)
+**Decision:** `brand/logo-appliances-icon.svg` and `brand/logo-appliances-lockup.svg` (green rounded square, white power-arc, lightning-bolt stem, Steel Blue descriptor) are canonical for all surfaces — favicon, PWA icons, app headers, receipts.
+**Why:** Product owner confirmed the created assets; the handoff mark is the same concept with variant geometry, so no dual source.
+**Rejected:** regenerating from handoff geometry (no user-visible benefit, churn).
+**Status:** active
+
+---
+
 ### D-015 — Official design handoff supersedes v1 design assumptions
 **Date:** 2026-07-15 · **Mode:** Builder
 **Decision:** Adopted the design handoff bundle (found in the GitHub-linked project folder, now vendored at `design-handoff/`) as the canonical design source. Core corrections: Azure Blue `#0F5DA4` is primary brand (not green), green `#239B46` is CTA/money, gold `#E7A52C` accent, typeface Plus Jakarta Sans (not Inter; TTFs bundled, self-hosted for offline). Sub-brand extensions from v1 were ratified by the handoff and retained: Steel Blue `#1D6A96` accent, domain status-badge vocabulary, green power-bolt mark. `DESIGN_SYSTEM.md` rewritten as v2; T0.6 tokens must be transcribed from `design-handoff/_ds/*/tokens/*.css`.

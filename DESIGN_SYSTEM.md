@@ -81,7 +81,7 @@ Unchanged from v1 — Button, MoneyDisplay (tabular TZS), StatusBadge (§2.3 voc
 
 Ratified by the handoff (its hero mark matches this design): rounded square in Emerald Green containing a white power-arc with a lightning-bolt stem. The icon stays **green** even though core primary is blue — it reads as the family's action color. Descriptor "APPLIANCES & ELECTRONICS" in Steel Blue, letterspaced caps.
 
-Files: `brand/logo-appliances-lockup.svg`, `brand/logo-appliances-icon.svg` (repo). The handoff's refined mark geometry (48-grid, stroked bolt) is an acceptable substitute; if regenerating assets, prefer the handoff geometry.
+Files: `brand/logo-appliances-lockup.svg`, `brand/logo-appliances-icon.svg` (repo) — **these are the canonical brand assets** (product-owner decision, 2026-07-15). The handoff HTML's mark is a stylistic variant of the same design; production surfaces use the repo SVGs.
 
 Usage rules unchanged from v1: minimum sizes (icon 24px, lockup 140px), clear space = power-symbol height, white/`bg` fields only, no gradients/shadows/stretching. Wordmark: "Biashara" in ink, "POS" in green.
 
