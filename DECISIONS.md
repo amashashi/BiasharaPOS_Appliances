@@ -4,6 +4,33 @@
 
 ---
 
+### D-014 — TypeORM + pg instead of Prisma
+**Date:** 2026-07-15 · **Mode:** Builder
+**Decision:** Data layer uses TypeORM with handwritten SQL migrations (runner scripts `migrate`/`migrate:down`/`seed`), `synchronize: false`.
+**Why:** Prisma's engine binaries are fetched from binaries.prisma.sh, which the build sandbox's network allowlist blocks (403). D-003 pre-approved TypeORM as the alternative; it is pure JS, and NestJS+TypeORM is the canonical pairing. Handwritten SQL migrations keep schema changes explicit and reviewable.
+**Rejected:** Prisma (unfetchable engines here; revisit only if the team strongly prefers it on unrestricted infra); Drizzle (fine tool, but TypeORM was the sanctioned fallback); `synchronize: true` (schema drift risk).
+**Status:** active
+
+---
+
+### D-013 — Vitest everywhere; no @nestjs/cli; plain tsc builds
+**Date:** 2026-07-15 · **Mode:** Builder
+**Decision:** One test runner (Vitest) across API and web workspaces; API compiled with plain `tsc` instead of the Nest CLI/webpack.
+**Why:** One toolchain to learn/maintain; tsc output is transparent and container-friendly; Nest CLI adds no value at this size.
+**Rejected:** Jest for API (second runner, slower TS story); Nest CLI (opaque build wrapper).
+**Status:** active
+
+---
+
+### D-012 — Sandbox verification uses local PostgreSQL; docker-compose is the dev/CI contract
+**Date:** 2026-07-15 · **Mode:** Builder
+**Decision:** The build sandbox has no docker daemon; DB-dependent tasks verify against the local PostgreSQL 16 cluster. `docker-compose.yml` + Dockerfile remain the canonical dev/CI environment.
+**Why:** Plan's verify steps referenced `docker compose up`; the equivalent evidence (running API + real Postgres) is achievable with local processes.
+**Rejected:** skipping runtime verification (violates "done means verified").
+**Status:** active
+
+---
+
 ### D-011 — Inherit BiasharaPOS design system; differentiate with a Steel Blue sub-brand accent and a power-bolt vertical mark
 **Date:** 2026-07-15 · **Mode:** Architect
 **Decision:** The platform inherits the core BiasharaPOS brand (Biashara Green `#239B46`, flat/minimal card-based style, family wordmark) and extends it with: a Steel Blue accent (`#1D6A96`) reserved for the Appliances & Electronics sub-brand, a fixed domain-status color vocabulary (unit states, arrears severity, sync state), and a vertical mark — rounded green square with a white power-symbol whose stem is a lightning bolt. Codified in `DESIGN_SYSTEM.md`; implemented as `packages/ui` tokens (T0.6–T0.7). Typeface set to Inter pending confirmation of the core platform's font.

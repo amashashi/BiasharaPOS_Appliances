@@ -17,8 +17,8 @@
 ## Tasks
 
 ### M0 — Foundations & contracts
-- [ ] **T0.1** Monorepo scaffold (NestJS API, React POS PWA shell, React back-office shell, shared types package), lint/test/CI pipeline. — *Verify:* CI green on empty test suite; `docker compose up` serves API healthcheck + both web shells.
-- [ ] **T0.2** PostgreSQL + migration tooling + base entities (Merchant, Location, User refs from identity claims). — *Verify:* migration up/down clean; seed script creates a demo merchant with 2 locations.
+- [x] **T0.1** Monorepo scaffold (NestJS API, React POS PWA shell, React back-office shell, shared types package), lint/test/CI pipeline. — *Verify:* CI green on empty test suite; `docker compose up` serves API healthcheck + both web shells.
+- [x] **T0.2** PostgreSQL + migration tooling + base entities (Merchant, Location, User refs from identity claims). — *Verify:* migration up/down clean; seed script creates a demo merchant with 2 locations.
 - [ ] **T0.3** Define and freeze platform adapter interfaces (`FiscalService`, `PaymentsService`, `IdentityService`, `NotificationService`) in shared types; implement **stub adapters** (in-memory fiscal numbers, fake STK push with auto-confirm webhook, JWT verification against a test key, console SMS). — *Verify:* contract tests pass against stubs; interfaces reviewed against real platform API docs (audit note attached to PR).
 - [ ] **T0.4** Auth middleware: validate platform JWT, resolve merchant/user/roles; role guard scaffolding (OWNER, CASHIER, DELIVERY). — *Verify:* requests without/with wrong-role token rejected in integration test.
 - [ ] **T0.5** Append-only audit-event table + helper (every domain mutation logs actor, entity, before/after). — *Verify:* creating any entity writes an audit row; test asserts immutability (no UPDATE/DELETE grants).

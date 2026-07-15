@@ -2,25 +2,31 @@
   "name": "@biashara/api",
   "version": "0.1.0",
   "private": true,
-  "description": "BiasharaPOS Appliances & Electronics — API (modular monolith)",
+  "description": "BiasharaPOS Appliances & Electronics \u2014 API (modular monolith)",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json && node dist/main.js",
     "start": "node dist/main.js",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "migrate": "node dist/db/migrate.js up",
+    "migrate:down": "node dist/db/migrate.js down",
+    "seed": "node dist/db/seed.js"
   },
   "dependencies": {
     "@biashara/shared": "*",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^1.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
     "vitest": "^3.0.0"
