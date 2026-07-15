@@ -43,3 +43,11 @@
 **Done:** Global `AuthGuard` (APP_GUARD in AppModule): validates `Authorization: Bearer` JWTs through the `IDENTITY_SERVICE` port, attaches `AuthContext` to the request (`AuthedRequest`), enforces `@Roles(...)` metadata (OWNER/CASHIER/DELIVERY), `@Public()` opt-out used on the healthcheck. Decorators in `src/auth/decorators.ts`.
 
 **Verified:** 4 integration tests (supertest against a real Nest app): public route 200 with no token; missing/garbage token 401; valid token attaches merchantId/userId; cashier 403 on @Roles('OWNER') route while owner 200. Full suite 13/13; lint green; live smoke test confirms `/api/health` still public on the built app.
+
+## 2026-07-15 — T0.5 Append-only audit log ✅
+
+**Done:** `audit_events` table (migration 1784130000000) with a **database trigger** rejecting UPDATE/DELETE (`audit_events is append-only`) — immutability holds regardless of role or code path. `AuditSubscriber` (TypeORM) auto-records INSERT/UPDATE/REMOVE for every entity in the same transaction (recursion-guarded); `AuditService.record()` for actor-attributed domain verbs (UNIT_SOLD etc.). Global `DbModule` provides the initialized DataSource (`DATA_SOURCE` token) + AuditService to the app; API scripts use `--env-file-if-exists=.env`; CI gained a postgres:16 service so DB tests run there.
+
+**Verified (against real Postgres):** creating a Merchant auto-writes an INSERT audit row; updating records before+after; raw SQL UPDATE and DELETE on audit_events both rejected by the trigger. Full suite 16/16, lint + build green.
+
+**Surprises:** (1) TypeORM `insert()` generics reject `Record<string,unknown>|null` jsonb payloads → switched audit writes to `create()+save()`. (2) Vitest/esbuild doesn't emit decorator metadata → all entity `@Column()`s now declare explicit types (also makes schema intent visible; keep this convention for every future entity).

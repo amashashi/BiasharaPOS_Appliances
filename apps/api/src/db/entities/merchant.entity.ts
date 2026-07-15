@@ -7,7 +7,7 @@ export class Merchant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name!: string;
 
   /** TRA taxpayer identification number */

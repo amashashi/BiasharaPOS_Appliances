@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health/health.controller.js';
 import { PlatformModule } from './platform/platform.module.js';
+import { DbModule } from './db/db.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
 
 @Module({
-  imports: [PlatformModule],
+  imports: [PlatformModule, DbModule],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })

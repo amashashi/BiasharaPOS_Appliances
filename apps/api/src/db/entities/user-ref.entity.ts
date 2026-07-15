@@ -12,17 +12,17 @@ export class UserRef {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   merchantId!: string;
 
   @ManyToOne(() => Merchant, (m) => m.users)
   @JoinColumn({ name: 'merchantId' })
   merchant!: Merchant;
 
-  @Column()
+  @Column({ type: 'varchar' })
   platformUserId!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   displayName!: string;
 
   @Column({ type: 'varchar' })

@@ -6,8 +6,8 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsc -p tsconfig.json && node dist/main.js",
-    "start": "node dist/main.js",
+    "dev": "tsc -p tsconfig.json && node --env-file-if-exists=.env dist/main.js",
+    "start": "node --env-file-if-exists=.env dist/main.js",
     "test": "vitest run --passWithNoTests",
     "migrate": "node dist/db/migrate.js up",
     "migrate:down": "node dist/db/migrate.js down",

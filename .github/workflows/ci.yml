@@ -8,6 +8,20 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: biashara_appliances
+          POSTGRES_USER: biashara
+          POSTGRES_PASSWORD: biashara
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U biashara" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://biashara:biashara@localhost:5432/biashara_appliances
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

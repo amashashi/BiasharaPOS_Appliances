@@ -9,14 +9,14 @@ export class Location {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   merchantId!: string;
 
   @ManyToOne(() => Merchant, (m) => m.locations)
   @JoinColumn({ name: 'merchantId' })
   merchant!: Merchant;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name!: string;
 
   @Column({ type: 'varchar', default: 'SHOP' })
