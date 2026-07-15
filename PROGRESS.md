@@ -51,3 +51,11 @@
 **Verified (against real Postgres):** creating a Merchant auto-writes an INSERT audit row; updating records before+after; raw SQL UPDATE and DELETE on audit_events both rejected by the trigger. Full suite 16/16, lint + build green.
 
 **Surprises:** (1) TypeORM `insert()` generics reject `Record<string,unknown>|null` jsonb payloads → switched audit writes to `create()+save()`. (2) Vitest/esbuild doesn't emit decorator metadata → all entity `@Column()`s now declare explicit types (also makes schema intent visible; keep this convention for every future entity).
+
+## 2026-07-15 — T0.6 Design tokens + packages/ui foundation ✅
+
+**Done:** `packages/ui` — `tokens.ts` transcribed exactly from the design handoff (core palette blue/green/gold/cyan + neutrals, Steel Blue sub-brand, Plus Jakarta Sans stacks, type scale, 4px spacing scale, radii, shadows, motion, layout) plus the domain status vocabulary (`unitStatusStyle`, `arrearsStyle` ramp). Components: Button (primary/secondary/danger/ghost, `pos` 48px variant), MoneyDisplay + `formatTzs` (integer-only, tabular-nums), StatusBadge (unit + arrears, bilingual), SerialChip (steel pill, copy + lookup), OfflineBar (queued=gold / conflicts=red, hidden when synced). Bilingual `i18n.ts` (Swahili-first). Plus Jakarta Sans variable TTFs bundled + `fonts.css` export (self-hosted for offline POS). ESLint rule bans raw hex in `apps/**` and ui components (tokens.ts is the sanctioned home). Back-office shell now renders a Showcase page (sw/en toggle); POS shell restyled from tokens.
+
+**Verified:** 4 token/i18n/format tests (20 total green); lint green; hex fixture file correctly rejected by the new rule ("Raw hex color…"); Chromium screenshots of the Showcase in both locales confirm palette, CTA shadow, tabular money alignment, status vocabulary incl. the 3-step arrears ramp, serial chips, offline bar.
+
+**Surprise:** a `*/` inside a doc-comment glob path terminated the comment block — reworded (watch for this in comments referencing glob paths).

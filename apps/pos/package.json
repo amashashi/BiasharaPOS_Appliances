@@ -2,7 +2,7 @@
   "name": "@biashara/pos",
   "version": "0.1.0",
   "private": true,
-  "description": "BiasharaPOS Appliances & Electronics — POS (offline-capable PWA)",
+  "description": "BiasharaPOS Appliances & Electronics \u2014 POS (offline-capable PWA)",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,8 @@
   "dependencies": {
     "@biashara/shared": "*",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@biashara/ui": "*"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

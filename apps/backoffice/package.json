@@ -2,7 +2,7 @@
   "name": "@biashara/backoffice",
   "version": "0.1.0",
   "private": true,
-  "description": "BiasharaPOS Appliances & Electronics \u2014 Back office",
+  "description": "BiasharaPOS Appliances & Electronics — Back office",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@biashara/shared": "*",
+    "@biashara/ui": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -19,6 +20,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "playwright-core": "^1.61.1",
     "vite": "^6.0.0",
     "vitest": "^3.0.0"
   }
