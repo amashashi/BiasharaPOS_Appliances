@@ -25,3 +25,15 @@
 **Done:** Synced the repo (47 tracked files) to `C:\BiasharaPOS_Appliances` (GitHub: amashashi/BiasharaPOS_Appliances) and committed there (`68a95fc`) on top of the repo's initial commit. Discovered the official **design handoff zip** in that folder; vendored it at `design-handoff/`; rewrote `DESIGN_SYSTEM.md` to v2 (Azure Blue primary, green CTA, gold accent, Plus Jakarta Sans; sub-brand Steel Blue + status vocabulary + green power-bolt mark ratified) → D-015. T0.6 must transcribe tokens from `design-handoff/_ds/*/tokens/*.css` and bundle the Plus Jakarta Sans TTFs.
 
 **Blocked on device:** `.git/index.lock` left behind on the device repo cannot be deleted through the bridge (no-delete limitation) — device-side git commits are blocked until the user deletes `C:\BiasharaPOS_Appliances\.git\index.lock` manually. Push to GitHub must also run from the user's machine (workspace VM has no network). Container repo remains the working copy; sync to device at checkpoints.
+
+## 2026-07-15 — GitHub push attempts + history hygiene (between T0.2 and T0.3)
+
+**Findings:** Sandbox GitHub gateway allows reads but binds writes to session-configured repos — pushes 403 regardless of PAT (user's token revoke-recommended; deleted from container). Device-folder `.git` further degraded (object store gutted, stale HEAD.lock) — declared dead; recovery = fresh `claude-history.bundle` placed in the folder (post-merge, corrected identities) + five PowerShell commands (delete 2 locks, fetch bundle, checkout -B, plain push). History rewritten once (user-authorized): all Claude commits now author+committer `noreply@anthropic.com`; user's `c7fe31c` untouched and merged in (no force-push needed). Remaining stop-hook "Unverified" flag is the unfixable missing-signature condition — accepted.
+
+## 2026-07-15 — T0.3 Platform adapter contracts + stubs ✅
+
+**Done:** Frozen contracts in `packages/shared/src/contracts.ts` (D-004): `FiscalService` (issueReceipt with idempotencyKey; TRA VFD receipt shape), `PaymentsService` (initiateMobileMoneyPush for MPESA/MIXX_BY_YAS/AIRTEL_MONEY + PaymentConfirmation webhook payload), `IdentityService` (verifyToken → AuthContext), `NotificationService` (sendSms templated, bilingual). Stub implementations in `apps/api/src/platform/stubs/` (sequential VFD numbers + idempotency + failNext() outage simulation; intent registry + webhook-style confirm/fail; HS256 JWT verify with sign() test helper; SMS send log). NestJS `PlatformModule` binds stubs via injection tokens (FISCAL_SERVICE etc.), imported by AppModule.
+
+**Verified:** 8 new contract tests + health test = 9/9 passing; shared + api builds green; lint green after excluding vendored `design-handoff/**` from ESLint (minified bundle was producing 1179 errors — config fix, not code).
+
+**Note:** contract shapes derived from ARCHITECTURE.md; confirm against real platform API docs before M5 swap-in (audit note in contracts.ts header).
