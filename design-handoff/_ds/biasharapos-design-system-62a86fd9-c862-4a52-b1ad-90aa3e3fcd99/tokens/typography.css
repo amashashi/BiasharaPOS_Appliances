@@ -1,0 +1,59 @@
+/* ============================================================
+   BiasharaPOS — Typography tokens
+   Typeface: Plus Jakarta Sans (one family, weights 300–800 + italic).
+   Headings are heavy (800) and tightly tracked; body is relaxed.
+   ============================================================ */
+
+:root {
+  /* ---- Families ---- */
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---- Weights ---- */
+  --fw-light:    300; /* @kind font */
+  --fw-regular:  400; /* @kind font */
+  --fw-medium:   500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold:     700; /* @kind font */
+  --fw-heavy:    800; /* @kind font */
+
+  /* ---- Type scale (px) ---- */
+  --fs-display:  76px;   /* hero brand lockup — clamp in use */
+  --fs-h1:       44px;   /* page / section hero */
+  --fs-h2:       32px;   /* section heading */
+  --fs-h3:       20px;   /* card / sub heading */
+  --fs-lead:     19px;   /* intro paragraph */
+  --fs-body:     15px;   /* default body */
+  --fs-body-lg:  16px;   /* comfortable body / buttons */
+  --fs-sm:       13px;   /* secondary / captions */
+  --fs-xs:       11.5px; /* eyebrows, badges, table headers */
+
+  /* ---- Line heights ---- */
+  --lh-tight:    1.04; /* @kind font */  /* display + headings */
+  --lh-snug:     1.32; /* @kind font */
+  --lh-body:     1.55; /* @kind font */
+  --lh-relaxed:  1.6; /* @kind font */
+
+  /* ---- Letter spacing ---- */
+  --ls-tight:    -0.03em; /* @kind font */  /* big display numbers */
+  --ls-heading:  -0.022em; /* @kind font */ /* h1–h3 */
+  --ls-normal:   0; /* @kind font */
+  --ls-eyebrow:  0.13em; /* @kind font */   /* uppercase eyebrows */
+  --ls-caps:     0.06em; /* @kind font */   /* uppercase table headers / labels */
+
+  /* ---- Semantic roles ---- */
+  --type-display-size:  var(--fs-display);
+  --type-display-weight: var(--fw-heavy);
+
+  --type-heading-weight: var(--fw-heavy);
+  --type-heading-ls:     var(--ls-heading);
+  --type-heading-lh:     var(--lh-tight);
+
+  --type-body-size:   var(--fs-body);
+  --type-body-weight: var(--fw-regular);
+  --type-body-lh:     var(--lh-body);
+
+  --type-eyebrow-size:   var(--fs-sm);
+  --type-eyebrow-weight: var(--fw-bold);
+  --type-eyebrow-ls:     var(--ls-eyebrow);
+}

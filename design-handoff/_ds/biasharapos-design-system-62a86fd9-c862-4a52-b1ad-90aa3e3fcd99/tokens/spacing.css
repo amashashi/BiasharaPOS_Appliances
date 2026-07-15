@@ -1,0 +1,51 @@
+/* ============================================================
+   BiasharaPOS — Spacing, radius, shadow & layout tokens
+   ============================================================ */
+
+:root {
+  /* ---- Spacing scale (4px base) ---- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;   /* section vertical rhythm */
+
+  /* ---- Radius ---- */
+  --r-xs:  6px;    /* badges, small chips, qty buttons */
+  --r-sm:  10px;   /* buttons, inputs, tiles */
+  --r:     16px;   /* cards, panels */
+  --r-lg:  26px;   /* feature panels, modals, dashboards */
+  --r-pill: 999px; /* pills, toggles, avatars */
+
+  /* ---- Border widths ---- */
+  --bw-hair: 1px;
+  --bw:      1.5px;  /* default control border */
+  --bw-strong: 2px;  /* active tab underline, emphasis */
+
+  /* ---- Shadow system (cool, low-spread, brand-tinted on lifts) ---- */
+  --sh-sm: 0 1px 2px rgba(18,32,25,.06), 0 1px 3px rgba(18,32,25,.05);
+  --sh-md: 0 10px 24px -12px rgba(18,32,25,.20), 0 2px 6px rgba(18,32,25,.05);
+  --sh-lg: 0 30px 70px -28px rgba(11,122,94,.40), 0 8px 24px -12px rgba(18,32,25,.14);
+  --sh-cta: 0 8px 20px -8px rgba(35,155,70,.6);     /* green action button */
+  --sh-modal: 0 20px 60px rgba(0,0,0,.2);            /* dialogs / login card */
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(.4, 0, .2, 1); /* @kind other */
+  --dur-fast: .15s; /* @kind other */
+  --dur:      .2s; /* @kind other */
+  --dur-slow: .45s; /* @kind other */
+  --lift: translateY(-2px); /* @kind other */   /* standard hover lift */
+
+  /* ---- Layout ---- */
+  --wrap: 1180px;       /* marketing content max-width */
+  --wrap-app: 1100px;   /* app content max-width */
+  --topbar-h: 52px;
+}

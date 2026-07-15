@@ -4,6 +4,15 @@
 
 ---
 
+### D-015 — Official design handoff supersedes v1 design assumptions
+**Date:** 2026-07-15 · **Mode:** Builder
+**Decision:** Adopted the design handoff bundle (found in the GitHub-linked project folder, now vendored at `design-handoff/`) as the canonical design source. Core corrections: Azure Blue `#0F5DA4` is primary brand (not green), green `#239B46` is CTA/money, gold `#E7A52C` accent, typeface Plus Jakarta Sans (not Inter; TTFs bundled, self-hosted for offline). Sub-brand extensions from v1 were ratified by the handoff and retained: Steel Blue `#1D6A96` accent, domain status-badge vocabulary, green power-bolt mark. `DESIGN_SYSTEM.md` rewritten as v2; T0.6 tokens must be transcribed from `design-handoff/_ds/*/tokens/*.css`.
+**Why:** The handoff is hifi and explicitly canonical ("logo-sampled website values"); building tokens from my earlier assumptions would have shipped a wrong-color product.
+**Rejected:** keeping v1 values (contradicts the real brand); mixing sources per component (drift).
+**Status:** active
+
+---
+
 ### D-014 — TypeORM + pg instead of Prisma
 **Date:** 2026-07-15 · **Mode:** Builder
 **Decision:** Data layer uses TypeORM with handwritten SQL migrations (runner scripts `migrate`/`migrate:down`/`seed`), `synchronize: false`.

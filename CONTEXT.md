@@ -20,3 +20,7 @@ Independent SaaS platform for appliance & electronics retailers in Tanzania, sha
 - TRA compliance answer on installment fiscalization (blocks T5.2 only).
 - Confirm core BiasharaPOS typeface (design system assumes Inter).
 - Dealer validation workstream (see brainstorm summary in claude.ai project).
+
+## Repo of record
+- GitHub: `amashashi/BiasharaPOS_Appliances`, working copy on the user's machine at `C:\BiasharaPOS_Appliances` (connected folder). Build in this container, sync + commit to the device folder at checkpoints (tar via SendUserFile → device_commit_files → device_bash extract). Device git is currently commit-blocked by a stale `.git/index.lock` the user must delete; pushes always run from the user's machine.
+- Canonical design source: `design-handoff/` (vendored zip). DESIGN_SYSTEM.md is v2, aligned to it.

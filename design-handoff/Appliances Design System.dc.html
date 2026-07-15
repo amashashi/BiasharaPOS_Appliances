@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/tokens/colors.css">
+<link rel="stylesheet" href="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/tokens/typography.css">
+<link rel="stylesheet" href="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/styles.css">
+<script src="_ds/biasharapos-design-system-62a86fd9-c862-4a52-b1ad-90aa3e3fcd99/_ds_bundle.js"></script>
+<style>
+  body{margin:0;background:#F6F8F7;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
+  a{color:#1D6A96;text-decoration:none;}
+  a:hover{color:#239B46;}
+  @keyframes bpBlink{0%,100%{opacity:1;}50%{opacity:.35;}}
+</style>
+</helmet>
+
+<div style="max-width:1080px;margin:0 auto;padding:0 24px 80px;font-size:16px;line-height:1.55;">
+
+  <!-- ============ HERO ============ -->
+  <header style="padding:56px 0 40px;">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <svg width="60" height="60" viewBox="0 0 48 48" aria-label="BiasharaPOS Appliances mark" style="display:block;flex:none;">
+        <rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/>
+        <path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
+        <path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div style="font-size:30px;font-weight:800;letter-spacing:-0.022em;line-height:1;color:#1F2937;">Biashara<span style="color:#239B46;">POS</span></div>
+        <div style="font-size:13px;font-weight:700;letter-spacing:0.16em;color:#1D6A96;margin-top:6px;">{{ descriptor }}</div>
+      </div>
+    </div>
+
+    <h1 style="font-size:44px;font-weight:800;letter-spacing:-0.03em;line-height:1.05;margin:32px 0 0;max-width:760px;text-wrap:balance;">Design system for the Appliances &amp; Electronics platform</h1>
+    <p style="font-size:19px;line-height:1.55;color:#45525e;max-width:640px;margin:16px 0 0;text-wrap:pretty;">Inherits the BiasharaPOS family — flat, minimal, card-based, primary brand green — and extends it with a Steel Blue vertical accent, a serialized-unit status vocabulary, and bilingual Swahili-first surfaces.</p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;">
+      <span style="display:inline-flex;align-items:center;gap:8px;background:#FEF6EC;color:#D97706;font-size:12px;font-weight:700;letter-spacing:0.02em;padding:6px 12px;border-radius:999px;"><span style="width:7px;height:7px;border-radius:999px;background:currentColor;"></span>Draft · pending approval</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #E5E7EB;color:#6B7280;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;">Updated 15/07/2026</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;background:#E9F6EE;color:#1B7A37;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;">Inherits BiasharaPOS core</span>
+    </div>
+  </header>
+
+  <!-- ============ 01 BRAND FOUNDATION ============ -->
+  <section style="margin-top:16px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">01</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Msingi wa chapa</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Brand foundation · inherited</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Family identity</div>
+        <div style="margin-top:8px;font-size:15px;color:#45525e;line-height:1.5;">Primary Biashara Green inherited unchanged. Flat, minimal, generous whitespace — no gradients, no skeuomorphism, no drop-shadow heaviness.</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Wordmark</div>
+        <div style="margin-top:10px;font-size:22px;font-weight:800;letter-spacing:-0.022em;">Biashara<span style="color:#239B46;">POS</span></div>
+        <div style="margin-top:8px;font-size:15px;color:#45525e;">Sub-brand adds a Steel Blue descriptor line (see §06).</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Voice</div>
+        <div style="margin-top:8px;font-size:15px;color:#45525e;line-height:1.5;">Professional, accessible, plain-spoken; Swahili-first friendly.</div>
+        <div style="margin-top:10px;font-size:13px;font-weight:700;letter-spacing:0.02em;color:#1D6A96;">Smart Business · Seamless Sales</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 COLOR TOKENS ============ -->
+  <section style="margin-top:56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">02</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Rangi</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Color tokens</div></div>
+    </div>
+
+    <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:4px 0 12px;">2.1 · Core palette</div>
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;">
+      <sc-for list="{{ coreColors }}" as="c" hint-placeholder-count="6">
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 18px;border-top:1px solid #F1F3F4;">
+          <span style="flex:none;width:44px;height:44px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:{{ c.hex }};"></span>
+          <div style="flex:none;width:150px;font-family:var(--font-mono);font-size:13px;font-weight:600;color:#1F2937;">{{ c.token }}</div>
+          <div style="flex:none;width:90px;font-family:var(--font-mono);font-size:13px;color:#6B7280;font-variant-numeric:tabular-nums;">{{ c.hex }}</div>
+          <div style="font-size:14px;color:#45525e;">{{ c.usage }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px;">
+      <div>
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:0 0 12px;">2.2 · Semantic</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ semanticColors }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;">
+              <span style="flex:none;width:32px;height:32px;border-radius:8px;background:{{ s.hex }};"></span>
+              <div style="flex:1;"><div style="font-family:var(--font-mono);font-size:13px;font-weight:600;">{{ s.token }}</div><div style="font-size:13px;color:#6B7280;">{{ s.usage }}</div></div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:#6B7280;font-variant-numeric:tabular-nums;">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:0 0 12px;">Accent — the sub-brand flourish</div>
+        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+          <div style="{{ accentStyle }}"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">
+            <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;">color.accent</div>
+            <div style="font-family:var(--font-mono);font-size:13px;color:#6B7280;">#1D6A96</div>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#1D6A96;margin-top:4px;">Steel Blue</div>
+          <div style="font-size:14px;color:#45525e;margin-top:10px;line-height:1.5;">Vertical identity, serial &amp; tech accents, category chips, illustration line color. The one differentiating flourish beside the inherited green.</div>
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <span style="flex:1;height:36px;border-radius:8px;background:#E8F1F7;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:#1D6A96;">accent.tint</span>
+            <span style="flex:1;height:36px;border-radius:8px;background:#7FB6D9;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--font-mono);color:#0a3a6b;">60% (dark)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.3 Signature status vocabulary -->
+    <div style="margin-top:36px;background:linear-gradient(180deg,#fff,#FBFDFC);border:1px solid #E5E7EB;border-radius:26px;padding:28px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-flex;align-items:center;gap:7px;background:#E8F1F7;color:#1D6A96;font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:5px 11px;border-radius:999px;">Signature UI</span>
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">2.3 · Domain status colors</div>
+      </div>
+      <h3 style="margin:14px 0 4px;font-size:20px;font-weight:800;letter-spacing:-0.02em;">One status language across POS, back office &amp; reports</h3>
+      <p style="margin:0;font-size:15px;color:#45525e;max-width:640px;">Serialized-unit states and money states get fixed badge colors — staff learn the vocabulary once. Color is never the only signal: every badge pairs a tint with an icon and a bilingual label.</p>
+
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:24px 0 12px;">Unit states — SerializedUnit.status</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <!-- IN_STOCK -->
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#E9F6EE;color:#1B7A37;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:999px;background:currentColor;"></span>STOKINI · In stock</span>
+        <!-- RESERVED -->
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:999px;background:currentColor;"></span>IMEHIFADHIWA · Reserved</span>
+        <!-- SOLD -->
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#F3F4F6;color:#1F2937;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:999px;background:currentColor;"></span>IMEUZWA · Sold</span>
+        <!-- DELIVERED -->
+        <span style="display:inline-flex;align-items:center;gap:7px;background:#239B46;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>IMEFIKISHWA · Delivered</span>
+        <!-- RETURNED/FAILED -->
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#FEF2F2;color:#DC2626;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>IMERUDISHWA · Returned</span>
+      </div>
+
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:26px 0 12px;">Arrears severity — escalating ramp</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#FEF6EC;color:#D97706;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;font-variant-numeric:tabular-nums;">Siku 3 · 1–7 days late</span>
+        <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"><path d="M2 6h14m0 0-4-4m4 4-4 4"/></svg>
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#FEF2F2;color:#DC2626;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;font-variant-numeric:tabular-nums;">Siku 14 · 8–30 days</span>
+        <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"><path d="M2 6h14m0 0-4-4m4 4-4 4"/></svg>
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#DC2626;color:#fff;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;font-variant-numeric:tabular-nums;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 8v5M12 16.5v.5"/><path d="M10.3 3.9 2.6 17.4a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Siku 45 · Overdue</span>
+      </div>
+
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin:26px 0 12px;">Connectivity</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#FEF6EC;color:#D97706;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:999px;background:currentColor;animation:bpBlink 1.6s var(--ease) infinite;"></span>Inasubiri mtandao · Queued</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#E9F6EE;color:#1B7A37;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Imesawazishwa · Synced</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 TYPOGRAPHY ============ -->
+  <section style="margin-top:56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">03</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Maandishi</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Typography · follows the core family, Plus Jakarta Sans</div></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:8px 24px;">
+      <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="5">
+        <div style="display:flex;align-items:baseline;gap:20px;padding:16px 0;border-top:1px solid #F1F3F4;">
+          <div style="flex:none;width:120px;"><div style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:#1F2937;">{{ t.token }}</div><div style="font-family:var(--font-mono);font-size:11px;color:#6B7280;">{{ t.spec }}</div></div>
+          <div style="{{ t.style }}">{{ t.sample }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Money — tabular</div>
+        <div style="font-size:32px;font-weight:800;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#239B46;margin-top:8px;">TZS 1,250,000</div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-top:10px;font-variant-numeric:tabular-nums;font-weight:600;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:#6B7280;">Malipo</span><span style="color:#239B46;">TZS&nbsp;&nbsp;&nbsp;850,000</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#6B7280;">Salio</span><span style="color:#DC2626;">TZS&nbsp;&nbsp;&nbsp;400,000</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#6B7280;">Ada</span><span style="color:#9CA3AF;">TZS&nbsp;&nbsp;&nbsp;&nbsp;25,000</span></div>
+        </div>
+        <div style="font-size:13px;color:#6B7280;margin-top:10px;">Integer, comma-grouped, TZS prefix — never decimals. Amounts align in columns.</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Serials — tabular, mono-feel</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:600;letter-spacing:0.02em;font-variant-numeric:tabular-nums;margin-top:12px;color:#1F2937;">SAM-7742-QLED-0192</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:600;letter-spacing:0.02em;font-variant-numeric:tabular-nums;margin-top:4px;color:#1F2937;">LG--4410-INV--8830</div>
+        <div style="font-size:13px;color:#6B7280;margin-top:12px;">Rendered with a copy affordance wherever they appear (see SerialChip, §05).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 SPACING / SHAPE / ELEVATION ============ -->
+  <section style="margin-top:56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">04</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Nafasi, umbo, kivuli</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Spacing · shape · elevation</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Spacing · 4px base</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;margin-top:16px;height:52px;">
+          <sc-for list="{{ spacingScale }}" as="sp" hint-placeholder-count="7">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;"><span style="width:12px;background:#1D6A96;border-radius:3px;height:{{ sp.h }};"></span><span style="font-size:10px;color:#9CA3AF;font-variant-numeric:tabular-nums;">{{ sp.v }}</span></div>
+          </sc-for>
+        </div>
+        <div style="font-size:13px;color:#6B7280;margin-top:14px;">Cards pad 16 · page gutters 24.</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Radius ladder</div>
+        <div style="display:flex;gap:12px;margin-top:16px;align-items:flex-end;">
+          <div style="text-align:center;"><div style="width:52px;height:52px;background:#E8F1F7;border:1.5px solid #1D6A96;border-radius:6px;"></div><div style="font-size:11px;color:#6B7280;margin-top:6px;">sm 6</div></div>
+          <div style="text-align:center;"><div style="width:52px;height:52px;background:#E8F1F7;border:1.5px solid #1D6A96;border-radius:10px;"></div><div style="font-size:11px;color:#6B7280;margin-top:6px;">md 10</div></div>
+          <div style="text-align:center;"><div style="width:52px;height:52px;background:#E8F1F7;border:1.5px solid #1D6A96;border-radius:16px;"></div><div style="font-size:11px;color:#6B7280;margin-top:6px;">lg 16</div></div>
+        </div>
+        <div style="font-size:13px;color:#6B7280;margin-top:16px;">Inputs &amp; badges 6 · cards &amp; buttons 10 · sheets 16.</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Elevation · two levels</div>
+        <div style="display:flex;gap:14px;margin-top:18px;">
+          <div style="text-align:center;"><div style="width:64px;height:48px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;"></div><div style="font-size:11px;color:#6B7280;margin-top:8px;">Flat</div></div>
+          <div style="text-align:center;"><div style="width:64px;height:48px;background:#fff;border-radius:10px;box-shadow:0 4px 16px rgba(31,41,55,0.12);"></div><div style="font-size:11px;color:#6B7280;margin-top:8px;">Raised</div></div>
+        </div>
+        <div style="font-size:13px;color:#6B7280;margin-top:18px;">Flat = border, no shadow. Raised = dialogs &amp; sheets only. Nothing else — the brand is flat.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 COMPONENTS ============ -->
+  <section style="margin-top:56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">05</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Vipengele</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Core components · packages/ui</div></div>
+    </div>
+
+    <!-- Buttons (live DS) -->
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;">
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:16px;">Button · primary green commits · ≥48px POS variant</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="primary" size="lg" hint-size="auto,52px">Kamilisha malipo</x-import>
+        <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="secondary" hint-size="auto,44px">Angalia stoku</x-import>
+        <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="ghost" hint-size="auto,44px">Ghairi</x-import>
+        <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="danger" hint-size="auto,44px">Futa makubaliano</x-import>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <!-- SerialChip -->
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:16px;">SerialChip · copy + lookup on tap</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+          <span style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #E5E7EB;border-radius:8px;padding:8px 10px;font-family:var(--font-mono);font-size:14px;font-weight:600;color:#1F2937;font-variant-numeric:tabular-nums;">
+            SAM-7742-QLED-0192
+            <button onClick="{{ copySerialA }}" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:none;background:#E8F1F7;color:#1D6A96;border-radius:6px;cursor:pointer;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
+          </span>
+          <sc-if value="{{ copiedA }}" hint-placeholder-val="{{ false }}">
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#1B7A37;font-size:13px;font-weight:700;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Imenakiliwa</span>
+          </sc-if>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.02em;color:#6B7280;margin-bottom:6px;">Scan-input variant</div>
+          <div style="display:flex;align-items:center;gap:10px;border:1.5px solid #1D6A96;border-radius:10px;padding:10px 12px;background:#fff;box-shadow:0 0 0 3px rgba(29,106,150,0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D6A96" stroke-width="1.9" stroke-linecap="round"><path d="M4 6v12M7.5 6v12M11 6v12M14 6v12M17 6v12M20 6v12"/></svg>
+            <span style="font-family:var(--font-mono);font-size:14px;color:#9CA3AF;">Changanua barcode…</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- StatusBadge in a ListRow context -->
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:12px;">ListRow · stock &amp; units</div>
+        <div style="display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #F1F3F4;">
+            <div style="flex:1;"><div style="font-weight:600;">Samsung QLED 55&quot;</div><div style="font-family:var(--font-mono);font-size:12px;color:#6B7280;">SAM-7742-QLED-0192</div></div>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#E9F6EE;color:#1B7A37;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;"><span style="width:7px;height:7px;border-radius:999px;background:currentColor;"></span>Stokini</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #F1F3F4;">
+            <div style="flex:1;"><div style="font-weight:600;">LG Inverter Fridge</div><div style="font-family:var(--font-mono);font-size:12px;color:#6B7280;">LG--4410-INV--8830</div></div>
+            <span style="display:inline-flex;align-items:center;gap:7px;background:#E8F1F7;color:#1D6A96;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;"><span style="width:7px;height:7px;border-radius:999px;background:currentColor;"></span>Imehifadhiwa</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #F1F3F4;">
+            <div style="flex:1;"><div style="font-weight:600;">Hisense Gas Cooker</div><div style="font-family:var(--font-mono);font-size:12px;color:#6B7280;">HIS-2201-GAS--0034</div></div>
+            <span style="display:inline-flex;align-items:center;gap:6px;background:#239B46;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Imefikishwa</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ScheduleTable -->
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;margin-top:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">ScheduleTable · ratiba ya malipo (installments)</div>
+        <div style="font-size:13px;color:#6B7280;">Samsung QLED 55&quot; · {{ merchantName }}</div>
+      </div>
+      <div style="overflow:hidden;border:1px solid #F1F3F4;border-radius:10px;">
+        <div style="display:grid;grid-template-columns:1.1fr 1fr 1.2fr 1fr;background:#F6F8F7;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">
+          <div style="padding:10px 14px;">Tarehe · Due</div>
+          <div style="padding:10px 14px;text-align:right;">Kiasi · Amount</div>
+          <div style="padding:10px 14px;">Hali · Status</div>
+          <div style="padding:10px 14px;">Kwa · Paid with</div>
+        </div>
+        <sc-for list="{{ schedule }}" as="r" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:1.1fr 1fr 1.2fr 1fr;align-items:center;border-top:1px solid #F1F3F4;font-size:14px;">
+            <div style="padding:12px 14px;font-variant-numeric:tabular-nums;color:#1F2937;">{{ r.due }}</div>
+            <div style="padding:12px 14px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;">{{ r.amount }}</div>
+            <div style="padding:12px 14px;"><span style="{{ r.badgeStyle }}"><span style="width:6px;height:6px;border-radius:999px;background:currentColor;"></span>{{ r.status }}</span></div>
+            <div style="padding:12px 14px;color:#6B7280;">{{ r.method }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+      <!-- PaymentMethodPicker -->
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:14px;">PaymentMethodPicker</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px;border:1.5px solid #239B46;background:#E9F6EE;border-radius:10px;cursor:pointer;">
+            <span style="font-weight:700;color:#1B7A37;">Taslimu</span><span style="font-size:12px;color:#1B7A37;">Cash</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;">
+            <span style="font-weight:700;">M-Pesa</span><span style="font-size:12px;color:#6B7280;">Vodacom</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;">
+            <span style="font-weight:700;">Mixx by Yas</span><span style="font-size:12px;color:#6B7280;">Tigo</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:14px;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;">
+            <span style="font-weight:700;">Airtel Money</span><span style="font-size:12px;color:#6B7280;">Airtel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dialog / destructive -->
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:20px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:14px;">Dialog · destructive = red + verb</div>
+        <div style="border:1px solid #E5E7EB;border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(31,41,55,0.12);">
+          <div style="font-size:18px;font-weight:800;letter-spacing:-0.02em;">Futa makubaliano?</div>
+          <div style="font-size:14px;color:#45525e;margin-top:6px;line-height:1.5;">Ratiba ya malipo ya Samsung QLED itafutwa. Kitendo hiki hakiwezi kutenduliwa.</div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="ghost" hint-size="auto,44px">Ghairi</x-import>
+            <x-import component-from-global-scope="BiasharaPOSDesignSystem_62a86f.Button" variant="danger" hint-size="auto,44px">Futa makubaliano</x-import>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OfflineBar -->
+    <div style="margin-top:16px;">
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:10px;">OfflineBar · global connectivity strip</div>
+      <div style="display:flex;align-items:center;gap:10px;background:#FEF6EC;border:1px solid #F5D9A8;color:#B45309;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;">
+        <span style="width:9px;height:9px;border-radius:999px;background:#D97706;animation:bpBlink 1.6s var(--ease) infinite;flex:none;"></span>
+        Inasubiri mtandao — mauzo 3 yamesubiri kupakiwa
+        <span style="color:#92702c;font-weight:500;">· 3 sales queued, will sync when back online</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 LOGO ============ -->
+  <section style="margin-top:56px;">
+    <div style="display:flex;align-items:baseline;gap:12px;margin:0 0 20px;">
+      <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">06</span>
+      <div><h2 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.022em;">Nembo</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Sub-brand identity · logo &amp; lockups</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:28px;display:flex;flex-direction:column;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;">Lockup · on light</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 0;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <svg width="52" height="52" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><div style="font-size:24px;font-weight:800;letter-spacing:-0.022em;line-height:1;">Biashara<span style="color:#239B46;">POS</span></div><div style="font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1D6A96;margin-top:5px;">{{ descriptor }}</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#13202c;border:1px solid #13202c;border-radius:16px;padding:28px;display:flex;flex-direction:column;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8a97a3;">Lockup · on dark</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 0;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <svg width="52" height="52" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div><div style="font-size:24px;font-weight:800;letter-spacing:-0.022em;line-height:1;color:#fff;">Biashara<span style="color:#fff;">POS</span></div><div style="font-size:11px;font-weight:700;letter-spacing:0.16em;color:#7FB6D9;margin-top:5px;">{{ descriptor }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:16px;">
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:14px;">Icon sizes</div>
+        <div style="display:flex;align-items:flex-end;gap:16px;">
+          <svg width="24" height="24" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="36" height="36" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="48" height="48" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div style="font-size:13px;color:#6B7280;margin-top:14px;">Min 24px. Lockup min width 140px.</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B7280;margin-bottom:12px;">Usage rules</div>
+        <ul style="margin:0;padding-left:18px;font-size:14px;color:#45525e;line-height:1.6;">
+          <li>Descriptor always Steel Blue, letter-spaced caps.</li>
+          <li>On dark: wordmark → white, descriptor → #7FB6D9.</li>
+          <li>Icon stays green with white glyph.</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:18px;">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#DC2626;margin-bottom:12px;">Never</div>
+        <ul style="margin:0;padding-left:18px;font-size:14px;color:#45525e;line-height:1.6;">
+          <li>Gradients, shadows, or outlines on the mark.</li>
+          <li>Stretching or recoloring the descriptor.</li>
+          <li>Green icon on clashing color fields.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 & 08 ============ -->
+  <section style="margin-top:56px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:22px;">
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;">
+        <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">07</span>
+        <div><h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.022em;">Ufikivu &amp; lugha</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Accessibility &amp; localization</div></div>
+      </div>
+      <ul style="margin:0;padding-left:18px;font-size:14px;color:#45525e;line-height:1.65;">
+        <li>All text ≥ 4.5:1 contrast; body on green uses white.</li>
+        <li>Swahili is first-class — labels sized for Swahili length first.</li>
+        <li>Date format dd/MM/yyyy; templates authored in both languages.</li>
+        <li>Full keyboard in back office; touch + barcode scanner at POS.</li>
+        <li>Color is never the only signal — badges pair tint + icon + label.</li>
+      </ul>
+    </div>
+    <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:22px;">
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;">
+        <span style="flex:none;min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#E8F1F7;color:#1D6A96;font-size:13px;font-weight:800;border-radius:8px;font-variant-numeric:tabular-nums;">08</span>
+        <div><h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.022em;">Utawala</h2><div style="font-size:13px;color:#6B7280;font-weight:600;">Governance</div></div>
+      </div>
+      <ul style="margin:0;padding-left:18px;font-size:14px;color:#45525e;line-height:1.65;">
+        <li>Tokens live in <span style="font-family:var(--font-mono);font-size:13px;">packages/ui/tokens.ts</span> — no hex literals in feature code.</li>
+        <li>Inherited core palette changes need core brand-owner sign-off.</li>
+        <li>Sub-brand tokens (accent, domain statuses) owned by this product.</li>
+        <li>New components ship with both locales and both surfaces considered.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer style="margin-top:48px;padding-top:24px;border-top:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="28" height="28" viewBox="0 0 48 48"><rect x="2" y="2" width="44" height="44" rx="12" fill="#239B46"/><path d="M15.5 16.2a12 12 0 1 0 17 0" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/><path d="M24.5 9 L22 18.5 L25.4 18 L23 27" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size:13px;color:#6B7280;">BiasharaPOS Appliances &amp; Electronics — design system draft</span>
+    </div>
+    <span style="font-size:13px;color:#9CA3AF;">Smart Business · Seamless Sales</span>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1160,&quot;height&quot;:900},&quot;descriptor&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;APPLIANCES &amp; ELECTRONICS&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sub-brand&quot;},&quot;merchantName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Umeme Bora Electronics&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sub-brand&quot;},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#1D6A96&quot;,&quot;options&quot;:[&quot;#1D6A96&quot;,&quot;#0f5da4&quot;,&quot;#1B6E7A&quot;,&quot;#2C5F8A&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sub-brand&quot;}}">
+class Component extends DCLogic {
+  state = { copied: false };
+  copy() {
+    try { navigator.clipboard && navigator.clipboard.writeText("SAM-7742-QLED-0192"); } catch (e) {}
+    this.setState({ copied: true });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ copied: false }), 1600);
+  }
+  renderVals() {
+    const p = this.props;
+    const badgeBase = { display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: 700, padding: "5px 11px", borderRadius: "999px" };
+    const green = { ...badgeBase, background: "#E9F6EE", color: "#1B7A37" };
+    const warn = { ...badgeBase, background: "#FEF6EC", color: "#D97706" };
+    const danger = { ...badgeBase, background: "#FEF2F2", color: "#DC2626" };
+    const sampleBase = { flex: 1, color: "#1F2937", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
+    return {
+      descriptor: p.descriptor ?? "APPLIANCES & ELECTRONICS",
+      merchantName: p.merchantName ?? "Umeme Bora Electronics",
+      accentStyle: { height: "88px", borderRadius: "12px", background: p.accentColor ?? "#1D6A96" },
+      copiedA: this.state.copied,
+      copySerialA: () => this.copy(),
+      coreColors: [
+        { token: "color.primary", hex: "#239B46", usage: "Primary actions, active states, brand moments" },
+        { token: "color.primary.dark", hex: "#1B7A37", usage: "Hover / pressed, receipt headers" },
+        { token: "color.primary.tint", hex: "#E9F6EE", usage: "Selected rows, subtle highlights, success bg" },
+        { token: "color.accent", hex: "#1D6A96", usage: "Steel Blue — sub-brand accent, serial/tech UI" },
+        { token: "color.accent.tint", hex: "#E8F1F7", usage: "Accent backgrounds" },
+        { token: "color.ink", hex: "#1F2937", usage: "Primary text" },
+        { token: "color.ink.muted", hex: "#6B7280", usage: "Secondary text, labels" },
+        { token: "color.background", hex: "#F6F8F7", usage: "App canvas" },
+        { token: "color.border", hex: "#E5E7EB", usage: "Dividers, input borders" },
+      ],
+      semanticColors: [
+        { token: "color.success", hex: "#239B46", usage: "Payments confirmed, delivery done" },
+        { token: "color.warning", hex: "#D97706", usage: "Due soon, pending sync, aging stock" },
+        { token: "color.danger", hex: "#DC2626", usage: "Overdue, failed fiscalization, conflicts" },
+        { token: "color.info", hex: "#1D6A96", usage: "Informational banners (reuses accent)" },
+      ],
+      typeScale: [
+        { token: "type.display", spec: "28/36 · 700", sample: "Ripoti ya mauzo", style: { ...sampleBase, fontSize: "28px", fontWeight: 800, letterSpacing: "-0.03em" } },
+        { token: "type.heading", spec: "20/28 · 600", sample: "Ratiba ya malipo", style: { ...sampleBase, fontSize: "20px", fontWeight: 700, letterSpacing: "-0.022em" } },
+        { token: "type.body", spec: "16/24 · 400", sample: "Malizia mauzo na uchapishe risiti ya VFD.", style: { ...sampleBase, fontSize: "16px", fontWeight: 400 } },
+        { token: "type.label", spec: "13 · 500 · +.02em", sample: "NAMBA YA SERIALI", style: { ...sampleBase, fontSize: "13px", fontWeight: 600, letterSpacing: "0.02em" } },
+        { token: "type.numeric", spec: "tabular-nums · 600", sample: "TZS 1,250,000", style: { ...sampleBase, fontSize: "24px", fontWeight: 600, fontVariantNumeric: "tabular-nums" } },
+      ],
+      spacingScale: [
+        { v: "4", h: "6px" }, { v: "8", h: "11px" }, { v: "12", h: "16px" },
+        { v: "16", h: "22px" }, { v: "24", h: "32px" }, { v: "32", h: "42px" }, { v: "48", h: "52px" },
+      ],
+      schedule: [
+        { due: "15/06/2026", amount: "TZS 250,000", status: "Imelipwa · Paid", method: "M-Pesa", badgeStyle: green },
+        { due: "15/07/2026", amount: "TZS 250,000", status: "Imelipwa · Paid", method: "Taslimu", badgeStyle: green },
+        { due: "15/08/2026", amount: "TZS 250,000", status: "Siku 3 · Due soon", method: "—", badgeStyle: warn },
+        { due: "15/09/2026", amount: "TZS 250,000", status: "Inasubiri · Upcoming", method: "—", badgeStyle: danger },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

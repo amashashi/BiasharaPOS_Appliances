@@ -1,0 +1,24 @@
+/* ============================================================
+   BiasharaPOS — Webfont (self-hosted)
+   Plus Jakarta Sans is the single brand typeface. Shipped here as
+   the two variable fonts (upright + italic), covering weights
+   200–800. Binaries live in assets/fonts/.
+   ============================================================ */
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("../assets/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype-variations"),
+       url("../assets/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("../assets/fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf") format("truetype-variations"),
+       url("../assets/fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}

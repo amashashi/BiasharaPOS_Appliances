@@ -1,0 +1,82 @@
+/* ============================================================
+   BiasharaPOS — Color tokens
+   Brand palette sampled from the logo: azure blue, emerald green,
+   warm gold. Cool neutrals chosen to sit calmly beside the blue.
+   ============================================================ */
+
+:root {
+  /* ---- Brand: Blue (dominant brand color — "Biashara") ---- */
+  --blue:     #0f5da4;   /* azure — primary brand, headers, links */
+  --blue-d:   #0c4a85;
+  --blue-dd:  #0a3a6b;
+  --blue-100: #cfe1f4;
+  --blue-50:  #e8f1fa;
+
+  /* ---- Brand: Green (action / money / "Smart Business") ---- */
+  --green:    #239b46;   /* emerald — primary CTA, profit, success */
+  --green-d:  #1b7c34;
+  --green-dd: #145f28;
+  --green-100:#cce9d4;
+  --green-50: #e8f6ec;
+
+  /* ---- Brand: Cyan (gradient companion) ---- */
+  --cyan:     #2faee4;   /* bright sky — used inside brand gradients */
+
+  /* ---- Brand: Gold (accent — "POS" / upward arrow) ---- */
+  --gold:     #e7a52c;   /* warm gold — highlights, "popular", arrows */
+  --gold-l:   #f4b53e;
+  --gold-50:  #fdf3e1;
+
+  /* ---- Semantic status ---- */
+  --amber:    #ba7517;   /* warning text / in-progress */
+  --red:      #d85a30;   /* destructive / error / refunds */
+  --red-50:   #fef2f2;
+
+  /* ---- Neutrals (cool, to sit with the blue) ---- */
+  --ink:      #13202c;   /* primary text, dark footer */
+  --ink-2:    #45525e;   /* secondary text, body copy */
+  --ink-3:    #7a8590;   /* muted / captions / placeholders */
+  --bg:       #f6f8fb;   /* app background */
+  --surface:  #ffffff;   /* cards, sheets, panels */
+  --tint:     #eef4f6;   /* soft blue-green wash section bg */
+  --line:     #e4e8ee;   /* hairline borders */
+  --line-2:   #d4dae2;   /* stronger borders, inputs */
+
+  /* ============================================================
+     Semantic aliases — prefer these in components
+     ============================================================ */
+  --brand-primary:        var(--blue);
+  --brand-secondary:      var(--green);
+  --brand-accent:         var(--gold);
+
+  --text-strong:          var(--ink);
+  --text-body:            var(--ink-2);
+  --text-muted:           var(--ink-3);
+  --text-on-brand:        #ffffff;
+
+  --surface-page:         var(--bg);
+  --surface-card:         var(--surface);
+  --surface-sunken:       var(--tint);
+
+  --border-subtle:        var(--line);
+  --border-strong:        var(--line-2);
+
+  --action-primary:       var(--green);   /* charge / save / confirm */
+  --action-primary-hover: var(--green-d);
+  --action-secondary:     var(--blue);    /* nav / links / secondary */
+  --focus-ring:           var(--green);
+
+  --success:              var(--green);
+  --success-bg:           var(--green-50);
+  --warning:              var(--amber);
+  --warning-bg:           var(--gold-50);
+  --danger:               var(--red);
+  --danger-bg:            var(--red-50);
+  --info:                 var(--blue);
+  --info-bg:              var(--blue-50);
+
+  /* ---- Signature brand gradients ---- */
+  --grad-brand:  linear-gradient(125deg, var(--blue-dd) 0%, var(--blue-d) 38%, var(--green-d) 100%);
+  --grad-hero:   linear-gradient(100deg, var(--blue) 0%, var(--cyan) 45%, var(--green) 100%);
+  --grad-profit: linear-gradient(150deg, var(--green) 0%, var(--green-dd) 100%);
+}
