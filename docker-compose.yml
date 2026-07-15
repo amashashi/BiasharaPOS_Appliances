@@ -1,0 +1,28 @@
+# Local development stack. In the build sandbox the docker daemon is unavailable;
+# CI and developer machines use this, the sandbox verifies with local processes.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: biashara_appliances
+      POSTGRES_USER: biashara
+      POSTGRES_PASSWORD: biashara
+    ports:
+      - '5432:5432'
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://biashara:biashara@db:5432/biashara_appliances
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+
+volumes:
+  dbdata:

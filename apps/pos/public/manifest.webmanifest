@@ -1,0 +1,9 @@
+{
+  "name": "BiasharaPOS Appliances & Electronics",
+  "short_name": "Biashara A&E",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F8F7",
+  "theme_color": "#239B46",
+  "icons": []
+}
