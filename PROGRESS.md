@@ -37,3 +37,9 @@
 **Verified:** 8 new contract tests + health test = 9/9 passing; shared + api builds green; lint green after excluding vendored `design-handoff/**` from ESLint (minified bundle was producing 1179 errors — config fix, not code).
 
 **Note:** contract shapes derived from ARCHITECTURE.md; confirm against real platform API docs before M5 swap-in (audit note in contracts.ts header).
+
+## 2026-07-15 — T0.4 Auth middleware + role guards ✅
+
+**Done:** Global `AuthGuard` (APP_GUARD in AppModule): validates `Authorization: Bearer` JWTs through the `IDENTITY_SERVICE` port, attaches `AuthContext` to the request (`AuthedRequest`), enforces `@Roles(...)` metadata (OWNER/CASHIER/DELIVERY), `@Public()` opt-out used on the healthcheck. Decorators in `src/auth/decorators.ts`.
+
+**Verified:** 4 integration tests (supertest against a real Nest app): public route 200 with no token; missing/garbage token 401; valid token attaches merchantId/userId; cashier 403 on @Roles('OWNER') route while owner 200. Full suite 13/13; lint green; live smoke test confirms `/api/health` still public on the built app.
