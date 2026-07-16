@@ -25,7 +25,9 @@ export interface ImportReport {
   errors: ImportRowError[];
 }
 
-const CSV_COLUMNS = ['sku', 'brand', 'model', 'category', 'taxCode', 'priceTzs', 'costTzs'];
+const CSV_COLUMNS = [
+  'sku', 'brand', 'model', 'category', 'taxCode', 'priceTzs', 'costTzs', 'isSerialized',
+];
 const CSV_REQUIRED = ['brand', 'model', 'category', 'priceTzs'];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -79,6 +81,23 @@ export class CatalogService {
     if (errors.length) throw new BadRequestException({ message: 'Validation failed', errors });
     if (value.sku !== undefined && value.sku !== product.sku) {
       await this.assertSkuFree(merchantId, value.sku);
+    }
+    if (value.isSerialized !== undefined && value.isSerialized !== product.isSerialized) {
+      // the two stock models don't convert — existing units/levels would be orphaned
+      const [{ n }] = (await this.ds.query(
+        `SELECT (SELECT COUNT(*) FROM serialized_units WHERE "productId" = $1)
+              + (SELECT COUNT(*) FROM stock_levels     WHERE "productId" = $1) AS n`,
+        [product.id],
+      )) as [{ n: string }];
+      if (Number(n) > 0) {
+        throw new BadRequestException({
+          message: 'Validation failed',
+          errors: [{
+            field: 'isSerialized',
+            message: 'cannot change isSerialized once the product has stock history',
+          }],
+        });
+      }
     }
     return this.repo.save(this.repo.merge(product, value));
   }

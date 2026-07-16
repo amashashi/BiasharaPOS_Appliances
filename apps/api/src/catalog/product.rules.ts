@@ -13,6 +13,7 @@ export interface ProductInput {
   taxCode: TaxCode;
   priceTzs: Tzs;
   costTzs: Tzs | null;
+  isSerialized: boolean;
 }
 
 const LIMITS = { sku: 64, brand: 120, model: 120, category: 80 } as const;
@@ -78,6 +79,23 @@ export function validateProductInput(
         message: 'priceTzs must be a positive whole number of TZS (no decimals or separators)',
       });
     } else value.priceTzs = n;
+  }
+
+  if (present('isSerialized')) {
+    const v = raw.isSerialized;
+    const s = typeof v === 'string' ? v.trim().toLowerCase() : v;
+    if (s === true || s === 'true' || s === 'yes' || s === '1') value.isSerialized = true;
+    else if (s === false || s === 'false' || s === 'no' || s === '0') value.isSerialized = false;
+    else if (s === '' || s === null || s === undefined) {
+      if (!opts.partial) value.isSerialized = true; // blank CSV cell → serialized
+    } else {
+      errors.push({
+        field: 'isSerialized',
+        message: 'isSerialized must be true/false (also accepts yes/no, 1/0)',
+      });
+    }
+  } else if (!opts.partial) {
+    value.isSerialized = true;
   }
 
   if (present('costTzs')) {
