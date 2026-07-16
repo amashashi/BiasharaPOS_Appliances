@@ -4,6 +4,15 @@
 
 ---
 
+### D-024 — Post-merge migrations to Neon dev + prod are standing policy; prod is up-only
+**Date:** 2026-07-16 · **Mode:** Builder (product-owner decision)
+**Decision:** After every merge that adds migrations, apply them to both Neon branches: `npm run migrate -w apps/api` (dev) then `npm run migrate:prod -w apps/api`. The prod runner reads `PROD_DATABASE_URL` from the gitignored `apps/api/.env` and only runs UP — there is deliberately no prod down-runner (schema rollbacks in prod are reversing migrations, same philosophy as the money ledger).
+**Why:** Owner instruction (2026-07-16) after twice approving prod migrations manually; keeping both branches schema-current pre-launch removes a whole class of deploy-day surprises. Storing the prod URL in the local gitignored env beats keeping a Neon API key around (narrower capability: one database vs. the whole account).
+**Rejected:** re-fetching the URL per run via Neon API key (key is account-wide and shouldn't live on disk); migrating prod only at deploy time (schema drift accumulates); committing the URL anywhere (never).
+**Status:** active
+
+---
+
 ### D-023 — Quote/receipt PDFs via pdfkit; API consumes design tokens through a subpath export
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** Document rendering (T2.1 quote, later T2.4 receipts / T3.5 statements) uses `pdfkit` (pure JS, no native binaries or headless browser). Brand values come from the new `@biashara/ui/tokens` subpath export — tokens only, so the API respects the hex ban without pulling React from the ui package's main entry. PDFs are generated uncompressed (`compress:false`) — negligible size, and content stays assertable in tests. Branding placeholder = brand bar + wordmark text in canonical colors; the drawn logo mark joins at T2.4.

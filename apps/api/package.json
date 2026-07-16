@@ -11,6 +11,7 @@
     "test": "vitest run --passWithNoTests",
     "migrate": "node dist/db/migrate.js up",
     "migrate:down": "node dist/db/migrate.js down",
+    "migrate:prod": "node --env-file-if-exists=.env dist/db/migrate-prod.js",
     "seed": "node dist/db/seed.js"
   },
   "dependencies": {
