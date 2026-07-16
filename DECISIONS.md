@@ -4,6 +4,24 @@
 
 ---
 
+### D-018 — Catalog CSV import: partial success, create-only, zero new dependencies
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** Import semantics (T1.1): every valid row imports, every invalid row is reported as `{line, errors[{field,message}]}` keyed to the real file line — a bad row never blocks the file. Import is create-only (existing merchant sku → per-row error, not upsert). Duplicate skus are unique per merchant only when present (partial index). Product DELETE is a soft archive (`active=false`). Validation is one hand-rolled rule source (`product.rules.ts`) shared by CRUD bodies and CSV rows; CSV parsing is a ~50-line RFC-4180 parser; the file travels as JSON `{csv}` (client reads the file locally; 2mb body limit).
+**Why:** Dealers fix a 3-row problem, not a 500-row re-import; one rule source keeps API and import errors identical; class-validator/csv-parse/multer would add three dependencies for behavior we need to control per-row anyway ("every dependency is a liability"); catalog rows get referenced by stock/orders so hard delete is never safe.
+**Rejected:** all-or-nothing import (hostile to dealers); upsert-by-sku (surprising bulk overwrites — revisit when a real update-workflow need appears); multipart upload via multer (second body pipeline for no V1 gain).
+**Status:** active
+
+---
+
+### D-017 — Dev-machine Postgres via npm-delivered embedded binaries
+**Date:** 2026-07-16 · **Mode:** Builder (dev-environment, not product)
+**Decision:** On the primary dev machine (corporate Windows, no Docker daemon, no admin installer, apt inside WSL TLS-intercepted/blocked), the verification database is PostgreSQL 16.13 from `@embedded-postgres/windows-x64` (npm registry is the one allowed artifact channel, cf. D-014), installed under `~/.biashara-devdb`, started with `pg_ctl -D ~/.biashara-devdb/data -l ~/.biashara-devdb/pg.log start` (must be launched from PowerShell/cmd, not git-bash — MSYS env crashes postgres startup with 0xC0000142). Role/db match the project defaults (`biashara`/`biashara`, `biashara_appliances`). docker-compose remains the dev/CI contract (D-012).
+**Why:** "Done means verified" needs a real Postgres; every conventional install path is blocked by the corporate network; npm demonstrably works.
+**Rejected:** pg-mem (no plpgsql triggers — audit immutability untestable); skipping DB verification (violates the loop); system-wide EDB installer (needs admin + blocked download).
+**Status:** active
+
+---
+
 ### D-016 — Repo SVGs are the canonical logo assets
 **Date:** 2026-07-15 · **Mode:** Builder (product-owner decision)
 **Decision:** `brand/logo-appliances-icon.svg` and `brand/logo-appliances-lockup.svg` (green rounded square, white power-arc, lightning-bolt stem, Steel Blue descriptor) are canonical for all surfaces — favicon, PWA icons, app headers, receipts.

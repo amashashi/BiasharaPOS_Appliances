@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { DataSource } from 'typeorm';
-import { DATA_SOURCE } from './db.module.js';
+import { DATA_SOURCE } from './tokens.js';
 import { AuditEvent, type AuditJson } from './entities/audit-event.entity.js';
 
 export interface AuditEntry {

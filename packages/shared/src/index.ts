@@ -38,6 +38,14 @@ export type OrderStatus =
 
 export type PaymentMethod = 'CASH' | 'MOBILE_MONEY' | 'CARD' | 'BANK';
 
+/**
+ * TRA VFD tax groups carried on every catalog item and fiscal receipt line.
+ * A = standard rate (18% VAT), B = special rate, C = zero-rated,
+ * D = special relief, E = exempt.
+ */
+export type TaxCode = 'A' | 'B' | 'C' | 'D' | 'E';
+export const TAX_CODES: readonly TaxCode[] = ['A', 'B', 'C', 'D', 'E'];
+
 export type CreditAgreementType = 'INSTALLMENT' | 'LAYAWAY';
 
 export type CreditAgreementStatus =

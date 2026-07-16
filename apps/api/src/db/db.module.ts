@@ -2,8 +2,9 @@ import { Global, Module, OnApplicationShutdown, Inject } from '@nestjs/common';
 import type { DataSource } from 'typeorm';
 import { createDataSource } from './data-source.js';
 import { AuditService } from './audit.service.js';
+import { DATA_SOURCE } from './tokens.js';
 
-export const DATA_SOURCE = Symbol('DATA_SOURCE');
+export { DATA_SOURCE };
 
 /** Global DB module: one initialized DataSource + the audit helper. */
 @Global()

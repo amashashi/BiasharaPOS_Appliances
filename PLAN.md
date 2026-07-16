@@ -26,7 +26,7 @@
 - [x] **T0.7** Brand assets integrated: sub-brand lockup and icon (`brand/logo-appliances-lockup.svg`, `brand/logo-appliances-icon.svg`) wired into POS shell, back-office shell, favicon/PWA manifest icons, and the receipt/statement header templates. — *Verify:* both app shells display the lockup per the usage rules in DESIGN_SYSTEM.md §6; receipt preview shows the icon; PWA install prompt shows the correct icon.
 
 ### M1 — Catalog & serialized inventory
-- [ ] **T1.1** Catalog module: Product CRUD (brand, model, category, tax code, prices), CSV import. — *Verify:* import 50-product sample file; validation errors reported per row.
+- [x] **T1.1** Catalog module: Product CRUD (brand, model, category, tax code, prices), CSV import. — *Verify:* import 50-product sample file; validation errors reported per row.
 - [ ] **T1.2** GRN receiving: create receipt with lines; capture serials per line (scan/type); duplicate-serial rejection per merchant. — *Verify:* receiving 10 units creates 10 `SerializedUnit(IN_STOCK)`; duplicate serial rejected with clear error.
 - [ ] **T1.3** SerializedUnit state machine with single transition function + audit. — *Verify:* unit tests cover every legal/illegal transition; illegal transition throws and logs nothing.
 - [ ] **T1.4** Stock views + serial lookup API/UI: stock by product/location, find-by-serial returns full unit history. — *Verify:* lookup of a received serial shows GRN provenance; counts match seeded data.
