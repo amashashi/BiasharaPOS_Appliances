@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { DataSource } from 'typeorm';
+import type { DataSource, EntityManager } from 'typeorm';
 import { DATA_SOURCE } from './tokens.js';
 import { AuditEvent, type AuditJson } from './entities/audit-event.entity.js';
 
@@ -19,8 +19,9 @@ export interface AuditEntry {
 export class AuditService {
   constructor(@Inject(DATA_SOURCE) private readonly ds: DataSource) {}
 
-  async record(entry: AuditEntry): Promise<void> {
-    const repo = this.ds.getRepository(AuditEvent);
+  /** Pass `manager` to make the audit row commit atomically with the mutation it describes. */
+  async record(entry: AuditEntry, manager?: EntityManager): Promise<void> {
+    const repo = (manager ?? this.ds).getRepository(AuditEvent);
     await repo.save(
       repo.create({
         ...entry,

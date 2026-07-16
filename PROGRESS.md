@@ -83,3 +83,11 @@
 **Verified (real Postgres):** 8 integration tests — **receiving 10 units (2 lines) creates exactly 10 `SerializedUnit(IN_STOCK)`** with location/merchant/grn provenance and correct per-line costs incl. fallback; **duplicate serial vs stock → 400 naming `serial "FRG-001" already exists for this merchant (status IN_STOCK)`** with nothing persisted (atomicity asserted); in-payload dupe points at both positions; same serial ok for another merchant; foreign location/product + archived product + empty lines rejected; CASHIER 403; cross-merchant GRN read 404. Full suite 44/44 (40 api + 4 ui), lint + builds green, migrate down/up clean, live smoke on :3999: create 201 with 3 IN_STOCK units, replay 400 with named serial.
 
 **Surprise:** none in code; test-side only (JSON.stringify escapes quotes → assert on `errors[].message` directly). Stale smoke-server from the T1.1 session still held :3999 — kill by port before smoke tests.
+
+## 2026-07-16 — T1.3 SerializedUnit state machine ✅
+
+**Done:** `unit-state.ts` — the single legal-transition graph (transcribed from ARCHITECTURE.md: IN_STOCK→RESERVED→SOLD→DELIVERED→RETURNED + RESERVED→IN_STOCK release; RETURNED terminal in V1), pure `canTransition`/`assertTransition` + `IllegalUnitTransition` (409) whose message names serial, attempted transition, and the legal alternatives. `UnitStateService.transition()` — THE only door for status changes: row locked FOR UPDATE, transition validated, status change + actor-attributed `UNIT_<STATUS>` audit event (before/after + domain context like orderId) committed in ONE transaction; `AuditService.record()` gained an optional EntityManager for exactly this. No endpoint — T1.4/T2.x consume the service. No shortcut transitions: a direct POS sale composes RESERVE→SELL (D-021).
+
+**Verified (real Postgres):** 31 new tests — the **full 5×5 matrix** (25 cases: exactly 5 legal, 20 illegal incl. self-transitions) at the pure layer; integration walks the whole lifecycle incl. release+re-reserve asserting persisted status and one audit event per step with actor/before/after/context; **all 20 illegal combos re-driven against the DB: each throws, leaves status untouched, and writes ZERO audit rows**; unknown unit + cross-merchant both 404 without state change. Full suite 75/75 (71 api + 4 ui), lint + builds green.
+
+**Surprises:** none.
