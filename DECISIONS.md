@@ -4,6 +4,15 @@
 
 ---
 
+### D-021 — No shortcut unit transitions; direct sales compose RESERVE → SELL
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** The state machine implements exactly the transitions ARCHITECTURE.md lists — no IN_STOCK→SOLD shortcut for walk-in cash sales. A direct sale performs two transitions (RESERVE, then SELL) through the same single door; each is audited.
+**Why:** One graph, one meaning per edge: every SOLD unit was verifiably RESERVED first, so the audit trail (the future collateral-registry asset) has uniform shape; adding shortcut edges doubles the matrix the tests and offline conflict-resolution must reason about. Cost is one extra UPDATE per cash sale — negligible.
+**Rejected:** IN_STOCK→SOLD edge (audit shape divergence); allowing services to write `status` directly for "simple" cases (that's how state machines die).
+**Status:** active
+
+---
+
 ### D-020 — Databases live on a dedicated Neon project; branch-per-environment
 **Date:** 2026-07-16 · **Mode:** Builder (product-owner decision)
 **Decision:** Dev and production databases are hosted on Neon (managed Postgres 16) in a **dedicated project `biashara-appliances`** (`green-unit-19592753`, `aws-eu-central-1` — same region as the core platform's DBs), using Neon branches as environments: `production` (default, `br-floral-rain-asfqebid`) and `development` (`br-rough-fire-asgix3h9`), database `biashara_appliances`, role `biashara_app`. Dev URL lives in gitignored `apps/api/.env`; the production URL is stored **only** in the deploy platform's env vars (no deployment exists yet — M5/M6). Both branches migrated 2026-07-16; dev seeded. CI keeps its throwaway `postgres:16` service; the embedded local Postgres (D-017) remains the offline fallback and the default for tests (vitest doesn't read `.env`, so tests hit localhost unless `DATABASE_URL` is exported).
