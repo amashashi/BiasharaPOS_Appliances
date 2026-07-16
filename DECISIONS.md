@@ -4,6 +4,15 @@
 
 ---
 
+### D-025 — Payments ledger: DB-enforced append-only; fiscal receipts live in their own table
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** `payments` carries the same immutability trigger as `audit_events` — UPDATE/DELETE raise at the database level; corrections are reversing entries (negative amount, `reversesPaymentId` UNIQUE so a payment reverses at most once). Consequence: T2.4 fiscal receipts go in a separate `fiscal_receipts` table referencing `paymentId` — a payment row never needs an UPDATE, not even to attach a VFD number. Manual recording is CASH-only; MOBILE_MONEY enters exclusively via the T2.5 webhook path; CARD/BANK when a real dealer needs them.
+**Why:** "Ledger corrections are reversing entries, never mutations" is a hard rule — enforcing it in Postgres makes it unbreakable by any future code path; the ARCHITECTURE seam's `fiscalReceiptId?` on Payment would have required mutating ledger rows, so the reference direction is flipped.
+**Rejected:** app-level-only immutability (one careless repository.save away from silent corruption); `fiscalReceiptId` column on payments (forces UPDATE of ledger rows); accepting any method on the manual endpoint (mobile money must be webhook-confirmed, not keyed in).
+**Status:** active
+
+---
+
 ### D-024 — Post-merge migrations to Neon dev + prod are standing policy; prod is up-only
 **Date:** 2026-07-16 · **Mode:** Builder (product-owner decision)
 **Decision:** After every merge that adds migrations, apply them to both Neon branches: `npm run migrate -w apps/api` (dev) then `npm run migrate:prod -w apps/api`. The prod runner reads `PROD_DATABASE_URL` from the gitignored `apps/api/.env` and only runs UP — there is deliberately no prod down-runner (schema rollbacks in prod are reversing migrations, same philosophy as the money ledger).

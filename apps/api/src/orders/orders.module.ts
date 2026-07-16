@@ -3,6 +3,7 @@ import { InventoryModule } from '../inventory/inventory.module.js';
 import { OrdersController } from './orders.controller.js';
 import { OrdersService } from './orders.service.js';
 import { FulfillmentService } from './fulfillment.service.js';
+import { PaymentsService } from './payments.service.js';
 
 /**
  * Orders domain module (M2): quotes & orders (T2.1), serial reservation & pick
@@ -12,7 +13,7 @@ import { FulfillmentService } from './fulfillment.service.js';
 @Module({
   imports: [InventoryModule],
   controllers: [OrdersController],
-  providers: [OrdersService, FulfillmentService],
-  exports: [OrdersService, FulfillmentService],
+  providers: [OrdersService, FulfillmentService, PaymentsService],
+  exports: [OrdersService, FulfillmentService, PaymentsService],
 })
 export class OrdersModule {}
