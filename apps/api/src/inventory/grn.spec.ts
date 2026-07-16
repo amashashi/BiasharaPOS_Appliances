@@ -42,8 +42,7 @@ describe('GRN receiving (T1.2, real Postgres)', () => {
 
   beforeAll(async () => {
     ds = createDataSource();
-    await ds.initialize();
-    await ds.runMigrations();
+    await ds.initialize(); // migrations already applied by test/global-setup.ts
 
     const merchants = ds.getRepository(Merchant);
     const locations = ds.getRepository(Location);

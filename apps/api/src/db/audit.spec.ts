@@ -12,8 +12,7 @@ describe('audit log (T0.5, real Postgres)', () => {
 
   beforeAll(async () => {
     ds = createDataSource(DB_URL);
-    await ds.initialize();
-    await ds.runMigrations();
+    await ds.initialize(); // migrations already applied by test/global-setup.ts
   });
 
   afterAll(async () => {
