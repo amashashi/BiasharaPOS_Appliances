@@ -20,6 +20,8 @@ import { Products1784140000000 } from './migrations/1784140000000-products.js';
 import { GrnSerializedUnits1784150000000 } from './migrations/1784150000000-grn-serialized-units.js';
 import { NonSerialized1784160000000 } from './migrations/1784160000000-non-serialized.js';
 import { SalesOrders1784170000000 } from './migrations/1784170000000-sales-orders.js';
+import { UnitOrderLine1784180000000 } from './migrations/1784180000000-unit-order-line.js';
+import { AuditSeq1784190000000 } from './migrations/1784190000000-audit-seq.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
@@ -32,6 +34,8 @@ export const migrations = [
   GrnSerializedUnits1784150000000,
   NonSerialized1784160000000,
   SalesOrders1784170000000,
+  UnitOrderLine1784180000000,
+  AuditSeq1784190000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {

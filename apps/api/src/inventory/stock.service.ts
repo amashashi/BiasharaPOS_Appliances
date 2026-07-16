@@ -120,8 +120,7 @@ export class StockService {
       .createQueryBuilder('e')
       .where('e.entityType = :t AND e.entityId = :id', { t: 'SerializedUnit', id: unit.id })
       .andWhere(`(e.action = 'INSERT' OR e.action LIKE 'UNIT\\_%')`)
-      .orderBy('e.at', 'ASC')
-      .addOrderBy('e.id', 'ASC')
+      .orderBy('e.seq', 'ASC') // at is transaction-stable — seq is the true order
       .getMany();
 
     const history: UnitHistoryEvent[] = events.map((e) => ({

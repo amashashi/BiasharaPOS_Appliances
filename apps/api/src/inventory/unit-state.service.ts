@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { DataSource } from 'typeorm';
+import type { DataSource, EntityManager } from 'typeorm';
 import type { UnitStatus } from '@biashara/shared';
 import { DATA_SOURCE } from '../db/tokens.js';
 import { AuditService } from '../db/audit.service.js';
@@ -29,8 +29,9 @@ export class UnitStateService {
     to: UnitStatus,
     actorUserId: string,
     context: TransitionContext = {},
+    manager?: EntityManager,
   ): Promise<SerializedUnit> {
-    return this.ds.transaction(async (mgr) => {
+    const run = async (mgr: EntityManager): Promise<SerializedUnit> => {
       const unit = await mgr
         .getRepository(SerializedUnit)
         .createQueryBuilder('u')
@@ -58,6 +59,7 @@ export class UnitStateService {
         mgr,
       );
       return saved;
-    });
+    };
+    return manager ? run(manager) : this.ds.transaction(run);
   }
 }

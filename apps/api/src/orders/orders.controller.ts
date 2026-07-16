@@ -18,6 +18,11 @@ import { DATA_SOURCE } from '../db/tokens.js';
 import type { DataSource } from 'typeorm';
 import { Merchant } from '../db/entities/merchant.entity.js';
 import { OrdersService, formatOrderNumber, type CreateOrderInput } from './orders.service.js';
+import {
+  FulfillmentService,
+  type FulfillInput,
+  type ReserveInput,
+} from './fulfillment.service.js';
 import { renderQuotePdf } from './quote-pdf.js';
 
 /** Sales orders & quotes (T2.1). Owners and cashiers sell; delivery staff don't. */
@@ -27,6 +32,7 @@ export class OrdersController {
   // explicit tokens: vitest (esbuild) emits no design:paramtypes metadata
   constructor(
     @Inject(OrdersService) private readonly orders: OrdersService,
+    @Inject(FulfillmentService) private readonly fulfillment: FulfillmentService,
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
   ) {}
 
@@ -61,10 +67,25 @@ export class OrdersController {
     return this.orders.transition(req.auth.merchantId, id, 'CONFIRMED', req.auth.userId);
   }
 
+  /** Cancel; any reserved units are released back to stock (T2.2). */
   @Post(':id/cancel')
   @HttpCode(200)
   cancel(@Req() req: AuthedRequest, @Param('id') id: string) {
-    return this.orders.transition(req.auth.merchantId, id, 'CANCELLED', req.auth.userId);
+    return this.fulfillment.cancel(req.auth.merchantId, id, req.auth.userId);
+  }
+
+  /** Reserve specific serials against one line of a CONFIRMED order. */
+  @Post(':id/reserve')
+  @HttpCode(200)
+  reserve(@Req() req: AuthedRequest, @Param('id') id: string, @Body() body: ReserveInput) {
+    return this.fulfillment.reserve(req.auth.merchantId, id, req.auth.userId, body ?? {});
+  }
+
+  /** Fulfill: reserved units + picks → SOLD; qty lines decrement stock; order → FULFILLED. */
+  @Post(':id/fulfill')
+  @HttpCode(200)
+  fulfill(@Req() req: AuthedRequest, @Param('id') id: string, @Body() body: FulfillInput) {
+    return this.fulfillment.fulfill(req.auth.merchantId, id, req.auth.userId, body ?? {});
   }
 
   @Get(':id/quote.pdf')
