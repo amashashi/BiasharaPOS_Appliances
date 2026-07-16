@@ -14,6 +14,10 @@
       "types": "./dist/tokens.d.ts",
       "default": "./dist/tokens.js"
     },
+    "./receipt": {
+      "types": "./dist/receipt.d.ts",
+      "default": "./dist/receipt.js"
+    },
     "./fonts.css": "./assets/fonts.css"
   },
   "scripts": {

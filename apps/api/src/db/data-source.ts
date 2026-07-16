@@ -14,6 +14,7 @@ import { SalesOrder } from './entities/sales-order.entity.js';
 import { SalesOrderLine } from './entities/sales-order-line.entity.js';
 import { SalesOrderServiceLine } from './entities/sales-order-service-line.entity.js';
 import { Payment } from './entities/payment.entity.js';
+import { FiscalReceipt } from './entities/fiscal-receipt.entity.js';
 import { AuditSubscriber } from './audit.subscriber.js';
 import { BaseEntities1784120000000 } from './migrations/1784120000000-base-entities.js';
 import { AuditEvents1784130000000 } from './migrations/1784130000000-audit-events.js';
@@ -24,10 +25,11 @@ import { SalesOrders1784170000000 } from './migrations/1784170000000-sales-order
 import { UnitOrderLine1784180000000 } from './migrations/1784180000000-unit-order-line.js';
 import { AuditSeq1784190000000 } from './migrations/1784190000000-audit-seq.js';
 import { Payments1784200000000 } from './migrations/1784200000000-payments.js';
+import { FiscalReceipts1784210000000 } from './migrations/1784210000000-fiscal-receipts.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
-  Customer, SalesOrder, SalesOrderLine, SalesOrderServiceLine, Payment,
+  Customer, SalesOrder, SalesOrderLine, SalesOrderServiceLine, Payment, FiscalReceipt,
 ];
 export const migrations = [
   BaseEntities1784120000000,
@@ -39,6 +41,7 @@ export const migrations = [
   UnitOrderLine1784180000000,
   AuditSeq1784190000000,
   Payments1784200000000,
+  FiscalReceipts1784210000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {

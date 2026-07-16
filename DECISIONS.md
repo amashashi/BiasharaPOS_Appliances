@@ -4,6 +4,15 @@
 
 ---
 
+### D-026 — Deposit fiscalization: one summary line, pending the TRA ruling
+**Date:** 2026-07-16 · **Mode:** Builder (provisional, rides on D-008)
+**Decision:** A payment equal to the order total fiscalizes with the order fully itemized (per-line tax codes); a partial payment (deposit) fiscalizes as a single summary line (`Malipo / Payment — SO-xxxxxx (deposit)`, tax code A) — receipt items must sum to the paid amount. Reversals do not fiscalize (TRA credit-note handling is deferred with the real API, M5).
+**Why:** Per-payment fiscalization (D-008) forces a choice for partial payments; itemizing a fraction of the goods misstates what was sold. The summary-line approach is what the open TRA compliance question (blocks T5.2) will confirm or overturn — the FiscalService port isolates the blast radius either way.
+**Rejected:** pro-rating item quantities across payments (fictional fractions of physical goods); fiscalizing only at settlement (contradicts D-008's per-payment working assumption).
+**Status:** active (provisional — revisit at T5.2 with the compliance answer)
+
+---
+
 ### D-025 — Payments ledger: DB-enforced append-only; fiscal receipts live in their own table
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** `payments` carries the same immutability trigger as `audit_events` — UPDATE/DELETE raise at the database level; corrections are reversing entries (negative amount, `reversesPaymentId` UNIQUE so a payment reverses at most once). Consequence: T2.4 fiscal receipts go in a separate `fiscal_receipts` table referencing `paymentId` — a payment row never needs an UPDATE, not even to attach a VFD number. Manual recording is CASH-only; MOBILE_MONEY enters exclusively via the T2.5 webhook path; CARD/BANK when a real dealer needs them.
