@@ -14,7 +14,9 @@ Start every session by reading **`CONTEXT.md`** (one-page state snapshot), then 
 npm ci
 npm run build --workspace packages/shared   # always build shared first
 npm run lint && npm run build && npm test
-# DB (Postgres 16): createdb biashara_appliances (role biashara/biashara)
+# DB (Postgres 16, D-020): dev/prod = Neon project biashara-appliances (branch-per-env);
+# dev URL in gitignored apps/api/.env (read by dev/start). Tests + offline work use
+# localhost (embedded PG per D-017, or createdb biashara_appliances role biashara/biashara):
 export DATABASE_URL=postgres://biashara:biashara@localhost:5432/biashara_appliances
 npm run migrate -w apps/api && npm run seed -w apps/api   # migrate:down to revert
 node apps/api/dist/main.js                  # API on :3000, healthcheck GET /api/health

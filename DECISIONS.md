@@ -4,6 +4,15 @@
 
 ---
 
+### D-020 — Databases live on a dedicated Neon project; branch-per-environment
+**Date:** 2026-07-16 · **Mode:** Builder (product-owner decision)
+**Decision:** Dev and production databases are hosted on Neon (managed Postgres 16) in a **dedicated project `biashara-appliances`** (`green-unit-19592753`, `aws-eu-central-1` — same region as the core platform's DBs), using Neon branches as environments: `production` (default, `br-floral-rain-asfqebid`) and `development` (`br-rough-fire-asgix3h9`), database `biashara_appliances`, role `biashara_app`. Dev URL lives in gitignored `apps/api/.env`; the production URL is stored **only** in the deploy platform's env vars (no deployment exists yet — M5/M6). Both branches migrated 2026-07-16; dev seeded. CI keeps its throwaway `postgres:16` service; the embedded local Postgres (D-017) remains the offline fallback and the default for tests (vitest doesn't read `.env`, so tests hit localhost unless `DATABASE_URL` is exported).
+**Why:** Product owner chose Neon to match core-platform ops, and explicitly chose a dedicated project over sharing the core `biashara-pos` instances — product/credential isolation (the shared-instance route also meant operating on the core product's live prod server with its owner credentials, declined). Outbound 5432 + TLS to Neon verified working from the dev network (full cert verification — no interception on this path).
+**Rejected:** sharing core Neon instances (couples two products' infra and secrets); two separate Neon projects for dev/prod (branches are the Neon-native split and allow copy-on-write dev resets); keeping dev purely local (user wants dev on Neon).
+**Status:** active
+
+---
+
 ### D-019 — GRN receive is all-or-nothing; receiving is OWNER-only in V1
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** `POST /grns` is atomic: any invalid line or duplicate serial rejects the entire request (every problem reported at once with `lines[i].serials[j]` paths); nothing persists. Contrast D-018, where CSV import is partial-success. Receiving requires the OWNER role (CASHIER/DELIVERY cannot receive or read GRNs).
