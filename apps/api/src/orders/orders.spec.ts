@@ -125,6 +125,8 @@ describe('Sales orders & quotes (T2.1, real Postgres)', () => {
       linesTzs: 1600000 + 2 * 15000,
       servicesTzs: 50000,
       totalTzs: 1680000,
+      paidTzs: 0,
+      balanceTzs: 1680000,
     });
     const saved = await ds.getRepository(Customer).findOneBy({ merchantId, name: 'Mama Ntilie' });
     expect(saved?.phone).toBe('+255711111111');

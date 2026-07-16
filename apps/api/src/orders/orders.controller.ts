@@ -23,6 +23,7 @@ import {
   type FulfillInput,
   type ReserveInput,
 } from './fulfillment.service.js';
+import { PaymentsService, type RecordPaymentInput } from './payments.service.js';
 import { renderQuotePdf } from './quote-pdf.js';
 
 /** Sales orders & quotes (T2.1). Owners and cashiers sell; delivery staff don't. */
@@ -33,6 +34,7 @@ export class OrdersController {
   constructor(
     @Inject(OrdersService) private readonly orders: OrdersService,
     @Inject(FulfillmentService) private readonly fulfillment: FulfillmentService,
+    @Inject(PaymentsService) private readonly payments: PaymentsService,
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
   ) {}
 
@@ -86,6 +88,33 @@ export class OrdersController {
   @HttpCode(200)
   fulfill(@Req() req: AuthedRequest, @Param('id') id: string, @Body() body: FulfillInput) {
     return this.fulfillment.fulfill(req.auth.merchantId, id, req.auth.userId, body ?? {});
+  }
+
+  /** Record a CASH payment (deposit or full settlement — the ledger decides). */
+  @Post(':id/payments')
+  recordPayment(
+    @Req() req: AuthedRequest,
+    @Param('id') id: string,
+    @Body() body: RecordPaymentInput,
+  ) {
+    return this.payments.record(req.auth.merchantId, id, req.auth.userId, body ?? {});
+  }
+
+  @Get(':id/payments')
+  listPayments(@Req() req: AuthedRequest, @Param('id') id: string) {
+    return this.payments.listForOrder(req.auth.merchantId, id);
+  }
+
+  /** Correction: creates a reversing entry — the original row is never touched. */
+  @Post(':id/payments/:paymentId/reverse')
+  @HttpCode(200)
+  reversePayment(
+    @Req() req: AuthedRequest,
+    @Param('id') id: string,
+    @Param('paymentId') paymentId: string,
+    @Body() body: { reason?: unknown },
+  ) {
+    return this.payments.reverse(req.auth.merchantId, id, paymentId, req.auth.userId, body?.reason);
   }
 
   @Get(':id/quote.pdf')

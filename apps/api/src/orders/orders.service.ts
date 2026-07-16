@@ -31,6 +31,8 @@ export interface OrderTotals {
   linesTzs: Tzs;
   servicesTzs: Tzs;
   totalTzs: Tzs;
+  paidTzs: Tzs;
+  balanceTzs: Tzs;
 }
 
 const MAX_TZS = 2_000_000_000;
@@ -258,7 +260,13 @@ export class OrdersService {
     const order = UUID_RE.test(id)
       ? await this.ds.getRepository(SalesOrder).findOne({
           where: { id, merchantId },
-          relations: { lines: { product: true }, serviceLines: true, customer: true, location: true },
+          relations: {
+            lines: { product: true },
+            serviceLines: true,
+            payments: true,
+            customer: true,
+            location: true,
+          },
         })
       : null;
     if (!order) throw new NotFoundException('Order not found');
@@ -273,7 +281,7 @@ export class OrdersService {
     if (query.status) where.status = query.status;
     const [items, total] = await this.ds.getRepository(SalesOrder).findAndCount({
       where,
-      relations: { lines: true, serviceLines: true, customer: true },
+      relations: { lines: true, serviceLines: true, payments: true, customer: true },
       order: { number: 'DESC' },
       take: Math.min(Math.max(query.limit ?? 50, 1), 200),
       skip: Math.max(query.offset ?? 0, 0),
@@ -288,9 +296,11 @@ export class OrdersService {
     };
   }
 
-  totals(order: Pick<SalesOrder, 'lines' | 'serviceLines'>): OrderTotals {
+  totals(order: Pick<SalesOrder, 'lines' | 'serviceLines' | 'payments'>): OrderTotals {
     const linesTzs = (order.lines ?? []).reduce((s, l) => s + l.qty * l.unitPriceTzs, 0);
     const servicesTzs = (order.serviceLines ?? []).reduce((s, l) => s + l.priceTzs, 0);
-    return { linesTzs, servicesTzs, totalTzs: linesTzs + servicesTzs };
+    const totalTzs = linesTzs + servicesTzs;
+    const paidTzs = (order.payments ?? []).reduce((s, p) => s + p.amountTzs, 0);
+    return { linesTzs, servicesTzs, totalTzs, paidTzs, balanceTzs: totalTzs - paidTzs };
   }
 }

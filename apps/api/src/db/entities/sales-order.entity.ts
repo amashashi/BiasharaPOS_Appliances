@@ -15,6 +15,7 @@ import { Location } from './location.entity.js';
 import { Customer } from './customer.entity.js';
 import { SalesOrderLine } from './sales-order-line.entity.js';
 import { SalesOrderServiceLine } from './sales-order-service-line.entity.js';
+import { Payment } from './payment.entity.js';
 
 /**
  * Sales order / quote (T2.1). `status` changes only through OrdersService's
@@ -68,6 +69,9 @@ export class SalesOrder {
 
   @OneToMany(() => SalesOrderServiceLine, (l) => l.order)
   serviceLines!: SalesOrderServiceLine[];
+
+  @OneToMany(() => Payment, (p) => p.order)
+  payments!: Payment[];
 
   @CreateDateColumn()
   createdAt!: Date;
