@@ -4,10 +4,11 @@ import { HealthController } from './health/health.controller.js';
 import { PlatformModule } from './platform/platform.module.js';
 import { DbModule } from './db/db.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
+import { InventoryModule } from './inventory/inventory.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
 
 @Module({
-  imports: [PlatformModule, DbModule, CatalogModule],
+  imports: [PlatformModule, DbModule, CatalogModule, InventoryModule],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })

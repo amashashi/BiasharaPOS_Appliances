@@ -32,10 +32,9 @@ describe('Catalog module (T1.1, real Postgres)', () => {
   let otherOwnerToken: string;
 
   beforeAll(async () => {
-    // migrations run against the same DB the app module will use
+    // migrations already applied by test/global-setup.ts
     const ds = createDataSource();
     await ds.initialize();
-    await ds.runMigrations();
     const merchants = ds.getRepository(Merchant);
     const shop = await merchants.save(
       merchants.create({ name: `Catalog Spec ${Date.now()}`, tin: null, phone: null }),

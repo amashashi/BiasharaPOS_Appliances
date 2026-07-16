@@ -4,6 +4,15 @@
 
 ---
 
+### D-019 — GRN receive is all-or-nothing; receiving is OWNER-only in V1
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** `POST /grns` is atomic: any invalid line or duplicate serial rejects the entire request (every problem reported at once with `lines[i].serials[j]` paths); nothing persists. Contrast D-018, where CSV import is partial-success. Receiving requires the OWNER role (CASHIER/DELIVERY cannot receive or read GRNs).
+**Why:** A GRN mirrors one physical delivery — partially accepting it would make system stock silently diverge from what's on the floor, and a re-scan after fixing is cheap. Catalog rows have no physical counterpart, so partial import is dealer-friendly there. Role: stock intake is an owner/manager act in the dealer profile from the brief; a STOREKEEPER role can be added when a real merchant asks.
+**Rejected:** partial receipt (stock/reality divergence); per-line accept + exception queue (that machinery is for offline conflicts, M5).
+**Status:** active
+
+---
+
 ### D-018 — Catalog CSV import: partial success, create-only, zero new dependencies
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** Import semantics (T1.1): every valid row imports, every invalid row is reported as `{line, errors[{field,message}]}` keyed to the real file line — a bad row never blocks the file. Import is create-only (existing merchant sku → per-row error, not upsert). Duplicate skus are unique per merchant only when present (partial index). Product DELETE is a soft archive (`active=false`). Validation is one hand-rolled rule source (`product.rules.ts`) shared by CRUD bodies and CSV rows; CSV parsing is a ~50-line RFC-4180 parser; the file travels as JSON `{csv}` (client reads the file locally; 2mb body limit).
