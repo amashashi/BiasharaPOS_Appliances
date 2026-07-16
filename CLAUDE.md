@@ -7,7 +7,8 @@ Start every session by reading **`CONTEXT.md`** (one-page state snapshot), then 
 2. Implement the smallest correct version — no gold-plating, nothing beyond the task.
 3. Verify per the task's *Verify:* clause. Done means verified, not written.
 4. Append to `PROGRESS.md`; check the box in `PLAN.md`; log non-obvious choices in `DECISIONS.md`; refresh `CONTEXT.md` if state changed materially. Commit per task.
-5. Surprises: small → decide + log; medium → add task to `PLAN.md`; big (breaks ARCHITECTURE.md) → STOP and re-enter architect mode. Never silently redesign.
+5. **Ship via PR (standing policy, owner-approved 2026-07-16):** each task on its own branch (`t<task>-<slug>`) → push → `gh pr create` → wait for CI green (`gh pr checks --watch`) → `gh pr merge --squash --delete-branch` → pull main. Doc-only/infra-note commits may go straight to main.
+6. Surprises: small → decide + log; medium → add task to `PLAN.md`; big (breaks ARCHITECTURE.md) → STOP and re-enter architect mode. Never silently redesign.
 
 ## Commands
 ```bash
