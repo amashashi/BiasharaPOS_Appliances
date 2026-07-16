@@ -4,6 +4,15 @@
 
 ---
 
+### D-022 — T1.4 ships API-only; the stock UI lands with the M6 dashboards
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** T1.4's "API/UI" delivered the API (`GET /stock`, `GET /units/lookup`); the visual stock screen is deferred to T6.1 (back-office dashboards include "stock summary + aging").
+**Why:** The SPAs have no auth wiring until identity integration (M5) — a stock screen now would need throwaway token plumbing; T1.4's verify clause is entirely API-level; and T6.1 already owns the screen this would become. Smallest correct version.
+**Rejected:** building the screen with a hardcoded dev token (throwaway auth scaffolding that D-004 stubs make unnecessary); silently skipping the UI without recording it (this entry is the record).
+**Status:** active
+
+---
+
 ### D-021 — No shortcut unit transitions; direct sales compose RESERVE → SELL
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** The state machine implements exactly the transitions ARCHITECTURE.md lists — no IN_STOCK→SOLD shortcut for walk-in cash sales. A direct sale performs two transitions (RESERVE, then SELL) through the same single door; each is audited.

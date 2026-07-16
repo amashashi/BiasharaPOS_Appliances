@@ -11,9 +11,10 @@ Independent SaaS platform for **appliance & electronics retailers in Tanzania** 
 - **M0 COMPLETE** (T0.1–T0.7: scaffold+CI, data layer, adapter contracts+stubs, auth guard, audit log, design tokens+ui, brand assets).
 - **T1.1 DONE** — Catalog module: products table + CRUD (OWNER writes, any-auth reads, soft archive) + CSV import with per-row `{line, errors[]}` reporting (D-018); 50-row fixture at `apps/api/test/fixtures/products-sample-50.csv`.
 - **T1.2 DONE** — InventoryModule: `POST /grns` receives stock atomically (all-or-nothing, D-019), one `SerializedUnit(IN_STOCK)` per serial, `UNIQUE(merchantId, serial)`, duplicate serials rejected naming each offender + field path; GRN provenance readable via `GET /grns/:id`.
-- **T1.3 DONE** — `UnitStateService.transition()` is THE only way to change `serialized_units.status` (FOR UPDATE lock, legal-graph check, status+audit in one transaction; illegal → 409, logs nothing; no shortcut edges — direct sale = RESERVE then SELL, D-021). 75 tests green.
+- **T1.3 DONE** — `UnitStateService.transition()` is THE only way to change `serialized_units.status` (FOR UPDATE lock, legal-graph check, status+audit in one transaction; illegal → 409, logs nothing; no shortcut edges — direct sale = RESERVE then SELL, D-021).
+- **T1.4 DONE** — `GET /stock` (product × location status counts, filters) + `GET /units/lookup?serial=` (unit + GRN provenance + full actor-attributed history); any-authenticated reads. UI deferred to T6.1 (D-022). 77 tests green.
 - Conventions (from vitest/esbuild having no decorator metadata): explicit types on every `@Column`; **explicit `@Inject(token)` on every constructor param**; DI tokens live in `tokens.ts` files, never in module files (CJS circular-import trap, see T1.1 surprises).
-- **➡ Next action: T1.4** — Stock views + serial lookup API/UI: stock by product/location; find-by-serial returns full unit history (GRN provenance + audit trail). Then T1.5 non-serialized items.
+- **➡ Next action: T1.5** — Non-serialized item support (accessories, cables — qty-based) alongside serialized: mixed GRNs, stock views show both. Completes M1.
 
 ## The plan in one breath
 M0 foundations & contracts → M1 serialized inventory → M2 scheduled sales + POS checkout (stub fiscal) → M3 installment/layaway ledger → M4 delivery → M5 swap stubs for real platform APIs + offline outbox → M6 back office, i18n, design-partner UAT (30-day pilot gate).
