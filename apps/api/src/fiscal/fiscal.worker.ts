@@ -55,28 +55,35 @@ export class FiscalWorker implements OnModuleInit, OnApplicationShutdown {
 
     const receipt = await this.fiscal.issueReceipt(buildFiscalDraft(merchant, order, payment));
 
-    await this.ds.getRepository(FiscalReceipt).save(
-      this.ds.getRepository(FiscalReceipt).create({
-        merchantId: payment.merchantId,
-        paymentId: payment.id,
-        vfdNumber: receipt.vfdNumber,
-        verificationCode: receipt.verificationCode,
-        qrUrl: receipt.qrUrl,
-        issuedAt: new Date(receipt.issuedAt),
-      }),
-    );
-    await this.audit.record({
-      merchantId: payment.merchantId,
-      actorUserId: null, // system
-      entityType: 'FiscalReceipt',
-      entityId: payment.id,
-      action: 'FISCAL_ISSUED',
-      after: {
-        vfdNumber: receipt.vfdNumber,
-        paymentId: payment.id,
-        orderId: payment.orderId,
-        attempts: job.attemptsMade + 1,
-      },
+    // receipt row + audit event commit together — a reader must never see one
+    // without the other (a fast CI runner caught exactly that race)
+    await this.ds.transaction(async (mgr) => {
+      await mgr.getRepository(FiscalReceipt).save(
+        mgr.getRepository(FiscalReceipt).create({
+          merchantId: payment.merchantId,
+          paymentId: payment.id,
+          vfdNumber: receipt.vfdNumber,
+          verificationCode: receipt.verificationCode,
+          qrUrl: receipt.qrUrl,
+          issuedAt: new Date(receipt.issuedAt),
+        }),
+      );
+      await this.audit.record(
+        {
+          merchantId: payment.merchantId,
+          actorUserId: null, // system
+          entityType: 'FiscalReceipt',
+          entityId: payment.id,
+          action: 'FISCAL_ISSUED',
+          after: {
+            vfdNumber: receipt.vfdNumber,
+            paymentId: payment.id,
+            orderId: payment.orderId,
+            attempts: job.attemptsMade + 1,
+          },
+        },
+        mgr,
+      );
     });
   }
 
