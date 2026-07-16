@@ -14,6 +14,7 @@ import { SalesOrderLine } from '../db/entities/sales-order-line.entity.js';
 import { SalesOrderServiceLine } from '../db/entities/sales-order-service-line.entity.js';
 import { Payment } from '../db/entities/payment.entity.js';
 import { OrdersService } from './orders.service.js';
+import { FiscalQueueService } from '../fiscal/fiscal-queue.service.js';
 import type { FieldError } from '../catalog/product.rules.js';
 
 export interface RecordPaymentInput {
@@ -44,6 +45,7 @@ export class PaymentsService {
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
     @Inject(OrdersService) private readonly orders: OrdersService,
     @Inject(AuditService) private readonly audit: AuditService,
+    @Inject(FiscalQueueService) private readonly fiscalQueue: FiscalQueueService,
   ) {}
 
   /** Record a CASH payment (mobile money arrives via webhook in T2.5). */
@@ -62,7 +64,7 @@ export class PaymentsService {
     }
     if (errors.length) throw new BadRequestException({ message: 'Validation failed', errors });
 
-    return this.ds.transaction(async (mgr) => {
+    const result = await this.ds.transaction(async (mgr) => {
       const order = await this.lockOrder(mgr, merchantId, orderId);
       if (!(PAYABLE as readonly string[]).includes(order.status)) {
         throw new BadRequestException({
@@ -120,6 +122,23 @@ export class PaymentsService {
         summary: { totalTzs, paidTzs: paidTzs + amountTzs, balanceTzs: balanceAfter },
       };
     });
+
+    // Every payment fiscalizes (D-008) — enqueued AFTER commit so the worker
+    // always sees the row. An enqueue failure must not lose the payment;
+    // it lands in the audit log instead (aging alert catches it in T5.7).
+    try {
+      await this.fiscalQueue.enqueue(result.payment.id);
+    } catch (e) {
+      await this.audit.record({
+        merchantId,
+        actorUserId,
+        entityType: 'Payment',
+        entityId: result.payment.id,
+        action: 'FISCAL_ENQUEUE_FAILED',
+        after: { error: (e as Error).message },
+      });
+    }
+    return result;
   }
 
   /** Correction: a reversing entry mirroring the original. The original row is never touched. */

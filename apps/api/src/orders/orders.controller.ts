@@ -24,6 +24,10 @@ import {
   type ReserveInput,
 } from './fulfillment.service.js';
 import { PaymentsService, type RecordPaymentInput } from './payments.service.js';
+import { FiscalReceipt } from '../db/entities/fiscal-receipt.entity.js';
+import { Payment } from '../db/entities/payment.entity.js';
+import { SalesOrder } from '../db/entities/sales-order.entity.js';
+import { renderReceiptHtml } from '../fiscal/receipt-html.js';
 import { renderQuotePdf } from './quote-pdf.js';
 
 /** Sales orders & quotes (T2.1). Owners and cashiers sell; delivery staff don't. */
@@ -115,6 +119,34 @@ export class OrdersController {
     @Body() body: { reason?: unknown },
   ) {
     return this.payments.reverse(req.auth.merchantId, id, paymentId, req.auth.userId, body?.reason);
+  }
+
+  /** Fiscal receipt as printable 80mm HTML. Rerun anytime — reprint is a read. */
+  @Get(':id/payments/:paymentId/receipt')
+  async paymentReceipt(
+    @Req() req: AuthedRequest,
+    @Param('id') id: string,
+    @Param('paymentId') paymentId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const merchantId = req.auth.merchantId;
+    const payment = /^[0-9a-f-]{36}$/i.test(paymentId)
+      ? await this.ds.getRepository(Payment).findOneBy({ id: paymentId, orderId: id, merchantId })
+      : null;
+    if (!payment) throw new NotFoundException('Payment not found on this order');
+    const fiscal = await this.ds.getRepository(FiscalReceipt).findOneBy({ paymentId: payment.id });
+    if (!fiscal) {
+      throw new NotFoundException(
+        'No fiscal receipt yet for this payment — it may still be in the fiscal queue',
+      );
+    }
+    const order = await this.ds.getRepository(SalesOrder).findOneOrFail({
+      where: { id: payment.orderId },
+      relations: { lines: { product: true }, serviceLines: true, customer: true, location: true },
+    });
+    const merchant = await this.ds.getRepository(Merchant).findOneByOrFail({ id: merchantId });
+    const html = await renderReceiptHtml(merchant, order, payment, fiscal);
+    res.status(200).set({ 'Content-Type': 'text/html; charset=utf-8' }).send(html);
   }
 
   @Get(':id/quote.pdf')
