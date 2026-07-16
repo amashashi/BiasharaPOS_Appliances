@@ -60,6 +60,10 @@ export class SerializedUnit {
   @Column({ type: 'integer', nullable: true })
   costTzs!: Tzs | null;
 
+  /** Set while RESERVED/SOLD for a specific order line (T2.2); cleared on release. */
+  @Column({ type: 'uuid', nullable: true })
+  orderLineId!: string | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

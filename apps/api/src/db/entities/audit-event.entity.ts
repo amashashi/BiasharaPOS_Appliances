@@ -39,4 +39,12 @@ export class AuditEvent {
 
   @CreateDateColumn()
   at!: Date;
+
+  /**
+   * Monotonic insertion order (bigserial, DB-assigned). `at` is
+   * transaction-stable, so same-transaction events tie on it — always
+   * sort history by seq. bigint arrives as a string via pg.
+   */
+  @Column({ type: 'bigint', insert: false, update: false, nullable: true })
+  seq!: string;
 }
