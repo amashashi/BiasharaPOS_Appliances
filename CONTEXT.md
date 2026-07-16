@@ -8,14 +8,14 @@
 Independent SaaS platform for **appliance & electronics retailers in Tanzania** — a new vertical product in the BiasharaPOS family, built as its own codebase that borrows the platform services (TRA VFD fiscalization, mobile money, identity, SMS) via API adapters. V1 = the three things generic POS can't do: **serialized inventory, the scheduled sale (deposit → delivery → installation), and the installment/layaway credit ledger** (digitized "mali kauli"). Docs: `PROJECT_BRIEF.md` → `ARCHITECTURE.md` → `PLAN.md` (approved 2026-07-15) → `DECISIONS.md` → `DESIGN_SYSTEM.md` (v2). Deeper history (market research, brainstorm) lives in the claude.ai project "Home Appliance and Electroni POS".
 
 ## Where we are
-- **M0 in progress.** T0.1 ✅ scaffold+CI · T0.2 ✅ data layer · T0.3 ✅ adapter contracts+stubs · T0.4 ✅ auth guard+roles · T0.5 ✅ audit log · T0.6 ✅ design tokens + packages/ui (20 tests green; showcase verified visually). Convention: explicit types on every @Column (vitest has no decorator metadata).
-- **➡ Next action: T0.7** — brand assets integration (canonical SVGs into POS + back-office shells, favicon/PWA manifest icons, receipt header template) — closes M0, T0.6 design tokens (transcribe from `design-handoff/_ds/*/tokens/*.css`, bundle Plus Jakarta Sans TTFs), T0.7 brand assets (canonical SVGs in `brand/`, D-016).
+- **M0 COMPLETE** (T0.1–T0.7: scaffold+CI, data layer, adapter contracts+stubs, auth guard, audit log, design tokens+ui, brand assets). 20 tests green. Convention: explicit types on every @Column (vitest has no decorator metadata).
+- **➡ Next action: T1.1** — Catalog module: Product CRUD (brand, model, category, tax code, prices) + CSV import. Then T1.2 GRN receiving with serials.
 
 ## The plan in one breath
 M0 foundations & contracts → M1 serialized inventory → M2 scheduled sales + POS checkout (stub fiscal) → M3 installment/layaway ledger → M4 delivery → M5 swap stubs for real platform APIs + offline outbox → M6 back office, i18n, design-partner UAT (30-day pilot gate).
 
 ## Repo & environment
-- **GitHub: `amashashi/BiasharaPOS_Appliances`** (user's working copy: `C:\BiasharaPOS_Appliances`). Device folder synced through commit `68a95fc`; later commits (`a21e00b`+, design-handoff adoption) still need syncing to device/GitHub.
+- **GitHub: `amashashi/BiasharaPOS_Appliances`** (user's working copy: `C:\BiasharaPOS_Appliances`). GitHub live since e613305 (user pushed). Update flow: bundle → user `git pull claude-history.bundle main` → `git push`.
 - npm workspaces: `apps/api` (NestJS 11, plain tsc, prefix `/api`), `apps/pos` (:5173 PWA shell), `apps/backoffice` (:5174), `packages/shared`. `packages/ui` arrives in T0.6.
 - Commands: `npm ci` → `npm run build --workspace packages/shared` → `npm run lint` / `npm run build` / `npm test`. DB: Postgres 16, `DATABASE_URL=postgres://biashara:biashara@localhost:5432/biashara_appliances`, then `npm run migrate | migrate:down | seed -w apps/api`. docker-compose for environments with a daemon.
 

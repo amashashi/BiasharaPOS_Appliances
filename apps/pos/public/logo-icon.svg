@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <!-- BiasharaPOS Appliances & Electronics — vertical mark -->
+  <!-- Rounded square in Biashara Green, white power-symbol with lightning-bolt stem -->
+  <rect x="0" y="0" width="96" height="96" rx="22" fill="#239B46"/>
+  <!-- power-symbol arc: full circle with a gap at the top (dash trick) -->
+  <circle cx="48" cy="57" r="17.5" fill="none" stroke="#FFFFFF" stroke-width="6.5"
+          stroke-linecap="round" pathLength="100"
+          stroke-dasharray="80 20" stroke-dashoffset="15"/>
+  <!-- lightning-bolt stem passing through the gap -->
+  <path d="M54 11 L37 37 L46.5 37 L43.5 55 L61 29 L50.5 29 Z"
+        fill="#FFFFFF" stroke="#239B46" stroke-width="2" stroke-linejoin="round"/>
+</svg>

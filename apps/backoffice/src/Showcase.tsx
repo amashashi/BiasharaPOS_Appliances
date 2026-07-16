@@ -13,6 +13,7 @@ import {
   radius,
   shadow,
   space,
+  receiptHeaderHtml,
   type Locale,
 } from '@biashara/ui';
 
@@ -42,9 +43,12 @@ export function Showcase() {
       <OfflineBar queued={3} locale={locale} />
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: space.s6 }}>
-          <h1 style={{ fontSize: fontSize.h2, fontWeight: fontWeight.heavy, color: color.ink, margin: 0 }}>
-            Biashara<span style={{ color: brand.secondary }}>POS</span>{' '}
-            <span style={{ fontSize: fontSize.sm, color: brand.subBrand, letterSpacing: '0.2em' }}>UI SHOWCASE</span>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: space.s3, fontSize: fontSize.h2, fontWeight: fontWeight.heavy, color: color.ink, margin: 0 }}>
+            <img src="/logo-icon.svg" alt="" width={40} height={40} />
+            <span>
+              Biashara<span style={{ color: brand.secondary }}>POS</span>{' '}
+              <span style={{ fontSize: fontSize.sm, color: brand.subBrand, letterSpacing: '0.2em' }}>UI SHOWCASE</span>
+            </span>
           </h1>
           <Button variant="secondary" onClick={() => setLocale(locale === 'sw' ? 'en' : 'sw')}>
             {locale === 'sw' ? 'Switch to English' : 'Badili kwenda Kiswahili'}
@@ -93,6 +97,14 @@ export function Showcase() {
             <StatusBadge kind="arrears" daysOverdue={15} locale={locale} />
             <StatusBadge kind="arrears" daysOverdue={45} locale={locale} />
           </div>
+        </section>
+
+        <section style={card}>
+          <h2 style={h}>Receipt header (80mm)</h2>
+          <div
+            style={{ width: 302, border: `1px solid ${color.line}`, padding: space.s3, background: color.surface }}
+            dangerouslySetInnerHTML={{ __html: receiptHeaderHtml({ merchantName: 'Demo Electronics Ltd', tin: '123-456-789', locationName: 'Kariakoo', phone: '+255 700 000 001' }) }}
+          />
         </section>
 
         <section style={card}>

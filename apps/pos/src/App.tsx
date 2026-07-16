@@ -1,8 +1,8 @@
 /**
  * POS shell — placeholder until T2.6 builds the checkout flow.
- * Styled from @biashara/ui tokens (T0.6); no raw brand values here.
+ * Brand lockup per DESIGN_SYSTEM.md §6 (canonical assets, D-016); tokens only.
  */
-import { brand, color, font, fontSize, fontWeight, space } from '@biashara/ui';
+import { color, font, fontSize, fontWeight, space } from '@biashara/ui';
 
 export function App(): JSX.Element {
   return (
@@ -17,21 +17,14 @@ export function App(): JSX.Element {
       }}
     >
       <div style={{ textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontWeight: fontWeight.heavy }}>
-          Biashara<span style={{ color: brand.secondary }}>POS</span>
-        </h1>
-        <p
-          style={{
-            color: brand.subBrand,
-            letterSpacing: '0.2em',
-            fontSize: fontSize.sm,
-            fontWeight: fontWeight.semibold,
-            margin: `${space.s2}px 0`,
-          }}
-        >
-          APPLIANCES &amp; ELECTRONICS — POS
+        <img
+          src="/logo-lockup.svg"
+          alt="BiasharaPOS Appliances & Electronics"
+          style={{ width: 320, maxWidth: '80vw', marginBottom: space.s4 }}
+        />
+        <p style={{ color: color.ink3, fontSize: fontSize.body, fontWeight: fontWeight.regular }}>
+          Shell scaffold. Checkout arrives in M2.
         </p>
-        <p style={{ color: color.ink3 }}>Shell scaffold. Checkout arrives in M2.</p>
       </div>
     </main>
   );

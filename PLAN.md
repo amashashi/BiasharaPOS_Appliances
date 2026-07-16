@@ -6,7 +6,7 @@
 **Approved by:** Abdallah Mashashi — 2026-07-15
 
 ## Milestones
-- [ ] **M0 — Foundations & contracts:** repo, CI, schema base, platform-adapter contracts with working stubs; the walking skeleton deploys.
+- [x] **M0 — Foundations & contracts:** repo, CI, schema base, platform-adapter contracts with working stubs; the walking skeleton deploys.
 - [ ] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
 - [ ] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
 - [ ] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
@@ -23,7 +23,7 @@
 - [x] **T0.4** Auth middleware: validate platform JWT, resolve merchant/user/roles; role guard scaffolding (OWNER, CASHIER, DELIVERY). — *Verify:* requests without/with wrong-role token rejected in integration test.
 - [x] **T0.5** Append-only audit-event table + helper (every domain mutation logs actor, entity, before/after). — *Verify:* creating any entity writes an audit row; test asserts immutability (no UPDATE/DELETE grants).
 - [x] **T0.6** Design system foundation per `DESIGN_SYSTEM.md`: `packages/ui` with `tokens.ts` (inherited Biashara Green palette, Steel Blue sub-brand accent, type scale, spacing, domain status colors), core components (Button, MoneyDisplay with tabular-nums TZS, StatusBadge, SerialChip, OfflineBar), and a lint rule banning raw hex/spacing literals in feature code. — *Verify:* component showcase page renders all tokens/components in both Swahili and English; lint fails a fixture file containing a hex literal.
-- [ ] **T0.7** Brand assets integrated: sub-brand lockup and icon (`brand/logo-appliances-lockup.svg`, `brand/logo-appliances-icon.svg`) wired into POS shell, back-office shell, favicon/PWA manifest icons, and the receipt/statement header templates. — *Verify:* both app shells display the lockup per the usage rules in DESIGN_SYSTEM.md §6; receipt preview shows the icon; PWA install prompt shows the correct icon.
+- [x] **T0.7** Brand assets integrated: sub-brand lockup and icon (`brand/logo-appliances-lockup.svg`, `brand/logo-appliances-icon.svg`) wired into POS shell, back-office shell, favicon/PWA manifest icons, and the receipt/statement header templates. — *Verify:* both app shells display the lockup per the usage rules in DESIGN_SYSTEM.md §6; receipt preview shows the icon; PWA install prompt shows the correct icon.
 
 ### M1 — Catalog & serialized inventory
 - [ ] **T1.1** Catalog module: Product CRUD (brand, model, category, tax code, prices), CSV import. — *Verify:* import 50-product sample file; validation errors reported per row.

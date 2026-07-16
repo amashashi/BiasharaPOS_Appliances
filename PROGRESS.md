@@ -59,3 +59,11 @@
 **Verified:** 4 token/i18n/format tests (20 total green); lint green; hex fixture file correctly rejected by the new rule ("Raw hex color…"); Chromium screenshots of the Showcase in both locales confirm palette, CTA shadow, tabular money alignment, status vocabulary incl. the 3-step arrears ramp, serial chips, offline bar.
 
 **Surprise:** a `*/` inside a doc-comment glob path terminated the comment block — reworded (watch for this in comments referencing glob paths).
+
+## 2026-07-15 — T0.7 Brand assets integration ✅ — **M0 COMPLETE**
+
+**Done:** PNG icon set (32/192/512) rendered from the canonical `brand/logo-appliances-icon.svg` (D-016); PWA manifest now declares png + svg icons; SVG+PNG favicons in both apps; POS shell renders the full lockup; Showcase header carries the mark; `receiptHeaderHtml()` in packages/ui — self-contained 80mm header (inlined icon, merchant name/TIN/location, sub-brand line; VFD QR reserved for the footer in T2.4) previewed in the Showcase.
+
+**Verified:** builds/lint/tests green; manifest fetch lists `/icons/icon-192.png, /icons/icon-512.png, /logo-icon.svg`; Chromium screenshots confirm the branded POS shell and Showcase header.
+
+**Milestone note:** GitHub is now live — user re-initialized the folder from the fresh bundle and pushed successfully (`c7fe31c..e613305 main`). Update flow until a push-capable session exists: Builder drops `claude-history.bundle` in the folder → user runs `git pull claude-history.bundle main` → `git push`.
