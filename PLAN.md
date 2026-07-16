@@ -7,7 +7,7 @@
 
 ## Milestones
 - [x] **M0 — Foundations & contracts:** repo, CI, schema base, platform-adapter contracts with working stubs; the walking skeleton deploys.
-- [ ] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
+- [x] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
 - [ ] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
 - [ ] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
 - [ ] **M4 — Delivery workflow:** scheduled fulfillment with proof.
@@ -30,7 +30,7 @@
 - [x] **T1.2** GRN receiving: create receipt with lines; capture serials per line (scan/type); duplicate-serial rejection per merchant. — *Verify:* receiving 10 units creates 10 `SerializedUnit(IN_STOCK)`; duplicate serial rejected with clear error.
 - [x] **T1.3** SerializedUnit state machine with single transition function + audit. — *Verify:* unit tests cover every legal/illegal transition; illegal transition throws and logs nothing.
 - [x] **T1.4** Stock views + serial lookup API/UI: stock by product/location, find-by-serial returns full unit history. — *Verify:* lookup of a received serial shows GRN provenance; counts match seeded data. *(UI part → T6.1 dashboards, D-022)*
-- [ ] **T1.5** Non-serialized item support (accessories, cables — qty-based) alongside serialized. — *Verify:* mixed GRN (serialized + qty lines) receives correctly; stock views show both.
+- [x] **T1.5** Non-serialized item support (accessories, cables — qty-based) alongside serialized. — *Verify:* mixed GRN (serialized + qty lines) receives correctly; stock views show both.
 
 ### M2 — Scheduled sales & POS checkout
 - [ ] **T2.1** SalesOrder module: create quote/order with lines + service lines (delivery/installation); status lifecycle; quote→order conversion; printable/shareable quote (PDF). — *Verify:* lifecycle integration test; quote PDF renders with merchant branding placeholder.

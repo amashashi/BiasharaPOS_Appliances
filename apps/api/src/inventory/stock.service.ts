@@ -12,6 +12,8 @@ export interface StockRow {
   sku: string | null;
   locationId: string;
   locationName: string;
+  isSerialized: boolean;
+  /** Serialized: count of IN_STOCK units. Non-serialized: quantity on hand. */
   inStock: number;
   reserved: number;
   sold: number;
@@ -37,28 +39,34 @@ export class StockService {
   constructor(@Inject(DATA_SOURCE) private readonly ds: DataSource) {}
 
   /**
-   * Stock by product × location (T1.4): per-status counts of units physically
-   * tied to the shop. DELIVERED units are gone and excluded; RETURNED shown
-   * separately (present but not sellable in V1).
+   * Stock by product × location (T1.4 + T1.5): serialized rows carry
+   * per-status unit counts (DELIVERED excluded — those units are gone;
+   * RETURNED shown separately); non-serialized rows carry quantity on hand.
    */
   async stock(merchantId: string, query: StockQuery): Promise<{ items: StockRow[] }> {
-    const params: unknown[] = [merchantId];
-    let where = `u."merchantId" = $1 AND u."status" <> 'DELIVERED'`;
-    if (query.productId) {
-      params.push(query.productId);
-      where += ` AND u."productId" = $${params.length}`;
-    }
-    if (query.locationId) {
-      params.push(query.locationId);
-      where += ` AND u."locationId" = $${params.length}`;
-    }
-    if (query.q) {
-      params.push(`%${query.q}%`);
-      where += ` AND (p."brand" ILIKE $${params.length} OR p."model" ILIKE $${params.length} OR p."sku" ILIKE $${params.length})`;
-    }
-    const items = await this.ds.query(
+    const filters = (unitAlias: string): { where: string; params: unknown[] } => {
+      const params: unknown[] = [merchantId];
+      let where = `${unitAlias}."merchantId" = $1`;
+      if (query.productId) {
+        params.push(query.productId);
+        where += ` AND ${unitAlias}."productId" = $${params.length}`;
+      }
+      if (query.locationId) {
+        params.push(query.locationId);
+        where += ` AND ${unitAlias}."locationId" = $${params.length}`;
+      }
+      if (query.q) {
+        params.push(`%${query.q}%`);
+        where += ` AND (p."brand" ILIKE $${params.length} OR p."model" ILIKE $${params.length} OR p."sku" ILIKE $${params.length})`;
+      }
+      return { where, params };
+    };
+
+    const serializedFilter = filters('u');
+    const serialized: StockRow[] = await this.ds.query(
       `SELECT u."productId", p."brand", p."model", p."sku",
               u."locationId", l."name" AS "locationName",
+              true AS "isSerialized",
               COUNT(*) FILTER (WHERE u."status" = 'IN_STOCK')::int  AS "inStock",
               COUNT(*) FILTER (WHERE u."status" = 'RESERVED')::int  AS "reserved",
               COUNT(*) FILTER (WHERE u."status" = 'SOLD')::int      AS "sold",
@@ -66,10 +74,30 @@ export class StockService {
          FROM serialized_units u
          JOIN products  p ON p."id" = u."productId"
          JOIN locations l ON l."id" = u."locationId"
-        WHERE ${where}
-        GROUP BY u."productId", p."brand", p."model", p."sku", u."locationId", l."name"
-        ORDER BY p."brand", p."model", l."name"`,
-      params,
+        WHERE ${serializedFilter.where} AND u."status" <> 'DELIVERED'
+        GROUP BY u."productId", p."brand", p."model", p."sku", u."locationId", l."name"`,
+      serializedFilter.params,
+    );
+
+    const levelFilter = filters('sl');
+    const nonSerialized: StockRow[] = await this.ds.query(
+      `SELECT sl."productId", p."brand", p."model", p."sku",
+              sl."locationId", l."name" AS "locationName",
+              false AS "isSerialized",
+              sl."qty"::int AS "inStock",
+              0 AS "reserved", 0 AS "sold", 0 AS "returned"
+         FROM stock_levels sl
+         JOIN products  p ON p."id" = sl."productId"
+         JOIN locations l ON l."id" = sl."locationId"
+        WHERE ${levelFilter.where}`,
+      levelFilter.params,
+    );
+
+    const items = [...serialized, ...nonSerialized].sort(
+      (a, b) =>
+        a.brand.localeCompare(b.brand) ||
+        a.model.localeCompare(b.model) ||
+        a.locationName.localeCompare(b.locationName),
     );
     return { items };
   }

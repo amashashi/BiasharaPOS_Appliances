@@ -131,12 +131,12 @@ describe('Stock views + serial lookup (T1.4, real Postgres)', () => {
     expect(res.body.items).toEqual([
       {
         productId: tv.id, brand: 'Hisense', model: '50A6K TV', sku: 'TV-50A6K',
-        locationId: ghalaId, locationName: 'Ghala',
+        locationId: ghalaId, locationName: 'Ghala', isSerialized: true,
         inStock: 1, reserved: 1, sold: 0, returned: 1, // TV-001 DELIVERED is gone from view
       },
       {
         productId: fridge.id, brand: 'Samsung', model: 'RT38 Fridge', sku: 'FRG-RT38',
-        locationId: dukaId, locationName: 'Duka',
+        locationId: dukaId, locationName: 'Duka', isSerialized: true,
         inStock: 4, reserved: 1, sold: 1, returned: 0,
       },
     ]);

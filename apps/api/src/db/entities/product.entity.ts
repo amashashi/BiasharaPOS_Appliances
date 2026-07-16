@@ -49,6 +49,14 @@ export class Product {
   @Column({ type: 'integer', nullable: true })
   costTzs!: Tzs | null;
 
+  /**
+   * Serialized products are tracked unit-by-unit (serialized_units, T1.2);
+   * non-serialized (accessories, cables) by quantity (stock_levels, T1.5).
+   * Immutable once the product has any stock — the two models don't convert.
+   */
+  @Column({ type: 'boolean', default: true })
+  isSerialized!: boolean;
+
   /** Soft archive: products referenced by units/orders are never hard-deleted. */
   @Column({ type: 'boolean', default: true })
   active!: boolean;
