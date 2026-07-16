@@ -33,7 +33,7 @@
 - [x] **T1.5** Non-serialized item support (accessories, cables — qty-based) alongside serialized. — *Verify:* mixed GRN (serialized + qty lines) receives correctly; stock views show both.
 
 ### M2 — Scheduled sales & POS checkout
-- [ ] **T2.1** SalesOrder module: create quote/order with lines + service lines (delivery/installation); status lifecycle; quote→order conversion; printable/shareable quote (PDF). — *Verify:* lifecycle integration test; quote PDF renders with merchant branding placeholder.
+- [x] **T2.1** SalesOrder module: create quote/order with lines + service lines (delivery/installation); status lifecycle; quote→order conversion; printable/shareable quote (PDF). — *Verify:* lifecycle integration test; quote PDF renders with merchant branding placeholder.
 - [ ] **T2.2** Serial reservation & pick: reserve specific serials at order time OR defer; pick at fulfillment; release on cancel. — *Verify:* reserved serial excluded from available stock; cancel returns it; deferred order fulfills with pick.
 - [ ] **T2.3** Payments on orders: record CASH payment; compute balance; deposit vs. full payment; reversing-entry corrections. — *Verify:* ledger test — deposit + balance = total; correction produces reversing entry, never mutation.
 - [ ] **T2.4** Fiscal integration point: every payment triggers `FiscalService.issueReceipt` (stub); receipt (HTML/PDF) shows VFD number + QR; fiscal failures land in a retry queue (BullMQ). — *Verify:* payment → receipt with stub VFD number; forced stub failure retries and succeeds; receipt reprint works.

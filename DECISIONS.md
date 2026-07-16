@@ -4,6 +4,15 @@
 
 ---
 
+### D-023 — Quote/receipt PDFs via pdfkit; API consumes design tokens through a subpath export
+**Date:** 2026-07-16 · **Mode:** Builder
+**Decision:** Document rendering (T2.1 quote, later T2.4 receipts / T3.5 statements) uses `pdfkit` (pure JS, no native binaries or headless browser). Brand values come from the new `@biashara/ui/tokens` subpath export — tokens only, so the API respects the hex ban without pulling React from the ui package's main entry. PDFs are generated uncompressed (`compress:false`) — negligible size, and content stays assertable in tests. Branding placeholder = brand bar + wordmark text in canonical colors; the drawn logo mark joins at T2.4.
+**Why:** pdfkit is the smallest thing that makes a real, printable PDF (verify clause says PDF, not HTML); Chromium/puppeteer for print-to-PDF is a giant dependency and likely blocked on this network (D-014 pattern); one token source across web and PDF output.
+**Rejected:** print-ready HTML only (fails the clause); puppeteer (footprint + network risk); duplicating brand hex values in the API (defeats the single-source rule the lint enforces).
+**Status:** active
+
+---
+
 ### D-022 — T1.4 ships API-only; the stock UI lands with the M6 dashboards
 **Date:** 2026-07-16 · **Mode:** Builder
 **Decision:** T1.4's "API/UI" delivered the API (`GET /stock`, `GET /units/lookup`); the visual stock screen is deferred to T6.1 (back-office dashboards include "stock summary + aging").
