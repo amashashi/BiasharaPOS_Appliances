@@ -4,6 +4,15 @@
 
 ---
 
+### D-028 — Stub-era dev sign-in endpoints carry the POS until real identity (T5.1)
+**Date:** 2026-07-17 · **Mode:** Builder
+**Decision:** `DevAuthController` (`/auth/dev/context`, `/auth/dev/login`, `/auth/dev/mm-resolve`) gives the POS a merchant/role picker, stub-signed JWTs, and STK-approval simulation. All routes 404 when `DEV_AUTH=off` (set in any real deployment) and require the stub services (duck-typed `sign`/`confirm` — a real IdentityService makes them inert). The controller is DELETED when T5.1 lands the platform OAuth. API CORS is permissive (bearer-only auth, no cookies) for the same window.
+**Why:** T2.6 needs a signed token to exercise every guarded endpoint; building real login against a stub would be throwaway of a different, more deceptive kind. Explicit, flagged scaffolding beats a hardcoded token in the client.
+**Rejected:** tokens hardcoded in the POS bundle (invisible, leaks into builds); building the T5.1 OAuth flow early against a fake issuer (wasted twice); leaving the POS unauthenticated behind a mock fetch layer (would verify nothing real).
+**Status:** active (self-destructs at T5.1)
+
+---
+
 ### D-027 — Confirmed mobile money that no longer fits the balance is held, not forced or dropped
 **Date:** 2026-07-17 · **Mode:** Builder
 **Decision:** When a confirmation webhook arrives for an intent whose amount now exceeds the order balance (e.g. cash settled the order while the push was pending), the intent resolves CONFIRMED with `appliedPaymentId = null` and an `MM_CONFIRMED_UNAPPLIED` audit event. No ledger entry is written, nothing is silently discarded — these rows are the input for the T5.3 reconciliation view, where a human decides (refund, apply elsewhere).
