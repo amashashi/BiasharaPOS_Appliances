@@ -1,10 +1,58 @@
-import type { Tzs } from '@biashara/shared';
+import type { ScheduleRowStatus, Tzs } from '@biashara/shared';
 import type { FieldError } from '../catalog/product.rules.js';
 
 export interface ScheduleRowPlan {
   seq: number;
   dueDate: string; // YYYY-MM-DD
   amountTzs: Tzs;
+}
+
+/** Minimal row shape the applicator mutates (seq order = due order). */
+export interface ApplicableRow {
+  seq: number;
+  amountTzs: Tzs;
+  paidTzs: Tzs;
+  status: ScheduleRowStatus;
+}
+
+/** Row status from paid vs owed. OVERDUE is the arrears engine's business (T3.3), not this. */
+export function rowStatusFor(row: { amountTzs: Tzs; paidTzs: Tzs }): ScheduleRowStatus {
+  if (row.paidTzs >= row.amountTzs) return 'PAID';
+  if (row.paidTzs > 0) return 'PARTIAL';
+  return 'PENDING';
+}
+
+/**
+ * Distribute a payment delta across schedule rows (T3.2), mutating paidTzs +
+ * status in place. Positive delta fills oldest-due-first; negative delta
+ * (a reversal) unwinds newest-paid-first — so the schedule always mirrors the
+ * ledger. Returns the leftover that didn't fit (0 in normal flow, since the
+ * order-balance guard already caps payments at what's owed).
+ */
+export function applyDelta(rows: ApplicableRow[], deltaTzs: Tzs): Tzs {
+  if (deltaTzs > 0) {
+    let remaining = deltaTzs;
+    for (const row of [...rows].sort((a, b) => a.seq - b.seq)) {
+      if (remaining <= 0) break;
+      const room = row.amountTzs - row.paidTzs;
+      if (room <= 0) continue;
+      const take = Math.min(remaining, room);
+      row.paidTzs += take;
+      remaining -= take;
+      row.status = rowStatusFor(row);
+    }
+    return remaining;
+  }
+  let remaining = -deltaTzs;
+  for (const row of [...rows].sort((a, b) => b.seq - a.seq)) {
+    if (remaining <= 0) break;
+    if (row.paidTzs <= 0) continue;
+    const take = Math.min(remaining, row.paidTzs);
+    row.paidTzs -= take;
+    remaining -= take;
+    row.status = rowStatusFor(row);
+  }
+  return remaining;
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

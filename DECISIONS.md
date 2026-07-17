@@ -4,6 +4,15 @@
 
 ---
 
+### D-030 — Schedule application is a transaction hook on the payment door, not a separate step
+**Date:** 2026-07-17 · **Mode:** Builder
+**Decision:** Payments apply to a credit schedule via a hook registered on `PaymentsService` (`registerAppliedHook`), fired inside the payment's transaction for every ledger row — positive (payment) and negative (reversal). The credit module registers a `ScheduleApplicationService` that distributes the delta oldest-due-first (reversals newest-paid-first) and settles/reopens the agreement. Application is a side effect of paying through the existing endpoints; there is no `/schedule/apply` call and no schedule-side balance (the order ledger is the one source of money truth — deposit+schedule=total per D-029, so overpayment is already caught by the order-balance guard).
+**Why:** The schedule and the order ledger are two views of the same money; they must move together or a crash desyncs the notebook from the ledger — a transaction hook guarantees atomicity. A hook (vs. Orders calling Credit) keeps the dependency direction Credit→Orders intact. Settling flips T3.1's layaway gate with no new code, so "settlement releases goods" falls out for free.
+**Rejected:** a separate apply-to-schedule endpoint (two writes, desync window, double-entry surface); Orders importing Credit (circular); a schedule-side running balance (second source of truth that can disagree with the ledger).
+**Status:** active
+
+---
+
 ### D-029 — Agreement snapshot semantics: deposit = paid-at-creation; layaway enforced at fulfillment
 **Date:** 2026-07-17 · **Mode:** Builder
 **Decision:** A credit agreement snapshots the order at creation: `principalTzs` = order total, `depositTzs` = sum already paid on the order, and the schedule must finance exactly the difference — so **deposit + schedule = principal** is a checkable identity, not a convention. "LAYAWAY holds units RESERVED" is enforced at the single choke point goods pass through (FulfillmentService.fulfill, inside the same transaction that would move them; delivery in M4 goes through fulfillment too). Orders with an ACTIVE agreement cannot be cancelled — the agreement resolves first (cancellation flow later in M3). Credit requires a customer attached to the order.

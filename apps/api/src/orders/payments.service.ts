@@ -29,6 +29,17 @@ export interface PaymentSummary {
   balanceTzs: Tzs;
 }
 
+/**
+ * Runs inside a payment's transaction for every ledger row written — positive
+ * (a payment) or negative (a reversal). Lets the credit module apply the delta
+ * to an agreement's schedule atomically without Orders depending on Credit.
+ */
+export type PaymentAppliedHook = (
+  mgr: EntityManager,
+  order: SalesOrder,
+  payment: Payment,
+) => Promise<void>;
+
 const MAX_TZS = 2_000_000_000;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** Quotes aren't orders; cancelled/closed orders take no new money. */
@@ -41,12 +52,23 @@ const PAYABLE = ['CONFIRMED', 'PARTIALLY_FULFILLED', 'FULFILLED'] as const;
  */
 @Injectable()
 export class PaymentsService {
+  private readonly appliedHooks: PaymentAppliedHook[] = [];
+
   constructor(
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
     @Inject(OrdersService) private readonly orders: OrdersService,
     @Inject(AuditService) private readonly audit: AuditService,
     @Inject(FiscalQueueService) private readonly fiscalQueue: FiscalQueueService,
   ) {}
+
+  /** Credit module registers here (T3.2) so schedule application shares the payment transaction. */
+  registerAppliedHook(hook: PaymentAppliedHook): void {
+    this.appliedHooks.push(hook);
+  }
+
+  private async runAppliedHooks(mgr: EntityManager, order: SalesOrder, payment: Payment): Promise<void> {
+    for (const hook of this.appliedHooks) await hook(mgr, order, payment);
+  }
 
   /** Record a CASH payment (mobile money arrives via webhook in T2.5). */
   async record(merchantId: string, orderId: string, actorUserId: string, input: RecordPaymentInput) {
@@ -150,6 +172,8 @@ export class PaymentsService {
       },
       mgr,
     );
+    // credit schedule application (T3.2) — atomic with the payment
+    await this.runAppliedHooks(mgr, order, payment);
     // fully fulfilled + fully paid = done (FULFILLED→CLOSED per the graph)
     if (balanceAfter === 0 && order.status === 'FULFILLED') {
       await this.orders.transition(order.merchantId, order.id, 'CLOSED', opts.actorUserId, mgr);
@@ -221,6 +245,8 @@ export class PaymentsService {
         },
         mgr,
       );
+      // unwind the reversal's negative delta from the schedule (T3.2)
+      await this.runAppliedHooks(mgr, order, reversal);
       const summary = await this.orderSummary(mgr, order);
       return { payment: reversal, summary: { ...summary, balanceTzs: summary.totalTzs - summary.paidTzs } };
     });

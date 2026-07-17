@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { OrdersModule } from '../orders/orders.module.js';
 import { CreditController } from './credit.controller.js';
 import { CreditService } from './credit.service.js';
+import { ScheduleApplicationService } from './schedule-application.service.js';
 
 /**
  * Credit domain module (M3): agreements + schedules (T3.1), payment
@@ -11,7 +12,7 @@ import { CreditService } from './credit.service.js';
 @Module({
   imports: [OrdersModule],
   controllers: [CreditController],
-  providers: [CreditService],
+  providers: [CreditService, ScheduleApplicationService],
   exports: [CreditService],
 })
 export class CreditModule {}
