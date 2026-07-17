@@ -1,31 +1,37 @@
 /**
- * POS shell — placeholder until T2.6 builds the checkout flow.
- * Brand lockup per DESIGN_SYSTEM.md §6 (canonical assets, D-016); tokens only.
+ * POS checkout (T2.6): dev sign-in (stub era, D-028) → search/cart/customer →
+ * cash or mobile-money payment → fiscal receipt print view. Tokens only.
  */
-import { color, font, fontSize, fontWeight, space } from '@biashara/ui';
+import { useState } from 'react';
+import type { Locale } from '@biashara/ui';
+import { loadSession, saveSession, type Session } from './api.js';
+import { DevLogin } from './screens/DevLogin.js';
+import { Checkout } from './screens/Checkout.js';
 
 export function App(): JSX.Element {
+  const [session, setSession] = useState<Session | null>(loadSession());
+  const [locale, setLocale] = useState<Locale>('sw');
+
+  if (!session) {
+    return (
+      <DevLogin
+        locale={locale}
+        onSignIn={(s) => {
+          saveSession(s);
+          setSession(s);
+        }}
+      />
+    );
+  }
   return (
-    <main
-      style={{
-        fontFamily: font.sans,
-        minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        background: color.bg,
-        color: color.ink,
+    <Checkout
+      session={session}
+      locale={locale}
+      onLocale={setLocale}
+      onSignOut={() => {
+        saveSession(null);
+        setSession(null);
       }}
-    >
-      <div style={{ textAlign: 'center' }}>
-        <img
-          src="/logo-lockup.svg"
-          alt="BiasharaPOS Appliances & Electronics"
-          style={{ width: 320, maxWidth: '80vw', marginBottom: space.s4 }}
-        />
-        <p style={{ color: color.ink3, fontSize: fontSize.body, fontWeight: fontWeight.regular }}>
-          Shell scaffold. Checkout arrives in M2.
-        </p>
-      </div>
-    </main>
+    />
   );
 }

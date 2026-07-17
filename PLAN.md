@@ -8,7 +8,7 @@
 ## Milestones
 - [x] **M0 — Foundations & contracts:** repo, CI, schema base, platform-adapter contracts with working stubs; the walking skeleton deploys.
 - [x] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
-- [ ] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
+- [x] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
 - [ ] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
 - [ ] **M4 — Delivery workflow:** scheduled fulfillment with proof.
 - [ ] **M5 — Real platform integration & offline:** stubs swapped for real APIs; POS survives an outage.
@@ -38,7 +38,7 @@
 - [x] **T2.3** Payments on orders: record CASH payment; compute balance; deposit vs. full payment; reversing-entry corrections. — *Verify:* ledger test — deposit + balance = total; correction produces reversing entry, never mutation.
 - [x] **T2.4** Fiscal integration point: every payment triggers `FiscalService.issueReceipt` (stub); receipt (HTML/PDF) shows VFD number + QR; fiscal failures land in a retry queue (BullMQ). — *Verify:* payment → receipt with stub VFD number; forced stub failure retries and succeeds; receipt reprint works.
 - [x] **T2.5** Mobile-money payment at POS via `PaymentsService` stub: initiate push, pending state, webhook confirms, auto-applies + fiscalizes. — *Verify:* e2e test: initiate → webhook → payment applied → fiscal receipt issued.
-- [ ] **T2.6** POS PWA checkout flow: product search/scan, cart, customer attach (name+phone), deposit/full payment, receipt print view. — *Verify:* manual script — complete a cash sale and a deposit sale in under 90 seconds each on a tablet browser.
+- [x] **T2.6** POS PWA checkout flow: product search/scan, cart, customer attach (name+phone), deposit/full payment, receipt print view. — *Verify:* manual script — complete a cash sale and a deposit sale in under 90 seconds each on a tablet browser.
 
 ### M3 — Installment & layaway ledger
 - [ ] **T3.1** CreditAgreement module: create from order (type, deposit, schedule generator — equal monthly or custom rows); INSTALLMENT releases goods, LAYAWAY holds units RESERVED. — *Verify:* both types created from same order fixture; layaway blocks delivery until settled (test).
