@@ -66,79 +66,114 @@ export class PaymentsService {
 
     const result = await this.ds.transaction(async (mgr) => {
       const order = await this.lockOrder(mgr, merchantId, orderId);
-      if (!(PAYABLE as readonly string[]).includes(order.status)) {
-        throw new BadRequestException({
-          message: `Payments apply to ${PAYABLE.join('/')} orders (this one is ${order.status})`,
-        });
-      }
-      const { totalTzs, paidTzs } = await this.summaryOf(mgr, order);
-      const balanceTzs = totalTzs - paidTzs;
-      if (amountTzs > balanceTzs) {
-        throw new BadRequestException({
-          message: 'Validation failed',
-          errors: [{
-            field: 'amountTzs',
-            message: `payment of TZS ${amountTzs.toLocaleString('en-US')} exceeds the balance of TZS ${balanceTzs.toLocaleString('en-US')}`,
-          }],
-        });
-      }
-
-      const payment = await mgr.getRepository(Payment).save(
-        mgr.getRepository(Payment).create({
-          merchantId,
-          orderId: order.id,
-          method: 'CASH',
-          amountTzs,
-          reversesPaymentId: null,
-          note: this.trimmed(input.note),
-          recordedByUserId: actorUserId,
-        }),
-      );
-      const balanceAfter = balanceTzs - amountTzs;
-      await this.audit.record(
-        {
-          merchantId,
-          actorUserId,
-          entityType: 'Payment',
-          entityId: payment.id,
-          action: 'PAYMENT_RECORDED',
-          after: {
-            orderId: order.id,
-            orderNumber: order.number,
-            method: 'CASH',
-            amountTzs,
-            kind: balanceAfter === 0 ? 'FULL_SETTLEMENT' : 'DEPOSIT',
-            balanceAfterTzs: balanceAfter,
-          },
-        },
-        mgr,
-      );
-      // fully fulfilled + fully paid = done (FULFILLED→CLOSED per the graph)
-      if (balanceAfter === 0 && order.status === 'FULFILLED') {
-        await this.orders.transition(merchantId, order.id, 'CLOSED', actorUserId, mgr);
-      }
-      return {
-        payment,
-        summary: { totalTzs, paidTzs: paidTzs + amountTzs, balanceTzs: balanceAfter },
-      };
+      this.assertPayable(order);
+      return this.applyPayment(mgr, order, {
+        method: 'CASH',
+        amountTzs,
+        note: this.trimmed(input.note),
+        actorUserId,
+        recordedByUserId: actorUserId,
+      });
     });
 
     // Every payment fiscalizes (D-008) — enqueued AFTER commit so the worker
-    // always sees the row. An enqueue failure must not lose the payment;
-    // it lands in the audit log instead (aging alert catches it in T5.7).
+    // always sees the row.
+    await this.enqueueFiscal(merchantId, actorUserId, result.payment.id);
+    return result;
+  }
+
+  /** Throws unless the order can take money. Shared by cash recording and mobile-money initiation. */
+  assertPayable(order: SalesOrder): void {
+    if (!(PAYABLE as readonly string[]).includes(order.status)) {
+      throw new BadRequestException({
+        message: `Payments apply to ${PAYABLE.join('/')} orders (this one is ${order.status})`,
+      });
+    }
+  }
+
+  /**
+   * Insert a ledger entry + PAYMENT_RECORDED audit + auto-close, inside the
+   * caller's transaction (order must be locked). The single door every
+   * applied payment goes through — cash (record) and webhook (T2.5) alike.
+   * Throws if the amount exceeds the live balance.
+   */
+  async applyPayment(
+    mgr: EntityManager,
+    order: SalesOrder,
+    opts: {
+      method: 'CASH' | 'MOBILE_MONEY';
+      amountTzs: number;
+      note: string | null;
+      actorUserId: string;
+      recordedByUserId: string;
+    },
+  ): Promise<{ payment: Payment; summary: PaymentSummary }> {
+    const { totalTzs, paidTzs } = await this.orderSummary(mgr, order);
+    const balanceTzs = totalTzs - paidTzs;
+    if (opts.amountTzs > balanceTzs) {
+      throw new BadRequestException({
+        message: 'Validation failed',
+        errors: [{
+          field: 'amountTzs',
+          message: `payment of TZS ${opts.amountTzs.toLocaleString('en-US')} exceeds the balance of TZS ${balanceTzs.toLocaleString('en-US')}`,
+        }],
+      });
+    }
+
+    const payment = await mgr.getRepository(Payment).save(
+      mgr.getRepository(Payment).create({
+        merchantId: order.merchantId,
+        orderId: order.id,
+        method: opts.method,
+        amountTzs: opts.amountTzs,
+        reversesPaymentId: null,
+        note: opts.note,
+        recordedByUserId: opts.recordedByUserId,
+      }),
+    );
+    const balanceAfter = balanceTzs - opts.amountTzs;
+    await this.audit.record(
+      {
+        merchantId: order.merchantId,
+        actorUserId: opts.actorUserId,
+        entityType: 'Payment',
+        entityId: payment.id,
+        action: 'PAYMENT_RECORDED',
+        after: {
+          orderId: order.id,
+          orderNumber: order.number,
+          method: opts.method,
+          amountTzs: opts.amountTzs,
+          kind: balanceAfter === 0 ? 'FULL_SETTLEMENT' : 'DEPOSIT',
+          balanceAfterTzs: balanceAfter,
+        },
+      },
+      mgr,
+    );
+    // fully fulfilled + fully paid = done (FULFILLED→CLOSED per the graph)
+    if (balanceAfter === 0 && order.status === 'FULFILLED') {
+      await this.orders.transition(order.merchantId, order.id, 'CLOSED', opts.actorUserId, mgr);
+    }
+    return {
+      payment,
+      summary: { totalTzs, paidTzs: paidTzs + opts.amountTzs, balanceTzs: balanceAfter },
+    };
+  }
+
+  /** Fiscalize a committed payment (D-008). Enqueue failure is audited, never thrown. */
+  async enqueueFiscal(merchantId: string, actorUserId: string, paymentId: string): Promise<void> {
     try {
-      await this.fiscalQueue.enqueue(result.payment.id);
+      await this.fiscalQueue.enqueue(paymentId);
     } catch (e) {
       await this.audit.record({
         merchantId,
         actorUserId,
         entityType: 'Payment',
-        entityId: result.payment.id,
+        entityId: paymentId,
         action: 'FISCAL_ENQUEUE_FAILED',
         after: { error: (e as Error).message },
       });
     }
-    return result;
   }
 
   /** Correction: a reversing entry mirroring the original. The original row is never touched. */
@@ -186,7 +221,7 @@ export class PaymentsService {
         },
         mgr,
       );
-      const summary = await this.summaryOf(mgr, order);
+      const summary = await this.orderSummary(mgr, order);
       return { payment: reversal, summary: { ...summary, balanceTzs: summary.totalTzs - summary.paidTzs } };
     });
   }
@@ -199,11 +234,11 @@ export class PaymentsService {
     const items = await this.ds
       .getRepository(Payment)
       .find({ where: { orderId: order.id }, order: { seq: 'ASC' } });
-    const { totalTzs, paidTzs } = await this.summaryOf(this.ds.manager, order);
+    const { totalTzs, paidTzs } = await this.orderSummary(this.ds.manager, order);
     return { items, summary: { totalTzs, paidTzs, balanceTzs: totalTzs - paidTzs } };
   }
 
-  private async summaryOf(
+  async orderSummary(
     mgr: EntityManager,
     order: SalesOrder,
   ): Promise<{ totalTzs: Tzs; paidTzs: Tzs }> {
