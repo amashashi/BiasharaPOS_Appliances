@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { addMonthsClamped, generateEqualMonthly, validateCustomRows } from './schedule.js';
+import type { ScheduleRowStatus } from '@biashara/shared';
+import {
+  addMonthsClamped,
+  applyDelta,
+  generateEqualMonthly,
+  rowStatusFor,
+  validateCustomRows,
+  type ApplicableRow,
+} from './schedule.js';
+
+const rows = (...amounts: number[]): ApplicableRow[] =>
+  amounts.map((amountTzs, i) => ({ seq: i + 1, amountTzs, paidTzs: 0, status: 'PENDING' as ScheduleRowStatus }));
+const snapshot = (rs: ApplicableRow[]) => rs.map((r) => ({ paid: r.paidTzs, status: r.status }));
 
 describe('credit schedule generator (T3.1)', () => {
   it('adds months keeping the due day, clamped to month end', () => {
@@ -43,5 +55,55 @@ describe('credit schedule generator (T3.1)', () => {
 
     const wrongSum = validateCustomRows(100_000, [{ dueDate: '2026-08-10', amountTzs: 99_999 }]);
     expect(wrongSum.errors[0].message).toContain('must sum to the financed amount');
+  });
+});
+
+describe('credit schedule payment application (T3.2)', () => {
+  it('rowStatusFor derives PAID / PARTIAL / PENDING', () => {
+    expect(rowStatusFor({ amountTzs: 100, paidTzs: 100 })).toBe('PAID');
+    expect(rowStatusFor({ amountTzs: 100, paidTzs: 40 })).toBe('PARTIAL');
+    expect(rowStatusFor({ amountTzs: 100, paidTzs: 0 })).toBe('PENDING');
+  });
+
+  it('fills oldest-due-first, leaving a partial on the boundary row', () => {
+    const rs = rows(300_000, 300_000, 300_000, 300_000);
+    const left = applyDelta(rs, 750_000);
+    expect(left).toBe(0);
+    expect(snapshot(rs)).toEqual([
+      { paid: 300_000, status: 'PAID' },
+      { paid: 300_000, status: 'PAID' },
+      { paid: 150_000, status: 'PARTIAL' },
+      { paid: 0, status: 'PENDING' },
+    ]);
+  });
+
+  it('accumulates across calls and reports the leftover that does not fit', () => {
+    const rs = rows(100_000, 100_000);
+    applyDelta(rs, 100_000); // clears row 1
+    const left = applyDelta(rs, 150_000); // clears row 2 (100k), 50k has nowhere to go
+    expect(left).toBe(50_000);
+    expect(rs.every((r) => r.status === 'PAID')).toBe(true);
+  });
+
+  it('a reversal unwinds newest-paid-first (mirror of application order)', () => {
+    const rs = rows(300_000, 300_000, 300_000);
+    applyDelta(rs, 700_000); // rows: 300k PAID, 300k PAID, 100k PARTIAL
+    applyDelta(rs, -250_000); // unwind from the newest paid row first
+    expect(snapshot(rs)).toEqual([
+      { paid: 300_000, status: 'PAID' },
+      { paid: 150_000, status: 'PARTIAL' }, // 100k (row3) + 150k (row2) removed
+      { paid: 0, status: 'PENDING' },
+    ]);
+  });
+
+  it('full application then full reversal returns to all-PENDING', () => {
+    const rs = rows(500_000, 700_000);
+    applyDelta(rs, 1_200_000);
+    expect(rs.every((r) => r.status === 'PAID')).toBe(true);
+    applyDelta(rs, -1_200_000);
+    expect(snapshot(rs)).toEqual([
+      { paid: 0, status: 'PENDING' },
+      { paid: 0, status: 'PENDING' },
+    ]);
   });
 });
