@@ -4,6 +4,15 @@
 
 ---
 
+### D-031 — Arrears: persisted OVERDUE flag drives display/reminders; dashboard computes live from dates
+**Date:** 2026-07-17 · **Mode:** Builder
+**Decision:** Two complementary layers. (1) The nightly BullMQ job (`recomputeOverdue`) *persists* OVERDUE on past-due unpaid rows — this is what the schedule view shows and what T3.4 reminders will trigger on. (2) The dashboard *computes* arrears live from `dueDate < asOf AND paidTzs < amountTzs`, never trusting the persisted flag — so it's correct even if the job hasn't run yet or `asOf` is backdated. `recomputeOverdue` takes an optional `merchantId` (nightly job runs global; also enables merchant-scoped recompute and test isolation on the shared DB). Every method takes explicit `asOf` for fake-clock testing. Back-office arrears screen ships now (not deferred like D-022's stock view) since it's M3's headline deliverable and the D-028 dev-auth pattern made it cheap.
+**Why:** A persisted status is needed for the schedule display and reminder triggers, but making the *dashboard* depend on job timing would show stale or empty arrears between runs — computing live from dates is always right. Two sources, each authoritative for its purpose, kept consistent by the same predicate.
+**Rejected:** dashboard reads the persisted OVERDUE flag only (stale between runs, wrong for backdated asOf); no persisted flag at all (T3.4 reminders need a durable overdue signal + audit trail); merchant-scoped-only recompute (the real nightly job is global).
+**Status:** active
+
+---
+
 ### D-030 — Schedule application is a transaction hook on the payment door, not a separate step
 **Date:** 2026-07-17 · **Mode:** Builder
 **Decision:** Payments apply to a credit schedule via a hook registered on `PaymentsService` (`registerAppliedHook`), fired inside the payment's transaction for every ledger row — positive (payment) and negative (reversal). The credit module registers a `ScheduleApplicationService` that distributes the delta oldest-due-first (reversals newest-paid-first) and settles/reopens the agreement. Application is a side effect of paying through the existing endpoints; there is no `/schedule/apply` call and no schedule-side balance (the order ledger is the one source of money truth — deposit+schedule=total per D-029, so overpayment is already caught by the order-balance guard).
