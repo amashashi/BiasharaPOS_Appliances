@@ -1,10 +1,17 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DataSource, In, type EntityManager } from 'typeorm';
 import { DATA_SOURCE } from '../db/tokens.js';
 import { SalesOrder } from '../db/entities/sales-order.entity.js';
 import { SalesOrderLine } from '../db/entities/sales-order-line.entity.js';
 import { SerializedUnit } from '../db/entities/serialized-unit.entity.js';
 import { StockLevel } from '../db/entities/stock-level.entity.js';
+import { CreditAgreement } from '../db/entities/credit-agreement.entity.js';
 import { UnitStateService } from '../inventory/unit-state.service.js';
 import { OrdersService } from './orders.service.js';
 import type { FieldError } from '../catalog/product.rules.js';
@@ -103,6 +110,14 @@ export class FulfillmentService {
         throw new BadRequestException({
           message: `Only CONFIRMED orders fulfill (this one is ${order.status})`,
         });
+      }
+      // LAYAWAY holds the goods until the schedule is settled (T3.1);
+      // INSTALLMENT releases them — that's the whole difference between the two.
+      const agreement = await mgr.getRepository(CreditAgreement).findOneBy({ orderId: order.id });
+      if (agreement?.type === 'LAYAWAY' && agreement.status !== 'SETTLED') {
+        throw new ConflictException(
+          `Layaway holds goods until fully paid — agreement is ${agreement.status}`,
+        );
       }
       const lines = await mgr
         .getRepository(SalesOrderLine)
@@ -208,6 +223,14 @@ export class FulfillmentService {
   async cancel(merchantId: string, orderId: string, actorUserId: string) {
     await this.ds.transaction(async (mgr) => {
       const order = await this.lockOrder(mgr, merchantId, orderId);
+      // an ACTIVE agreement means money is owed against a schedule — resolve
+      // the agreement first (cancellation flow arrives later in M3)
+      const agreement = await mgr.getRepository(CreditAgreement).findOneBy({ orderId: order.id });
+      if (agreement?.status === 'ACTIVE') {
+        throw new ConflictException(
+          `Order has an ACTIVE ${agreement.type} agreement — resolve it before cancelling`,
+        );
+      }
       const reserved = await mgr
         .getRepository(SerializedUnit)
         .createQueryBuilder('u')

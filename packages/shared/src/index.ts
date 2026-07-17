@@ -54,6 +54,9 @@ export type CreditAgreementStatus =
   | 'DEFAULTED'
   | 'CANCELLED';
 
+/** One row of a credit agreement's payment schedule (T3.1). */
+export type ScheduleRowStatus = 'PENDING' | 'PAID' | 'PARTIAL' | 'OVERDUE';
+
 export type DeliveryStatus = 'PLANNED' | 'DISPATCHED' | 'DELIVERED' | 'FAILED';
 
 export * from './contracts.js';

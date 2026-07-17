@@ -4,6 +4,15 @@
 
 ---
 
+### D-029 — Agreement snapshot semantics: deposit = paid-at-creation; layaway enforced at fulfillment
+**Date:** 2026-07-17 · **Mode:** Builder
+**Decision:** A credit agreement snapshots the order at creation: `principalTzs` = order total, `depositTzs` = sum already paid on the order, and the schedule must finance exactly the difference — so **deposit + schedule = principal** is a checkable identity, not a convention. "LAYAWAY holds units RESERVED" is enforced at the single choke point goods pass through (FulfillmentService.fulfill, inside the same transaction that would move them; delivery in M4 goes through fulfillment too). Orders with an ACTIVE agreement cannot be cancelled — the agreement resolves first (cancellation flow later in M3). Credit requires a customer attached to the order.
+**Why:** Deposits arrive through the existing payments ledger before the agreement exists (POS flow: take deposit, then write the notebook) — deriving deposit from the ledger keeps one source of truth for money; a separately-entered "agreed deposit" could disagree with reality. Enforcing layaway where stock moves catches every future path (fulfill now, deliver in M4) without each caller remembering.
+**Rejected:** deposit as free input (drifts from the ledger); enforcing layaway in controllers (bypassable by any new caller); agreements on anonymous orders (unenforceable debt).
+**Status:** active
+
+---
+
 ### D-028 — Stub-era dev sign-in endpoints carry the POS until real identity (T5.1)
 **Date:** 2026-07-17 · **Mode:** Builder
 **Decision:** `DevAuthController` (`/auth/dev/context`, `/auth/dev/login`, `/auth/dev/mm-resolve`) gives the POS a merchant/role picker, stub-signed JWTs, and STK-approval simulation. All routes 404 when `DEV_AUTH=off` (set in any real deployment) and require the stub services (duck-typed `sign`/`confirm` — a real IdentityService makes them inert). The controller is DELETED when T5.1 lands the platform OAuth. API CORS is permissive (bearer-only auth, no cookies) for the same window.
