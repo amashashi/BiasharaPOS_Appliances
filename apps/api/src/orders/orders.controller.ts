@@ -24,6 +24,7 @@ import {
   type ReserveInput,
 } from './fulfillment.service.js';
 import { PaymentsService, type RecordPaymentInput } from './payments.service.js';
+import { MobileMoneyService, type InitiatePushInput } from './mobile-money.service.js';
 import { FiscalReceipt } from '../db/entities/fiscal-receipt.entity.js';
 import { Payment } from '../db/entities/payment.entity.js';
 import { SalesOrder } from '../db/entities/sales-order.entity.js';
@@ -39,6 +40,7 @@ export class OrdersController {
     @Inject(OrdersService) private readonly orders: OrdersService,
     @Inject(FulfillmentService) private readonly fulfillment: FulfillmentService,
     @Inject(PaymentsService) private readonly payments: PaymentsService,
+    @Inject(MobileMoneyService) private readonly mobileMoney: MobileMoneyService,
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
   ) {}
 
@@ -119,6 +121,22 @@ export class OrdersController {
     @Body() body: { reason?: unknown },
   ) {
     return this.payments.reverse(req.auth.merchantId, id, paymentId, req.auth.userId, body?.reason);
+  }
+
+  /** STK push to the customer's phone; money applies when the webhook confirms. */
+  @Post(':id/mobile-money')
+  initiateMobileMoney(
+    @Req() req: AuthedRequest,
+    @Param('id') id: string,
+    @Body() body: InitiatePushInput,
+  ) {
+    return this.mobileMoney.initiate(req.auth.merchantId, id, req.auth.userId, body ?? {});
+  }
+
+  /** Push intents for an order (pending/confirmed/failed — POS shows the pending state). */
+  @Get(':id/mobile-money')
+  listMobileMoney(@Req() req: AuthedRequest, @Param('id') id: string) {
+    return this.mobileMoney.listForOrder(req.auth.merchantId, id);
   }
 
   /** Fiscal receipt as printable 80mm HTML. Rerun anytime — reprint is a read. */

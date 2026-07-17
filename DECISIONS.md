@@ -4,6 +4,15 @@
 
 ---
 
+### D-027 — Confirmed mobile money that no longer fits the balance is held, not forced or dropped
+**Date:** 2026-07-17 · **Mode:** Builder
+**Decision:** When a confirmation webhook arrives for an intent whose amount now exceeds the order balance (e.g. cash settled the order while the push was pending), the intent resolves CONFIRMED with `appliedPaymentId = null` and an `MM_CONFIRMED_UNAPPLIED` audit event. No ledger entry is written, nothing is silently discarded — these rows are the input for the T5.3 reconciliation view, where a human decides (refund, apply elsewhere).
+**Why:** The customer's money genuinely left their phone — dropping the record would lose real money; force-applying would overpay the order and break the ledger invariant. Holding it visibly matches how the offline conflict queue treats serial conflicts: humans resolve, systems never silently merge.
+**Rejected:** rejecting the webhook (the platform already moved the money; a 4xx just makes the rail retry); auto-refund (no refund rail exists until M5); applying as credit balance (no such concept in V1's ledger).
+**Status:** active
+
+---
+
 ### D-026 — Deposit fiscalization: one summary line, pending the TRA ruling
 **Date:** 2026-07-16 · **Mode:** Builder (provisional, rides on D-008)
 **Decision:** A payment equal to the order total fiscalizes with the order fully itemized (per-line tax codes); a partial payment (deposit) fiscalizes as a single summary line (`Malipo / Payment — SO-xxxxxx (deposit)`, tax code A) — receipt items must sum to the paid amount. Reversals do not fiscalize (TRA credit-note handling is deferred with the real API, M5).
