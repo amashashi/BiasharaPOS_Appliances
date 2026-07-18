@@ -123,9 +123,12 @@ describe('Payment reminders (T3.4, real Postgres, fake clock)', () => {
     await makeAgreement(ownerA, A.dukaId, A.productId, { name: 'Mama Amina', phone: msisdnA }, '2026-08-05');
     await makeAgreement(ownerB, B.dukaId, B.productId, { name: 'Bwana Bakari', phone: msisdnB }, '2026-08-10');
 
-    // fake clock: run the "nightly" job for each day of a two-week window
+    // fake clock: run the "nightly" job for each day of a two-week window,
+    // scoped to THIS run's merchants so parallel specs never interfere
     for (let day = 1; day <= 15; day++) {
-      await reminders.dispatchDue(`2026-08-${String(day).padStart(2, '0')}`);
+      const asOf = `2026-08-${String(day).padStart(2, '0')}`;
+      await reminders.dispatchDue(asOf, A.merchant.id);
+      await reminders.dispatchDue(asOf, B.merchant.id);
     }
 
     const got = ourSms().map((s) => `${s.templateKey} ${s.msisdn} due=${s.params.dueDate}`);
@@ -152,8 +155,8 @@ describe('Payment reminders (T3.4, real Postgres, fake clock)', () => {
 
   it('rerunning a day never double-texts (idempotent by row+offset)', async () => {
     const before = ourSms().length;
-    await reminders.dispatchDue('2026-08-05');
-    await reminders.dispatchDue('2026-08-05');
+    await reminders.dispatchDue('2026-08-05', merchantAId);
+    await reminders.dispatchDue('2026-08-05', merchantAId);
     expect(ourSms().length).toBe(before);
     const logs = await ds.getRepository(ReminderLog).findBy({ merchantId: merchantAId });
     expect(logs.filter((l) => l.offsetDays === 0)).toHaveLength(1);
@@ -174,7 +177,7 @@ describe('Payment reminders (T3.4, real Postgres, fake clock)', () => {
 
     const before = ourSms().filter((s) => s.msisdn === msisdnC).length;
     for (const day of ['2026-09-03', '2026-09-05', '2026-09-08']) {
-      await reminders.dispatchDue(day);
+      await reminders.dispatchDue(day, A.merchant.id);
     }
     // row1 is PAID → zero reminders for it; phone-less customer can't be texted at all
     expect(ourSms().filter((s) => s.msisdn === msisdnC).length).toBe(before);
@@ -186,8 +189,7 @@ describe('Payment reminders (T3.4, real Postgres, fake clock)', () => {
     OURS.add(phone);
     const { agreementId } = await makeAgreement(A.token, A.dukaId, A.productId, { name: 'Hitilafu', phone }, '2026-10-05');
 
-    // dispatch is global — other agreements may text the same day, so the
-    // injected outage must hit exactly OUR customer's send, once
+    // sweep is scoped to this merchant, so the injected outage hits our one send
     const original = sms.sendSms.bind(sms);
     sms.sendSms = async (m, t, p) => {
       if (m === phone) {
@@ -196,13 +198,13 @@ describe('Payment reminders (T3.4, real Postgres, fake clock)', () => {
       }
       return original(m, t, p);
     };
-    await reminders.dispatchDue('2026-10-05');
+    await reminders.dispatchDue('2026-10-05', A.merchant.id);
     const failed = await ds.getRepository(ReminderLog).findBy({ agreementId });
     expect(failed).toHaveLength(1);
     expect(failed[0].status).toBe('FAILED');
     expect(failed[0].error).toContain('STUB_SMS_DOWN');
 
-    await reminders.dispatchDue('2026-10-05'); // rerun: claimed → no resend, still FAILED
+    await reminders.dispatchDue('2026-10-05', A.merchant.id); // rerun: claimed → no resend, still FAILED
     const after = await ds.getRepository(ReminderLog).findBy({ agreementId });
     expect(after).toHaveLength(1);
     expect(after[0].status).toBe('FAILED');

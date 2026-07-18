@@ -5,6 +5,7 @@ import {
 } from '@biashara/ui';
 import type { Session } from './api.js';
 import { Arrears } from './screens/Arrears.js';
+import { Dispatch } from './screens/Dispatch.js';
 import { Showcase } from './Showcase.js';
 
 /**
@@ -17,22 +18,26 @@ import { Showcase } from './Showcase.js';
 /** The POS app is a separate offline-first PWA; "Make a Sale" links out to it. */
 const POS_URL = (import.meta.env.VITE_POS_URL as string | undefined) ?? 'http://localhost:5173';
 
-const MODULES: NavItem[] = [
+const ALL_MODULES: NavItem[] = [
   { id: 'dashboard', label: { sw: 'Dashibodi', en: 'Dashboard' }, icon: 'dashboard', comingSoon: 'M6' },
   { id: 'sale', label: { sw: 'Fanya Mauzo', en: 'Make a Sale' }, icon: 'sale', href: POS_URL },
   { id: 'catalog', label: { sw: 'Katalogi', en: 'Catalog' }, icon: 'catalog', comingSoon: 'M6' },
   { id: 'stock', label: { sw: 'Stoo', en: 'Stock' }, icon: 'stock', comingSoon: 'M6' },
   { id: 'orders', label: { sw: 'Oda', en: 'Orders' }, icon: 'orders', comingSoon: 'M6' },
   { id: 'credit', label: { sw: 'Mikopo', en: 'Credit' }, icon: 'credit' },
-  { id: 'deliveries', label: { sw: 'Uwasilishaji', en: 'Deliveries' }, icon: 'delivery', comingSoon: 'M4' },
+  { id: 'deliveries', label: { sw: 'Uwasilishaji', en: 'Deliveries' }, icon: 'delivery' },
   { id: 'design', label: { sw: 'Muundo', en: 'Design' }, icon: 'design' },
 ];
 
-const DEFAULT_MODULE = 'credit';
+/** Delivery staff get a focused nav — just their dispatch list. */
+const modulesFor = (role: string): NavItem[] =>
+  role === 'DELIVERY' ? ALL_MODULES.filter((m) => m.id === 'deliveries') : ALL_MODULES;
 
-const readHash = (): string => {
+const defaultModuleFor = (role: string): string => (role === 'DELIVERY' ? 'deliveries' : 'credit');
+
+const readHash = (modules: NavItem[], fallback: string): string => {
   const id = window.location.hash.replace(/^#\/?/, '');
-  return MODULES.some((m) => m.id === id) ? id : DEFAULT_MODULE;
+  return modules.some((m) => m.id === id) ? id : fallback;
 };
 
 export function Shell({
@@ -43,25 +48,58 @@ export function Shell({
   onLocale: (l: Locale) => void;
   onSignOut: () => void;
 }) {
-  const [moduleId, setModuleId] = useState(readHash);
+  const modules = modulesFor(session.role);
+  const fallback = defaultModuleFor(session.role);
+  const [moduleId, setModuleId] = useState(() => readHash(modules, fallback));
 
   useEffect(() => {
-    const onHash = (): void => setModuleId(readHash());
+    const onHash = (): void => setModuleId(readHash(modules, fallback));
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, []);
+  }, [modules, fallback]);
 
   const navigate = (id: string): void => {
     window.location.hash = `/${id}`;
     setModuleId(id);
   };
 
-  const current = MODULES.find((m) => m.id === moduleId) ?? MODULES[0];
+  const current = modules.find((m) => m.id === moduleId) ?? modules[0];
+
+  // Single-destination users (delivery staff) get a slim top bar + full-width
+  // content instead of a sidebar — proper mobile ergonomics on a phone.
+  if (modules.length === 1) {
+    return (
+      <div style={{ minHeight: '100vh', background: color.bg, fontFamily: font.sans, color: color.ink }}>
+        <header
+          style={{
+            display: 'flex', alignItems: 'center', gap: space.s2,
+            padding: `${space.s2}px ${space.s3}px`, background: color.surface,
+            borderBottom: `1px solid ${color.line}`, position: 'sticky', top: 0, zIndex: 5,
+          }}
+        >
+          <img src="/logo-icon.svg" alt="" style={{ width: 28, height: 28 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: fontWeight.bold, fontSize: fontSize.body, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {session.merchant.name}
+            </div>
+            <div style={{ fontSize: fontSize.xs, color: color.ink3 }}>{session.displayName} · {session.role}</div>
+          </div>
+          <Button variant="ghost" onClick={() => onLocale(locale === 'sw' ? 'en' : 'sw')} style={{ padding: `${space.s1}px ${space.s2}px` }}>
+            {locale === 'sw' ? 'EN' : 'SW'}
+          </Button>
+          <Button variant="ghost" onClick={onSignOut} style={{ padding: `${space.s1}px ${space.s2}px` }}>
+            {locale === 'sw' ? 'Toka' : 'Sign out'}
+          </Button>
+        </header>
+        <main>{moduleId === 'deliveries' && <Dispatch session={session} locale={locale} />}</main>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: color.bg, fontFamily: font.sans, color: color.ink }}>
       <SideNav
-        items={MODULES}
+        items={modules}
         value={moduleId}
         onChange={navigate}
         locale={locale}
@@ -80,8 +118,9 @@ export function Shell({
       />
       <main style={{ flex: 1, minWidth: 0 }}>
         {moduleId === 'credit' && <Arrears session={session} locale={locale} />}
+        {moduleId === 'deliveries' && <Dispatch session={session} locale={locale} />}
         {moduleId === 'design' && <Showcase />}
-        {current.comingSoon && <ComingSoon item={current} locale={locale} />}
+        {current?.comingSoon && <ComingSoon item={current} locale={locale} />}
       </main>
     </div>
   );

@@ -48,11 +48,33 @@ async function call<T>(path: string, opts: { method?: string; body?: unknown; to
 export const devContext = () =>
   call<{ merchants: Array<{ id: string; name: string }> }>('/auth/dev/context');
 
-export const devLogin = (merchantId: string, name: string) =>
+export const devLogin = (merchantId: string, name: string, role = 'OWNER') =>
   call<{ token: string; merchant: { id: string; name: string }; displayName: string; role: string }>(
     '/auth/dev/login',
-    { method: 'POST', body: { merchantId, name, role: 'OWNER' } },
+    { method: 'POST', body: { merchantId, name, role } },
   );
+
+export interface DispatchJob {
+  id: string;
+  status: 'PLANNED' | 'DISPATCHED';
+  scheduledDate: string;
+  window: string | null;
+  addressText: string;
+  note: string | null;
+  assigneeUserId: string | null;
+  order: { id: string; number: number; numberFormatted: string };
+  customer: { name: string; phone: string | null } | null;
+  lines: Array<{ description: string; qty: number }>;
+}
+
+export const fetchDispatch = (s: Session, date: string) =>
+  call<{ date: string; jobs: DispatchJob[] }>(`/deliveries/dispatch?date=${date}`, { token: s.token });
+
+export const markDispatched = (s: Session, deliveryId: string) =>
+  call<{ id: string; status: string }>(`/deliveries/${deliveryId}/dispatch`, {
+    method: 'POST',
+    token: s.token,
+  });
 
 export interface ArrearsRow {
   agreementId: string;
