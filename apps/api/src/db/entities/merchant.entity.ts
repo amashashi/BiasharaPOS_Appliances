@@ -17,6 +17,10 @@ export class Merchant {
   @Column({ type: 'varchar', nullable: true })
   phone!: string | null;
 
+  /** Reminder policy (T3.4): day offsets vs. due date, e.g. [-2, 0, 3]. */
+  @Column({ type: 'jsonb', default: () => `'[-2,0,3]'` })
+  reminderOffsetsDays!: number[];
+
   @CreateDateColumn()
   createdAt!: Date;
 

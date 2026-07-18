@@ -13,6 +13,15 @@
 
 ---
 
+### D-033 — Reminder dispatch: strict-day matching, at-most-once claims, no auto-retry of failures
+**Date:** 2026-07-18 · **Mode:** Builder
+**Decision:** The daily job (07:00 — a debt reminder should arrive at breakfast, not 2am) dispatches a reminder only when `(today − dueDate)` EXACTLY equals a policy offset; the `UNIQUE(scheduleRowId, offsetDays)` claim row (PENDING → SENT/FAILED) is inserted before the SMS call, so crashes and reruns can never double-text a customer. A FAILED send stays FAILED and visible in the log — reruns skip it; there is no automatic retry. If the job misses a day entirely (server down), that day's reminders are skipped, not sent late.
+**Why:** Double-texting a debtor damages the dealer–customer relationship more than a missed nudge does — at-most-once is the right bias for collections SMS. Strict-day matching keeps semantics predictable ("kila tarehe 5 unapata ujumbe"); a late catch-up reminder ("you were due 4 days ago" arriving on day 6 labeled +3) would lie about itself. Failures need a human eye (wrong number?), not a robot hammering the same msisdn.
+**Rejected:** catch-up windows for missed days (misleading offsets); auto-retrying FAILED sends (risk of repeated texts on flaky rails); sending at the arrears job's 02:00 slot (hostile timing).
+**Status:** active
+
+---
+
 ### D-032 — Default UI language is English; the choice persists per device
 **Date:** 2026-07-18 · **Mode:** Builder (product-owner decision)
 **Decision:** Both apps start in English (`DEFAULT_LOCALE='en'`) and remember the user's toggle in localStorage (`biashara-locale-v1`, per origin/device) — a refresh never resets the language. Swahili remains first-class per DESIGN_SYSTEM.md §7 (full coverage, labels designed for Swahili length); only the initial selection changed from the sw-first default the screens shipped with.

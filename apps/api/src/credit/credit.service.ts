@@ -12,6 +12,7 @@ import { AuditService } from '../db/audit.service.js';
 import { SalesOrder } from '../db/entities/sales-order.entity.js';
 import { CreditAgreement } from '../db/entities/credit-agreement.entity.js';
 import { CreditScheduleRow } from '../db/entities/credit-schedule-row.entity.js';
+import { ReminderLog } from '../db/entities/reminder-log.entity.js';
 import { PaymentsService } from '../orders/payments.service.js';
 import { generateEqualMonthly, isIsoDate, validateCustomRows, type ScheduleRowPlan } from './schedule.js';
 import type { FieldError } from '../catalog/product.rules.js';
@@ -143,10 +144,15 @@ export class CreditService {
     const schedule = await this.ds
       .getRepository(CreditScheduleRow)
       .find({ where: { agreementId: agreement.id }, order: { seq: 'ASC' } });
+    // per-agreement reminder log (T3.4) — the agreement screen shows it
+    const reminders = await this.ds
+      .getRepository(ReminderLog)
+      .find({ where: { agreementId: agreement.id }, order: { sentAt: 'DESC' } });
     const financedTzs = agreement.principalTzs - agreement.depositTzs;
     return {
       ...agreement,
       schedule,
+      reminders,
       financedTzs,
       scheduleTotalTzs: schedule.reduce((s, r) => s + r.amountTzs, 0),
     };
