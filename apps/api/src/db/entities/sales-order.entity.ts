@@ -65,6 +65,10 @@ export class SalesOrder {
   @Column({ type: 'varchar' })
   createdByUserId!: string;
 
+  /** Client idempotency key for offline sales replayed via /sync/outbox (T5.5); null online. */
+  @Column({ type: 'uuid', nullable: true })
+  clientRef!: string | null;
+
   @OneToMany(() => SalesOrderLine, (l) => l.order)
   lines!: SalesOrderLine[];
 

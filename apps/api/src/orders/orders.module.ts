@@ -5,11 +5,13 @@ import { PlatformModule } from '../platform/platform.module.js';
 import { OrdersController } from './orders.controller.js';
 import { WebhooksController } from './webhooks.controller.js';
 import { ReconciliationController } from './reconciliation.controller.js';
+import { SyncController } from './sync.controller.js';
 import { OrdersService } from './orders.service.js';
 import { FulfillmentService } from './fulfillment.service.js';
 import { PaymentsService } from './payments.service.js';
 import { MobileMoneyService } from './mobile-money.service.js';
 import { ReconciliationService } from './reconciliation.service.js';
+import { SyncService } from './sync.service.js';
 
 /**
  * Orders domain module (M2): quotes & orders (T2.1), serial reservation & pick
@@ -18,8 +20,8 @@ import { ReconciliationService } from './reconciliation.service.js';
  */
 @Module({
   imports: [InventoryModule, FiscalModule, PlatformModule],
-  controllers: [OrdersController, WebhooksController, ReconciliationController],
-  providers: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService],
-  exports: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService],
+  controllers: [OrdersController, WebhooksController, ReconciliationController, SyncController],
+  providers: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService],
+  exports: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService],
 })
 export class OrdersModule {}

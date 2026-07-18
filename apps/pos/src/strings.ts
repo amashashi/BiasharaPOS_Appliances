@@ -6,6 +6,12 @@ const dict = {
   phone: { sw: 'Namba ya simu', en: 'Phone number' },
   pin: { sw: 'PIN (tarakimu 4)', en: 'PIN (4 digits)' },
   location: { sw: 'Tawi', en: 'Location' },
+  offlineSavedTitle: { sw: 'Imehifadhiwa nje ya mtandao', en: 'Saved offline' },
+  offlineSavedBody: {
+    sw: 'Mauzo yatatumwa yenyewe utakaporudi mtandaoni. Unaweza kuendelea kuuza.',
+    en: 'This sale will sync automatically when you are back online. You can keep selling.',
+  },
+  mmNeedsOnline: { sw: 'Pesa za simu zinahitaji mtandao', en: 'Mobile money needs a connection' },
   chooseLocation: { sw: 'Chagua tawi la kuuzia', en: 'Choose the till location' },
   noLocations: { sw: 'Duka halina tawi — wasiliana na mmiliki', en: 'No locations set up — contact the owner' },
   continueBtn: { sw: 'Endelea', en: 'Continue' },

@@ -3,10 +3,11 @@ import {
   Button, MoneyDisplay, color, font, fontSize, fontWeight, radius, space, type Locale,
 } from '@biashara/ui';
 import {
-  createOrder, devResolveMm, getReceiptHtml, initiateMm, listMm, recordCash, searchProducts,
+  ApiError, createOrder, devResolveMm, getReceiptHtml, initiateMm, listMm, recordCash, searchProducts,
   type ProductHit, type Session,
 } from '../api.js';
 import { addToCart, cartTotalTzs, changeQty, validDeposit, type CartLine } from '../cart.js';
+import { idbOutbox, makeClientRef, type OutboxOp } from '../outbox.js';
 import { ts } from '../strings.js';
 
 const card: React.CSSProperties = {
@@ -29,15 +30,18 @@ type PayPhase =
   | { step: 'form' }
   | { step: 'mmPending'; orderId: string; intentId: string }
   | { step: 'receipt'; orderId: string; paymentId: string; html: string | null }
+  | { step: 'offlineSaved' }
   | { step: 'error'; message: string };
 
 export function Checkout({
-  session, locale, onLocale, onSignOut,
+  session, locale, onLocale, onSignOut, onEnqueued,
 }: {
   session: Session;
   locale: Locale;
   onLocale: (l: Locale) => void;
   onSignOut: () => void;
+  /** Called after a sale is queued offline, so the shell can refresh the outbox count + attempt a drain. */
+  onEnqueued?: () => void;
 }) {
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<ProductHit[]>([]);
@@ -109,29 +113,57 @@ export function Checkout({
     };
   }, [phase, session]);
 
+  const customerPayload = () =>
+    custName.trim()
+      ? { customer: { name: custName.trim(), ...(custPhone.trim() ? { phone: custPhone.trim() } : {}) } }
+      : {};
+
   const makeOrderPayload = () => ({
     type: 'ORDER' as const,
     locationId: session.locationId,
-    ...(custName.trim()
-      ? { customer: { name: custName.trim(), ...(custPhone.trim() ? { phone: custPhone.trim() } : {}) } }
-      : {}),
+    ...customerPayload(),
     lines: lines.map((l) => ({ productId: l.product.id, qty: l.qty })),
   });
+
+  /** Queue a cash sale in the offline outbox; it replays on reconnect (T5.5). */
+  const saveOffline = async (): Promise<void> => {
+    const clientRef = makeClientRef();
+    const op: OutboxOp = {
+      clientRef,
+      locationId: session.locationId,
+      ...customerPayload(),
+      lines: lines.map((l) => ({ productId: l.product.id, qty: l.qty })),
+      payment: { amountTzs },
+    };
+    await idbOutbox.put({ clientRef, op, queuedAt: Date.now() });
+    setPhase({ step: 'offlineSaved' });
+    onEnqueued?.();
+  };
 
   const payCash = async (): Promise<void> => {
     setBusy(true);
     try {
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        await saveOffline(); // known offline — don't even try the network
+        return;
+      }
       const order = await createOrder(session, makeOrderPayload());
       const paid = await recordCash(session, order.id, amountTzs);
       setPhase({ step: 'receipt', orderId: order.id, paymentId: paid.payment.id, html: null });
     } catch (e) {
-      setPhase({ step: 'error', message: (e as Error).message });
+      // a server (business) error is real; a network failure means we went offline mid-sale → queue it
+      if (e instanceof ApiError) setPhase({ step: 'error', message: e.message });
+      else await saveOffline();
     } finally {
       setBusy(false);
     }
   };
 
   const payMm = async (): Promise<void> => {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      setPhase({ step: 'error', message: ts('mmNeedsOnline', locale) });
+      return;
+    }
     setBusy(true);
     try {
       const order = await createOrder(session, makeOrderPayload());
@@ -390,6 +422,16 @@ function PayModal(props: {
               </Button>
               <Button pos style={{ flex: 1 }} onClick={props.onNewSale}>{ts('newSale', locale)}</Button>
             </div>
+          </>
+        )}
+
+        {phase.step === 'offlineSaved' && (
+          <>
+            <div style={{ fontWeight: fontWeight.bold, fontSize: fontSize.h3, marginBottom: space.s2 }}>
+              📴 {ts('offlineSavedTitle', locale)}
+            </div>
+            <div style={{ color: color.ink2, marginBottom: space.s3 }}>{ts('offlineSavedBody', locale)}</div>
+            <Button pos style={{ width: '100%' }} onClick={props.onNewSale}>{ts('newSale', locale)}</Button>
           </>
         )}
 
