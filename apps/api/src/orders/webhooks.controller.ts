@@ -1,12 +1,12 @@
 import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
-import type { PaymentConfirmation } from '@biashara/shared';
 import { Public } from '../auth/decorators.js';
 import { MobileMoneyService } from './mobile-money.service.js';
 
 /**
- * Platform callbacks (T2.5). @Public: the platform doesn't carry a user JWT —
- * in M5 the real integration authenticates these by signature (T5.3); the
- * stub era validates by intent correlation (unknown intentId → 404).
+ * Payment rail callbacks (T2.5). @Public: the rail carries no user JWT — the
+ * real adapter (ClickPesa, T5.3b) authenticates the callback by checksum inside
+ * `handleWebhook`; the stub validates by intent correlation. Either way an
+ * unknown reference is recorded as an orphan and 200'd, never 404-looped.
  */
 @Controller('webhooks')
 export class WebhooksController {
@@ -16,7 +16,7 @@ export class WebhooksController {
   @Public()
   @Post('payments')
   @HttpCode(200)
-  paymentConfirmation(@Body() body: PaymentConfirmation) {
-    return this.mobileMoney.processConfirmation(body ?? ({} as PaymentConfirmation));
+  paymentConfirmation(@Body() body: unknown) {
+    return this.mobileMoney.handleWebhook(body ?? {});
   }
 }

@@ -7,6 +7,7 @@ import { StubPaymentsService } from './stubs/payments.stub.js';
 import { StubIdentityService } from './stubs/identity.stub.js';
 import { StubNotificationService } from './stubs/notifications.stub.js';
 import { PlatformIdentityService } from './real/identity.platform.js';
+import { ClickPesaPaymentsService } from './real/clickpesa.payments.js';
 
 /**
  * Identity went real in T5.1 (D-034): IDENTITY_MODE=platform binds the thin
@@ -26,6 +27,26 @@ const identityProvider =
     : { provide: IDENTITY_SERVICE, useClass: StubIdentityService };
 
 /**
+ * Payments went real in T5.3b (D-035): PAYMENTS_MODE=clickpesa binds the
+ * ClickPesa aggregator adapter (the platform has no push API). Anything else —
+ * including tests — keeps the in-memory stub, so the payment specs and dev flows
+ * work without a live rail or credentials.
+ */
+const paymentsProvider =
+  process.env.PAYMENTS_MODE === 'clickpesa'
+    ? {
+        provide: PAYMENTS_SERVICE,
+        useFactory: () =>
+          new ClickPesaPaymentsService({
+            baseUrl: process.env.CLICKPESA_BASE_URL ?? '',
+            clientId: process.env.CLICKPESA_CLIENT_ID ?? '',
+            apiKey: process.env.CLICKPESA_API_KEY ?? '',
+            checksumKey: process.env.CLICKPESA_CHECKSUM_KEY ?? '',
+          }),
+      }
+    : { provide: PAYMENTS_SERVICE, useClass: StubPaymentsService };
+
+/**
  * Platform adapter module (D-004). M0–M4 bound only stubs; T5.1 swapped
  * identity for the real adapter — T5.2–T5.4 swap the rest the same way.
  * Consumers inject by token and never notice.
@@ -33,7 +54,7 @@ const identityProvider =
 @Module({
   providers: [
     { provide: FISCAL_SERVICE, useClass: StubFiscalService },
-    { provide: PAYMENTS_SERVICE, useClass: StubPaymentsService },
+    paymentsProvider,
     identityProvider,
     { provide: NOTIFICATION_SERVICE, useClass: StubNotificationService },
   ],
