@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import {
   Button, color, font, fontSize, fontWeight, radius, space, type Locale,
 } from '@biashara/ui';
-import { fetchDispatch, markDispatched, type DispatchJob, type Session } from '../api.js';
+import {
+  confirmDelivery, failDelivery, fetchDispatch, markDispatched,
+  type DispatchJob, type Session,
+} from '../api.js';
 
 const S = {
   dispatch: { sw: 'Safari za leo', en: "Today's deliveries" },
@@ -14,8 +17,27 @@ const S = {
   call: { sw: 'Piga simu', en: 'Call' },
   items: { sw: 'Bidhaa', en: 'Items' },
   window: { sw: 'Muda', en: 'Window' },
+  delivered: { sw: 'Imefikishwa', en: 'Delivered' },
+  failed: { sw: 'Imeshindikana', en: 'Failed' },
+  confirmSerials: { sw: 'Thibitisha namba (skani)', en: 'Confirm serials (scan)' },
+  receivedBy: { sw: 'Amepokea (jina)', en: 'Received by (name)' },
+  confirm: { sw: 'Thibitisha kufikishwa', en: 'Confirm delivery' },
+  reason: { sw: 'Sababu ya kushindikana', en: 'Reason it failed' },
+  confirmFail: { sw: 'Thibitisha kushindikana', en: 'Confirm failure' },
+  cancel: { sw: 'Ghairi', en: 'Cancel' },
 } as const;
 const t = (k: keyof typeof S, l: Locale): string => S[k][l];
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  minHeight: 44,
+  padding: `${space.s2}px ${space.s3}px`,
+  fontFamily: font.sans,
+  fontSize: fontSize.body,
+  border: `1px solid ${color.line2}`,
+  borderRadius: radius.sm,
+  boxSizing: 'border-box',
+};
 
 const statusPill = (status: DispatchJob['status']): React.CSSProperties => ({
   display: 'inline-block',
@@ -51,6 +73,33 @@ export function Dispatch({ session, locale }: { session: Session; locale: Locale
     setBusyId(id);
     try {
       await markDispatched(session, id);
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const confirm = async (
+    id: string,
+    body: { serials: string[]; signedByName?: string; otpConfirmed?: boolean },
+  ): Promise<void> => {
+    setBusyId(id);
+    try {
+      await confirmDelivery(session, id, body);
+      load();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const fail = async (id: string, reason: string): Promise<void> => {
+    setBusyId(id);
+    try {
+      await failDelivery(session, id, reason);
       load();
     } catch (e) {
       setError((e as Error).message);
@@ -123,8 +172,109 @@ export function Dispatch({ session, locale }: { session: Session; locale: Locale
                 </Button>
               )}
             </div>
+
+            {job.status === 'DISPATCHED' && (
+              <JobActions
+                job={job}
+                locale={locale}
+                busy={busyId === job.id}
+                onConfirm={(body) => confirm(job.id, body)}
+                onFail={(reason) => fail(job.id, reason)}
+              />
+            )}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Inline handover form for a DISPATCHED job: confirm serials + receiver, or fail with a reason. */
+function JobActions({
+  job, locale, busy, onConfirm, onFail,
+}: {
+  job: DispatchJob;
+  locale: Locale;
+  busy: boolean;
+  onConfirm: (body: { serials: string[]; signedByName?: string; otpConfirmed?: boolean }) => void;
+  onFail: (reason: string) => void;
+}) {
+  const [mode, setMode] = useState<'none' | 'deliver' | 'fail'>('none');
+  const [signedBy, setSignedBy] = useState('');
+  const [reason, setReason] = useState('');
+
+  if (mode === 'none') {
+    return (
+      <div style={{ display: 'flex', gap: space.s2, marginTop: space.s2 }}>
+        <Button pos variant="danger" style={{ flex: 1 }} onClick={() => setMode('fail')}>
+          ✗ {t('failed', locale)}
+        </Button>
+        <Button pos style={{ flex: 2 }} onClick={() => setMode('deliver')}>
+          ✓ {t('delivered', locale)}
+        </Button>
+      </div>
+    );
+  }
+
+  if (mode === 'deliver') {
+    return (
+      <div style={{ marginTop: space.s3, paddingTop: space.s3, borderTop: `1px dashed ${color.line}` }}>
+        {job.serials.length > 0 && (
+          <>
+            <div style={{ fontSize: fontSize.xs, fontWeight: fontWeight.heavy, letterSpacing: '0.08em', textTransform: 'uppercase', color: color.ink3, marginBottom: space.s1 }}>
+              {t('confirmSerials', locale)}
+            </div>
+            {job.serials.map((s) => (
+              <div key={s} style={{ fontFamily: font.mono, fontSize: fontSize.body, color: color.steel }}>✓ {s}</div>
+            ))}
+          </>
+        )}
+        <input
+          style={{ ...fieldStyle, margin: `${space.s2}px 0` }}
+          placeholder={t('receivedBy', locale)}
+          value={signedBy}
+          onChange={(e) => setSignedBy(e.target.value)}
+        />
+        <div style={{ display: 'flex', gap: space.s2 }}>
+          <Button variant="secondary" pos style={{ flex: 1 }} onClick={() => setMode('none')}>
+            {t('cancel', locale)}
+          </Button>
+          <Button
+            pos
+            style={{ flex: 2 }}
+            loading={busy}
+            disabled={!signedBy.trim()}
+            onClick={() => onConfirm({ serials: job.serials, signedByName: signedBy.trim(), otpConfirmed: true })}
+          >
+            {t('confirm', locale)}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginTop: space.s3, paddingTop: space.s3, borderTop: `1px dashed ${color.line}` }}>
+      <input
+        style={{ ...fieldStyle, marginBottom: space.s2 }}
+        placeholder={t('reason', locale)}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+      />
+      <div style={{ display: 'flex', gap: space.s2 }}>
+        <Button variant="secondary" pos style={{ flex: 1 }} onClick={() => setMode('none')}>
+          {t('cancel', locale)}
+        </Button>
+        <Button
+          variant="danger"
+          pos
+          style={{ flex: 2 }}
+          loading={busy}
+          disabled={!reason.trim()}
+          onClick={() => onFail(reason.trim())}
+        >
+          {t('confirmFail', locale)}
+        </Button>
       </div>
     </div>
   );

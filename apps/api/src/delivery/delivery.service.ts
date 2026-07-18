@@ -5,14 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, In, Not } from 'typeorm';
+import { DataSource, In, Not, type EntityManager } from 'typeorm';
 import type { Role } from '@biashara/shared';
 import { DATA_SOURCE } from '../db/tokens.js';
 import { AuditService } from '../db/audit.service.js';
 import { SalesOrder } from '../db/entities/sales-order.entity.js';
 import { SalesOrderLine } from '../db/entities/sales-order-line.entity.js';
+import { SerializedUnit } from '../db/entities/serialized-unit.entity.js';
 import { Delivery } from '../db/entities/delivery.entity.js';
 import { formatOrderNumber } from '../orders/orders.service.js';
+import { UnitStateService } from '../inventory/unit-state.service.js';
 import type { FieldError } from '../catalog/product.rules.js';
 
 export interface ScheduleDeliveryInput {
@@ -21,6 +23,14 @@ export interface ScheduleDeliveryInput {
   addressText?: unknown;
   assigneeUserId?: unknown;
   note?: unknown;
+}
+
+export interface ConfirmDeliveryInput {
+  /** Serials scanned/checked at handover — must match the order's SOLD units. */
+  serials?: unknown;
+  photoUrl?: unknown;
+  signedByName?: unknown;
+  otpConfirmed?: unknown;
 }
 
 export interface Actor {
@@ -39,6 +49,8 @@ export interface DispatchJob {
   order: { id: string; number: number; numberFormatted: string };
   customer: { name: string; phone: string | null } | null;
   lines: Array<{ description: string; qty: number }>;
+  /** SOLD serials to confirm at handover (empty for non-serialized orders). */
+  serials: string[];
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -69,6 +81,7 @@ export class DeliveryService {
   constructor(
     @Inject(DATA_SOURCE) private readonly ds: DataSource,
     @Inject(AuditService) private readonly audit: AuditService,
+    @Inject(UnitStateService) private readonly units: UnitStateService,
   ) {}
 
   async schedule(merchantId: string, orderId: string, actorUserId: string, input: ScheduleDeliveryInput) {
@@ -177,6 +190,23 @@ export class DeliveryService {
       linesByOrder.set(l.orderId, list);
     }
 
+    // SOLD serials per order — the handover checklist (T4.3)
+    const soldUnits = orderIds.length
+      ? await this.ds
+          .getRepository(SerializedUnit)
+          .createQueryBuilder('u')
+          .innerJoin(SalesOrderLine, 'l', 'l.id = u."orderLineId"')
+          .where('l.orderId IN (:...orderIds) AND u.status = :status', { orderIds, status: 'SOLD' })
+          .select(['l.orderId AS "orderId"', 'u.serial AS serial'])
+          .getRawMany<{ orderId: string; serial: string }>()
+      : [];
+    const serialsByOrder = new Map<string, string[]>();
+    for (const u of soldUnits) {
+      const list = serialsByOrder.get(u.orderId) ?? [];
+      list.push(u.serial);
+      serialsByOrder.set(u.orderId, list);
+    }
+
     const jobs: DispatchJob[] = deliveries.map((d) => ({
       id: d.id,
       status: d.status,
@@ -190,6 +220,7 @@ export class DeliveryService {
         ? { name: d.order.customer.name, phone: d.order.customer.phone }
         : null,
       lines: linesByOrder.get(d.orderId) ?? [],
+      serials: serialsByOrder.get(d.orderId) ?? [],
     }));
     return { date: day, jobs };
   }
@@ -230,6 +261,143 @@ export class DeliveryService {
       );
       return saved;
     });
+  }
+
+  /**
+   * Proof of delivery (T4.3): confirm serials on handover, flip the order's
+   * SOLD units → DELIVERED (through the unit state machine), mark the delivery
+   * DELIVERED with proof — all in one transaction. Requires at least one proof
+   * (photo, signature, or customer OTP); scanned serials must match the order's
+   * SOLD units exactly (a wrong-goods safety check).
+   */
+  async confirm(merchantId: string, deliveryId: string, actor: Actor, input: ConfirmDeliveryInput) {
+    const photoUrl = trimmed(input.photoUrl);
+    const signedByName = trimmed(input.signedByName);
+    const otpConfirmed = input.otpConfirmed === true;
+    if (!photoUrl && !signedByName && !otpConfirmed) {
+      throw new BadRequestException({
+        message: 'Proof required: a photo, a signature name, or customer OTP confirmation',
+      });
+    }
+    const scanned = Array.isArray(input.serials)
+      ? [...new Set(input.serials.map((s) => String(s).trim()).filter(Boolean))]
+      : [];
+
+    return this.ds.transaction(async (mgr) => {
+      const delivery = await this.lockActionable(mgr, merchantId, deliveryId, actor);
+
+      // the order's SOLD serialized units (picked at fulfillment, T2.2)
+      const soldUnits = await mgr
+        .getRepository(SerializedUnit)
+        .createQueryBuilder('u')
+        .innerJoin(SalesOrderLine, 'l', 'l.id = u."orderLineId"')
+        .where('l.orderId = :orderId AND u.status = :status', {
+          orderId: delivery.orderId,
+          status: 'SOLD',
+        })
+        .getMany();
+
+      // scan-check: the confirmed serials must be exactly the SOLD units
+      if (soldUnits.length > 0 || scanned.length > 0) {
+        const expected = new Set(soldUnits.map((u) => u.serial));
+        const got = new Set(scanned);
+        const missing = [...expected].filter((s) => !got.has(s));
+        const extra = [...got].filter((s) => !expected.has(s));
+        if (missing.length || extra.length) {
+          const errors: FieldError[] = [];
+          if (missing.length) errors.push({ field: 'serials', message: `not scanned: ${missing.join(', ')}` });
+          if (extra.length) errors.push({ field: 'serials', message: `not on this order: ${extra.join(', ')}` });
+          throw new BadRequestException({ message: 'Scanned serials do not match the order', errors });
+        }
+      }
+
+      // SOLD → DELIVERED through the state machine (audited per unit)
+      for (const unit of soldUnits) {
+        await this.units.transition(
+          merchantId, unit.id, 'DELIVERED', actor.userId,
+          { deliveryId: delivery.id, orderId: delivery.orderId },
+          mgr,
+        );
+      }
+
+      delivery.status = 'DELIVERED';
+      delivery.proofPhotoUrl = photoUrl;
+      delivery.proofSignedByName = signedByName;
+      delivery.proofOtpConfirmed = otpConfirmed;
+      delivery.confirmedSerialIds = soldUnits.map((u) => u.id);
+      delivery.deliveredAt = new Date();
+      const saved = await mgr.getRepository(Delivery).save(delivery);
+
+      await this.audit.record(
+        {
+          merchantId,
+          actorUserId: actor.userId,
+          entityType: 'Delivery',
+          entityId: delivery.id,
+          action: 'DELIVERY_CONFIRMED',
+          before: { status: 'DISPATCHED' },
+          after: {
+            status: 'DELIVERED',
+            orderId: delivery.orderId,
+            unitsDelivered: soldUnits.length,
+            proof: { photo: !!photoUrl, signed: !!signedByName, otp: otpConfirmed },
+          },
+        },
+        mgr,
+      );
+      return saved;
+    });
+  }
+
+  /** Failed handover (T4.3): mark FAILED with a reason. FAILED frees the order to be rescheduled (T4.1). */
+  async fail(merchantId: string, deliveryId: string, actor: Actor, reason: unknown): Promise<Delivery> {
+    const failureReason = trimmed(reason);
+    if (!failureReason) {
+      throw new BadRequestException({ message: 'A failure reason is required' });
+    }
+    return this.ds.transaction(async (mgr) => {
+      const delivery = await this.lockActionable(mgr, merchantId, deliveryId, actor);
+      delivery.status = 'FAILED';
+      delivery.failureReason = failureReason;
+      const saved = await mgr.getRepository(Delivery).save(delivery);
+      await this.audit.record(
+        {
+          merchantId,
+          actorUserId: actor.userId,
+          entityType: 'Delivery',
+          entityId: delivery.id,
+          action: 'DELIVERY_FAILED',
+          before: { status: delivery.status },
+          after: { status: 'FAILED', orderId: delivery.orderId, reason: failureReason },
+        },
+        mgr,
+      );
+      return saved;
+    });
+  }
+
+  /** Lock a delivery the actor may act on (own if DELIVERY); must be PLANNED or DISPATCHED. */
+  private async lockActionable(
+    mgr: EntityManager,
+    merchantId: string,
+    deliveryId: string,
+    actor: Actor,
+  ): Promise<Delivery> {
+    const delivery = UUID_RE.test(deliveryId)
+      ? await mgr
+          .getRepository(Delivery)
+          .createQueryBuilder('d')
+          .setLock('pessimistic_write')
+          .where('d.id = :deliveryId AND d.merchantId = :merchantId', { deliveryId, merchantId })
+          .getOne()
+      : null;
+    if (!delivery || (!actor.roles.includes('OWNER') && delivery.assigneeUserId !== actor.userId)) {
+      throw new NotFoundException('Delivery not found');
+    }
+    if (delivery.status !== 'PLANNED' && delivery.status !== 'DISPATCHED') {
+      throw new ConflictException(`Delivery is already ${delivery.status}`);
+    }
+    return delivery;
   }
 
   /** The order's current delivery (the live one, else the most recent). */

@@ -10,7 +10,7 @@
 - [x] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
 - [x] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
 - [x] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
-- [ ] **M4 — Delivery workflow:** scheduled fulfillment with proof.
+- [x] **M4 — Delivery workflow:** scheduled fulfillment with proof.
 - [ ] **M5 — Real platform integration & offline:** stubs swapped for real APIs; POS survives an outage.
 - [ ] **M6 — Back office, reporting & pilot readiness:** dealers can run a real day on it.
 
@@ -50,7 +50,7 @@
 ### M4 — Delivery workflow
 - [x] **T4.1** Delivery module: create/schedule delivery from order (date, window, address, assignee). — *Verify:* order screen shows scheduled delivery; double-booking same order prevented.
 - [x] **T4.2** Dispatch list (mobile-friendly page for delivery staff): today's jobs, order contents, customer phone, mark DISPATCHED. — *Verify:* delivery user role sees only assigned jobs.
-- [ ] **T4.3** Proof-of-delivery: confirm serials on handover (scan/check), capture photo and/or customer-OTP confirm; units → DELIVERED; failed-delivery path with reason. — *Verify:* e2e — confirmed delivery flips serials + order status; failed delivery reschedules.
+- [x] **T4.3** Proof-of-delivery: confirm serials on handover (scan/check), capture photo and/or customer-OTP confirm; units → DELIVERED; failed-delivery path with reason. — *Verify:* e2e — confirmed delivery flips serials + order status; failed delivery reschedules.
 
 ### M5 — Real platform integration & offline
 - [ ] **T5.1** Swap Identity stub → real platform OAuth/JWT (staging). — *Verify:* login via platform staging credentials; roles map correctly.
