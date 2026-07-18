@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { color } from '@biashara/ui/tokens';
 import { receiptHeaderHtml } from '@biashara/ui/receipt';
+import { formatDateTime } from '@biashara/ui/i18n';
 import type { Tzs } from '@biashara/shared';
 import type { Merchant } from '../db/entities/merchant.entity.js';
 import type { SalesOrder } from '../db/entities/sales-order.entity.js';
@@ -47,7 +48,7 @@ export async function renderReceiptHtml(
   })}
   <div style="padding:6px 0;border-bottom:1px dashed ${color.line2};">
     <div style="font-weight:800;">RISITI YA KODI / FISCAL RECEIPT</div>
-    <div style="color:${color.ink2};">${formatOrderNumber(order.number)} · ${fiscal.issuedAt.toISOString().slice(0, 16).replace('T', ' ')}</div>
+    <div style="color:${color.ink2};">${formatOrderNumber(order.number)} · ${formatDateTime(fiscal.issuedAt)}</div>
     ${order.customer ? `<div style="color:${color.ink2};">Mteja / Customer: ${esc(order.customer.name)}</div>` : ''}
   </div>
   <table style="width:100%;border-collapse:collapse;margin:6px 0;">

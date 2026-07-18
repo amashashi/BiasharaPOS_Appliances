@@ -5,4 +5,5 @@ export * from './components/MoneyDisplay.js';
 export * from './components/StatusBadge.js';
 export * from './components/SerialChip.js';
 export * from './components/OfflineBar.js';
+export * from './components/SideNav.js';
 export * from './receipt.js';

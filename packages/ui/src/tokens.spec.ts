@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { formatTzs } from './components/MoneyDisplay.js';
 import { arrearsStyle, color, unitStatusStyle } from './tokens.js';
-import { t } from './i18n.js';
+import { formatDate, formatDateTime, t } from './i18n.js';
 
 describe('tokens & formatting', () => {
   it('formats integer TZS with grouping and no decimals', () => {
@@ -30,5 +30,12 @@ describe('tokens & formatting', () => {
     expect(color.green).toBe('#239B46');
     expect(color.gold).toBe('#E7A52C');
     expect(color.steel).toBe('#1D6A96');
+  });
+
+  it('renders user-facing dates as dd/MM/yyyy (§7), never ISO', () => {
+    expect(formatDate('2026-08-05')).toBe('05/08/2026');
+    expect(formatDate('2026-08-05T09:44:56.000Z')).toBe('05/08/2026');
+    expect(formatDate(new Date('2026-11-30T00:00:00.000Z'))).toBe('30/11/2026');
+    expect(formatDateTime('2026-07-16T12:05:00.000Z')).toBe('16/07/2026 12:05');
   });
 });

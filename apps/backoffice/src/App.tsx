@@ -1,13 +1,12 @@
 /**
- * Back-office home (T3.3): dev sign-in (D-028) → arrears dashboard. The full
- * dashboard suite + design Showcase land as tabs in M6 (T6.1); for now the
- * arrears screen is the home, since the credit notebook is M3's payload.
+ * Back office (T3.3+): dev sign-in (D-028) → app shell with sidebar navigation
+ * (handoff navStyle "sidebar"). Modules fill in one by one; see Shell.tsx.
  */
 import { useState } from 'react';
 import type { Locale } from '@biashara/ui';
 import { loadSession, saveSession, type Session } from './api.js';
 import { DevLogin } from './screens/DevLogin.js';
-import { Arrears } from './screens/Arrears.js';
+import { Shell } from './Shell.js';
 
 export function App(): JSX.Element {
   const [session, setSession] = useState<Session | null>(loadSession());
@@ -24,7 +23,7 @@ export function App(): JSX.Element {
     );
   }
   return (
-    <Arrears
+    <Shell
       session={session}
       locale={locale}
       onLocale={setLocale}
