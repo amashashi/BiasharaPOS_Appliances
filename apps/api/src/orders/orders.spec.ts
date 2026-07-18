@@ -15,6 +15,7 @@ import { PlatformModule } from '../platform/platform.module.js';
 import { StubIdentityService } from '../platform/stubs/identity.stub.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { OrdersModule } from './orders.module.js';
+import { binaryParser, pdfText } from '../testkit/pdf.js';
 
 process.env.DATABASE_URL ??= 'postgres://biashara:biashara@localhost:5432/biashara_appliances';
 
@@ -24,22 +25,7 @@ process.env.DATABASE_URL ??= 'postgres://biashara:biashara@localhost:5432/biasha
 })
 class TestModule {}
 
-/** Collect a binary body (supertest parses only known text types). */
-const binary = (res: request.Response, cb: (err: Error | null, body: Buffer) => void): void => {
-  const chunks: Buffer[] = [];
-  res.on('data', (c: Buffer) => chunks.push(c));
-  res.on('end', () => cb(null, Buffer.concat(chunks)));
-};
-
-/**
- * pdfkit writes text as hex glyph arrays (`<48656c6c6f> Tj`) even uncompressed;
- * with standard WinAnsi fonts the hex bytes ARE the character codes, so
- * decoding every <...> string in stream order recovers the visible text.
- */
-const pdfText = (pdf: Buffer): string =>
-  (pdf.toString('latin1').match(/<([0-9a-fA-F]+)>/g) ?? [])
-    .map((h) => Buffer.from(h.slice(1, -1), 'hex').toString('latin1'))
-    .join('');
+const binary = binaryParser;
 
 describe('Sales orders & quotes (T2.1, real Postgres)', () => {
   let app: INestApplication;
