@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { formatTzs } from './components/MoneyDisplay.js';
 import { arrearsStyle, color, unitStatusStyle } from './tokens.js';
-import { formatDate, formatDateTime, t } from './i18n.js';
+import { DEFAULT_LOCALE, formatDate, formatDateTime, readLocale, t } from './i18n.js';
 
 describe('tokens & formatting', () => {
   it('formats integer TZS with grouping and no decimals', () => {
@@ -30,6 +30,15 @@ describe('tokens & formatting', () => {
     expect(color.green).toBe('#239B46');
     expect(color.gold).toBe('#E7A52C');
     expect(color.steel).toBe('#1D6A96');
+  });
+
+  it('locale defaults to English and only accepts known values (owner decision 2026-07-18)', () => {
+    expect(DEFAULT_LOCALE).toBe('en');
+    expect(readLocale('sw')).toBe('sw');
+    expect(readLocale('en')).toBe('en');
+    expect(readLocale(null)).toBe('en');
+    expect(readLocale('fr')).toBe('en');
+    expect(readLocale(undefined, 'sw')).toBe('sw');
   });
 
   it('renders user-facing dates as dd/MM/yyyy (§7), never ISO', () => {

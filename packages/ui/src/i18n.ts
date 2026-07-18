@@ -24,6 +24,37 @@ export function t(key: StringKey, locale: Locale): string {
 }
 
 /**
+ * Locale persistence (owner decision 2026-07-18: default ENGLISH, choice
+ * survives refresh). Pure helpers so they unit-test without a DOM; the
+ * usePersistedLocale hook wraps them for React surfaces. Guarded storage
+ * access keeps this module safe for the API's React-free /i18n subpath.
+ */
+export const LOCALE_STORAGE_KEY = 'biashara-locale-v1';
+export const DEFAULT_LOCALE: Locale = 'en';
+
+export function readLocale(raw: string | null | undefined, fallback: Locale = DEFAULT_LOCALE): Locale {
+  return raw === 'sw' || raw === 'en' ? raw : fallback;
+}
+
+export function loadLocale(fallback: Locale = DEFAULT_LOCALE): Locale {
+  if (typeof localStorage === 'undefined') return fallback;
+  try {
+    return readLocale(localStorage.getItem(LOCALE_STORAGE_KEY), fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+export function saveLocale(locale: Locale): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    /* storage full/blocked — the session keeps its in-memory choice */
+  }
+}
+
+/**
  * THE user-facing date format: dd/MM/yyyy (DESIGN_SYSTEM.md §7).
  * Accepts ISO date strings (YYYY-MM-DD, with or without time) or Date.
  * ISO stays for wire formats and machine contexts only.

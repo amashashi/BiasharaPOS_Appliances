@@ -18,6 +18,11 @@ export interface NavItem {
   badge?: number;
   /** Not yet built — rendered dimmed with the milestone that delivers it. */
   comingSoon?: string;
+  /**
+   * Link-out destination (e.g. "Make a Sale" → the POS app, per the handoff
+   * NAV list). Rendered as an anchor opening a new tab; never "active".
+   */
+  href?: string;
 }
 
 export interface SideNavProps {
@@ -72,6 +77,33 @@ export function SideNav({ items, value, onChange, locale, businessName, userLine
         {items.map((item) => {
           const active = item.id === value;
           const dimmed = Boolean(item.comingSoon);
+          if (item.href) {
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: space.s2,
+                  minHeight: layout.posTouchTarget - 4,
+                  padding: `${space.s1}px ${space.s2}px`,
+                  borderRadius: radius.sm,
+                  color: color.ink2,
+                  textDecoration: 'none',
+                  fontFamily: font.sans,
+                  fontSize: fontSize.body,
+                  fontWeight: fontWeight.medium,
+                }}
+              >
+                <NavIcon name={item.icon} />
+                <span style={{ flex: 1 }}>{item.label[locale]}</span>
+                <ExternalMark />
+              </a>
+            );
+          }
           return (
             <button
               key={item.id}
@@ -136,12 +168,22 @@ export function SideNav({ items, value, onChange, locale, businessName, userLine
 
 export type NavIconName =
   | 'dashboard'
+  | 'sale'
   | 'catalog'
   | 'stock'
   | 'orders'
   | 'credit'
   | 'delivery'
   | 'design';
+
+/** Small outward arrow marking link-out items. */
+function ExternalMark() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ opacity: 0.55 }}>
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
 
 function NavIcon({ name }: { name: NavIconName }) {
   const paths: Record<NavIconName, ReactNode> = {
@@ -151,6 +193,13 @@ function NavIcon({ name }: { name: NavIconName }) {
         <rect x="14" y="3" width="7" height="5" rx="1.5" />
         <rect x="14" y="12" width="7" height="9" rx="1.5" />
         <rect x="3" y="16" width="7" height="5" rx="1.5" />
+      </>
+    ),
+    sale: (
+      <>
+        <circle cx="9" cy="20" r="1.6" />
+        <circle cx="18" cy="20" r="1.6" />
+        <path d="M2.5 3.5h3l2.6 12h10.4l2-8.5H6.2" />
       </>
     ),
     catalog: (
