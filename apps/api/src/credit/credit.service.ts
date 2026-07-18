@@ -13,7 +13,10 @@ import { SalesOrder } from '../db/entities/sales-order.entity.js';
 import { CreditAgreement } from '../db/entities/credit-agreement.entity.js';
 import { CreditScheduleRow } from '../db/entities/credit-schedule-row.entity.js';
 import { ReminderLog } from '../db/entities/reminder-log.entity.js';
+import { Merchant } from '../db/entities/merchant.entity.js';
+import { Payment } from '../db/entities/payment.entity.js';
 import { PaymentsService } from '../orders/payments.service.js';
+import type { StatementData } from './statement-pdf.js';
 import { generateEqualMonthly, isIsoDate, validateCustomRows, type ScheduleRowPlan } from './schedule.js';
 import type { FieldError } from '../catalog/product.rules.js';
 
@@ -155,6 +158,41 @@ export class CreditService {
       reminders,
       financedTzs,
       scheduleTotalTzs: schedule.reduce((s, r) => s + r.amountTzs, 0),
+    };
+  }
+
+  /**
+   * Assemble everything the statement PDF (T3.5) needs. Balance is computed
+   * from the SAME ledger the payments API serves (principal − Σ payments),
+   * never a stored field — the statement can't disagree with the ledger.
+   */
+  async statementData(merchantId: string, orderId: string): Promise<StatementData> {
+    const agreement = UUID_RE.test(orderId)
+      ? await this.ds.getRepository(CreditAgreement).findOne({
+          where: { orderId, merchantId },
+          relations: { customer: true, order: { location: true } },
+        })
+      : null;
+    if (!agreement) throw new NotFoundException('No credit agreement on this order');
+
+    const schedule = await this.ds
+      .getRepository(CreditScheduleRow)
+      .find({ where: { agreementId: agreement.id }, order: { seq: 'ASC' } });
+    const payments = await this.ds
+      .getRepository(Payment)
+      .find({ where: { orderId: agreement.orderId }, order: { seq: 'ASC' } });
+    const merchant = await this.ds.getRepository(Merchant).findOneByOrFail({ id: merchantId });
+
+    const paidTzs = payments.reduce((s, p) => s + p.amountTzs, 0);
+    return {
+      merchant,
+      order: agreement.order,
+      customer: agreement.customer,
+      agreement,
+      schedule,
+      payments,
+      paidTzs,
+      balanceTzs: agreement.principalTzs - paidTzs,
     };
   }
 

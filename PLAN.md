@@ -9,7 +9,7 @@
 - [x] **M0 — Foundations & contracts:** repo, CI, schema base, platform-adapter contracts with working stubs; the walking skeleton deploys.
 - [x] **M1 — Catalog & serialized inventory:** receive stock with serials; serial state machine is the source of truth.
 - [x] **M2 — Scheduled sales & POS checkout:** the appliance transaction exists end-to-end with fiscalized payments (stub fiscal).
-- [ ] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
+- [x] **M3 — Installment & layaway ledger:** the credit notebook is replaced.
 - [ ] **M4 — Delivery workflow:** scheduled fulfillment with proof.
 - [ ] **M5 — Real platform integration & offline:** stubs swapped for real APIs; POS survives an outage.
 - [ ] **M6 — Back office, reporting & pilot readiness:** dealers can run a real day on it.
@@ -45,7 +45,7 @@
 - [x] **T3.2** Payment application to schedules: cash + mobile-money payments apply oldest-due-first; partial payments; settlement closes agreement. — *Verify:* property-style tests on application order; overpayment rejected or applied per spec.
 - [x] **T3.3** Arrears engine: nightly job computes overdue status/amounts; arrears dashboard API + back-office screen (sortable by days overdue, amount). — *Verify:* time-travel test (fake clock) moves an agreement into arrears; dashboard reflects next "morning".
 - [x] **T3.4** Reminders: reminder policy per merchant (e.g., T-2 days, due day, +3 days overdue) dispatched via `NotificationService`; per-agreement reminder log. — *Verify:* fake-clock test dispatches exactly the configured reminders; log visible on agreement screen.
-- [ ] **T3.5** Customer statement: printable statement per agreement (schedule, payments, balance). — *Verify:* statement totals equal ledger; renders as PDF.
+- [x] **T3.5** Customer statement: printable statement per agreement (schedule, payments, balance). — *Verify:* statement totals equal ledger; renders as PDF.
 
 ### M4 — Delivery workflow
 - [ ] **T4.1** Delivery module: create/schedule delivery from order (date, window, address, assignee). — *Verify:* order screen shows scheduled delivery; double-booking same order prevented.
