@@ -56,6 +56,27 @@ export class Delivery {
   @Column({ type: 'varchar' })
   scheduledByUserId!: string;
 
+  // ── proof of delivery (T4.3): photo and/or customer-OTP/signature ──
+  @Column({ type: 'varchar', nullable: true })
+  proofPhotoUrl!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  proofSignedByName!: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  proofOtpConfirmed!: boolean;
+
+  /** Serialized-unit ids handed over and confirmed at delivery. */
+  @Column({ type: 'jsonb', nullable: true })
+  confirmedSerialIds!: string[] | null;
+
+  /** Set when a delivery attempt FAILS; the order may then be rescheduled (T4.1). */
+  @Column({ type: 'varchar', nullable: true })
+  failureReason!: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deliveredAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

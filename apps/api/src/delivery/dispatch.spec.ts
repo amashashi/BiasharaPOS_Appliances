@@ -102,6 +102,7 @@ describe('Dispatch list (T4.2, real Postgres)', () => {
     expect(job.id).toBe(mine);
     expect(job.customer).toEqual({ name: 'Mama Deo', phone: '+255713000000' });
     expect(job.lines).toEqual([{ description: 'Samsung UA43', qty: 1 }]);
+    expect(job.serials).toEqual([]); // non-serialized TV product → no handover serials
     expect(job.order.numberFormatted).toMatch(/^SO-\d{6}$/);
     expect(job.status).toBe('PLANNED');
   });

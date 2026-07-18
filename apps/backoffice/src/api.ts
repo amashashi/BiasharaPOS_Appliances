@@ -65,6 +65,7 @@ export interface DispatchJob {
   order: { id: string; number: number; numberFormatted: string };
   customer: { name: string; phone: string | null } | null;
   lines: Array<{ description: string; qty: number }>;
+  serials: string[];
 }
 
 export const fetchDispatch = (s: Session, date: string) =>
@@ -73,6 +74,24 @@ export const fetchDispatch = (s: Session, date: string) =>
 export const markDispatched = (s: Session, deliveryId: string) =>
   call<{ id: string; status: string }>(`/deliveries/${deliveryId}/dispatch`, {
     method: 'POST',
+    token: s.token,
+  });
+
+export const confirmDelivery = (
+  s: Session,
+  deliveryId: string,
+  body: { serials: string[]; signedByName?: string; otpConfirmed?: boolean },
+) =>
+  call<{ id: string; status: string }>(`/deliveries/${deliveryId}/confirm`, {
+    method: 'POST',
+    body,
+    token: s.token,
+  });
+
+export const failDelivery = (s: Session, deliveryId: string, reason: string) =>
+  call<{ id: string; status: string }>(`/deliveries/${deliveryId}/fail`, {
+    method: 'POST',
+    body: { reason },
     token: s.token,
   });
 
