@@ -18,6 +18,10 @@
       "types": "./dist/receipt.d.ts",
       "default": "./dist/receipt.js"
     },
+    "./i18n": {
+      "types": "./dist/i18n.d.ts",
+      "default": "./dist/i18n.js"
+    },
     "./fonts.css": "./assets/fonts.css"
   },
   "scripts": {

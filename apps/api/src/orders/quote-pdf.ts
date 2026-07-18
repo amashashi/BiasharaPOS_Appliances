@@ -1,5 +1,6 @@
 import PDFDocument from 'pdfkit';
 import { brand, color } from '@biashara/ui/tokens';
+import { formatDate } from '@biashara/ui/i18n';
 import type { Tzs } from '@biashara/shared';
 import type { Merchant } from '../db/entities/merchant.entity.js';
 import type { SalesOrder } from '../db/entities/sales-order.entity.js';
@@ -44,7 +45,7 @@ export function renderQuotePdf(
     doc.fillColor(color.ink).fontSize(15).font('Helvetica-Bold')
       .text(`KADIRIO / QUOTATION  ${formatOrderNumber(order.number)}`);
     doc.fillColor(color.ink2).fontSize(9).font('Helvetica')
-      .text(`Tarehe / Date: ${order.createdAt.toISOString().slice(0, 10)}`)
+      .text(`Tarehe / Date: ${formatDate(order.createdAt)}`)
       .text(`Mahali / Location: ${order.location?.name ?? '-'}`);
     if (order.customer) {
       doc.text(
@@ -54,12 +55,12 @@ export function renderQuotePdf(
 
     // ── lines table ──
     doc.moveDown(1);
-    const cols = { item: 50, qty: 330, unit: 390, total: 470 };
+    const cols = { item: 50, qty: 316, unit: 390, total: 470 };
     const rowY = (): number => doc.y;
     doc.fontSize(9).font('Helvetica-Bold').fillColor(color.ink);
     let y = rowY();
-    doc.text('Bidhaa / Item', cols.item, y, { width: 270 });
-    doc.text('Idadi', cols.qty, y, { width: 50, align: 'right' });
+    doc.text('Bidhaa / Item', cols.item, y, { width: 260 });
+    doc.text('Idadi / Qty', cols.qty, y, { width: 64, align: 'right' });
     doc.text('Bei / Unit', cols.unit, y, { width: 70, align: 'right' });
     doc.text('Jumla / Total', cols.total, y, { width: 75, align: 'right' });
     doc.moveTo(50, doc.y + 3).lineTo(50 + page, doc.y + 3).strokeColor(color.line2).stroke();
@@ -69,8 +70,8 @@ export function renderQuotePdf(
     for (const line of order.lines) {
       y = rowY();
       const name = `${line.product?.brand ?? ''} ${line.product?.model ?? ''}`.trim();
-      doc.text(name, cols.item, y, { width: 270 });
-      doc.text(String(line.qty), cols.qty, y, { width: 50, align: 'right' });
+      doc.text(name, cols.item, y, { width: 260 });
+      doc.text(String(line.qty), cols.qty, y, { width: 64, align: 'right' });
       doc.text(tzs(line.unitPriceTzs), cols.unit, y, { width: 70, align: 'right' });
       doc.text(tzs(line.qty * line.unitPriceTzs), cols.total, y, { width: 75, align: 'right' });
       doc.moveDown(0.4);
@@ -78,8 +79,8 @@ export function renderQuotePdf(
     for (const s of order.serviceLines ?? []) {
       y = rowY();
       const label = s.kind === 'DELIVERY' ? 'Usafirishaji / Delivery' : 'Ufungaji / Installation';
-      doc.text(label + (s.note ? ` — ${s.note}` : ''), cols.item, y, { width: 270 });
-      doc.text('1', cols.qty, y, { width: 50, align: 'right' });
+      doc.text(label + (s.note ? ` — ${s.note}` : ''), cols.item, y, { width: 260 });
+      doc.text('1', cols.qty, y, { width: 64, align: 'right' });
       doc.text(tzs(s.priceTzs), cols.unit, y, { width: 70, align: 'right' });
       doc.text(tzs(s.priceTzs), cols.total, y, { width: 75, align: 'right' });
       doc.moveDown(0.4);
