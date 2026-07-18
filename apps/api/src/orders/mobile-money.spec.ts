@@ -10,6 +10,7 @@ import { Location } from '../db/entities/location.entity.js';
 import { Product } from '../db/entities/product.entity.js';
 import { Payment } from '../db/entities/payment.entity.js';
 import { PaymentIntent } from '../db/entities/payment-intent.entity.js';
+import { PaymentWebhookEvent } from '../db/entities/payment-webhook-event.entity.js';
 import { FiscalReceipt } from '../db/entities/fiscal-receipt.entity.js';
 import { AuditEvent } from '../db/entities/audit-event.entity.js';
 import { DbModule } from '../db/db.module.js';
@@ -197,7 +198,17 @@ describe('Mobile money at POS (T2.5, real Postgres + real Redis)', () => {
       .expect(201);
     await initiate(quote.body.id, 1000).expect(400);
 
-    await confirmViaHttp('00000000-dead-beef-0000-000000000000').expect(404);
+    // orphan webhook (ref we never issued): captured for reconciliation, NOT 404'd —
+    // a real aggregator retries on non-2xx, so we ack and record instead (T5.3a)
+    const orphanRef = '00000000-dead-beef-0000-000000000000';
+    const orphan = await confirmViaHttp(orphanRef).expect(200);
+    expect(orphan.body.orphan).toBe(true);
+    const orphanRows = await ds.getRepository(PaymentWebhookEvent).findBy({ intentRef: orphanRef, reason: 'UNMATCHED' });
+    expect(orphanRows).toHaveLength(1);
+    expect(orphanRows[0].merchantId).toBeNull(); // unattributed money
+    await confirmViaHttp(orphanRef).expect(200); // retry is de-duped
+    expect(await ds.getRepository(PaymentWebhookEvent).countBy({ intentRef: orphanRef })).toBe(1);
+    // malformed payload is still a 400 (won't self-heal on retry — provider misconfig)
     await request(http).post('/webhooks/payments').send({ intentId: 'x', status: 'MAYBE' }).expect(400);
   });
 
@@ -217,5 +228,10 @@ describe('Mobile money at POS (T2.5, real Postgres + real Redis)', () => {
       .getRepository(AuditEvent)
       .findBy({ entityType: 'PaymentIntent', entityId: intent.id, action: 'MM_CONFIRMED_UNAPPLIED' });
     expect(audit).toHaveLength(1);
+    // and it lands in the reconciliation queue, attributed to the merchant
+    const recon = await ds.getRepository(PaymentWebhookEvent).findBy({ matchedIntentId: intent.id, reason: 'UNAPPLIED_BALANCE' });
+    expect(recon).toHaveLength(1);
+    expect(recon[0].amountTzs).toBe(90000);
+    expect(recon[0].resolvedAt).toBeNull();
   });
 });

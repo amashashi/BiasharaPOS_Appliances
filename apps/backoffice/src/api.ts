@@ -198,3 +198,26 @@ export interface AgreementDetail {
 
 export const fetchAgreement = (s: Session, orderId: string) =>
   call<AgreementDetail>(`/orders/${orderId}/credit-agreement`, { token: s.token });
+
+// ── reconciliation (T5.3a) ──
+export interface ReconciliationRow {
+  id: string;
+  reason: 'UNMATCHED' | 'UNAPPLIED_BALANCE';
+  status: string;
+  provider: string | null;
+  providerRef: string | null;
+  amountTzs: number | null;
+  intentRef: string;
+  receivedAt: string;
+  order: { id: string; numberFormatted: string } | null;
+}
+
+export const fetchReconciliation = (s: Session) =>
+  call<{ items: ReconciliationRow[]; totalTzs: number }>('/reconciliation', { token: s.token });
+
+export const resolveReconciliation = (s: Session, id: string, note: string) =>
+  call<{ id: string; resolvedAt: string }>(`/reconciliation/${id}/resolve`, {
+    method: 'POST',
+    body: { note },
+    token: s.token,
+  });
