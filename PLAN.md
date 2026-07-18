@@ -48,7 +48,7 @@
 - [x] **T3.5** Customer statement: printable statement per agreement (schedule, payments, balance). — *Verify:* statement totals equal ledger; renders as PDF.
 
 ### M4 — Delivery workflow
-- [ ] **T4.1** Delivery module: create/schedule delivery from order (date, window, address, assignee). — *Verify:* order screen shows scheduled delivery; double-booking same order prevented.
+- [x] **T4.1** Delivery module: create/schedule delivery from order (date, window, address, assignee). — *Verify:* order screen shows scheduled delivery; double-booking same order prevented.
 - [ ] **T4.2** Dispatch list (mobile-friendly page for delivery staff): today's jobs, order contents, customer phone, mark DISPATCHED. — *Verify:* delivery user role sees only assigned jobs.
 - [ ] **T4.3** Proof-of-delivery: confirm serials on handover (scan/check), capture photo and/or customer-OTP confirm; units → DELIVERED; failed-delivery path with reason. — *Verify:* e2e — confirmed delivery flips serials + order status; failed delivery reschedules.
 
