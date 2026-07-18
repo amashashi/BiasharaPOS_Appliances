@@ -53,7 +53,7 @@
 - [x] **T4.3** Proof-of-delivery: confirm serials on handover (scan/check), capture photo and/or customer-OTP confirm; units → DELIVERED; failed-delivery path with reason. — *Verify:* e2e — confirmed delivery flips serials + order status; failed delivery reschedules.
 
 ### M5 — Real platform integration & offline
-- [ ] **T5.1** Swap Identity stub → real platform OAuth/JWT (staging). — *Verify:* login via platform staging credentials; roles map correctly.
+- [x] **T5.1** Swap Identity stub → real platform OAuth/JWT (staging). — *Verify:* login via platform staging credentials; roles map correctly.
 - [ ] **T5.2** Swap Fiscal stub → real Fiscal API (staging/TRA sandbox); confirm installment fiscal treatment against compliance answer (brief open question #1). — *Verify:* staging payment produces verifiable VFD receipt; compliance decision recorded in DECISIONS.md.
 - [ ] **T5.3** Swap Payments stub → real mobile-money API (staging): M-Pesa, Mixx by Yas, Airtel push + webhooks; reconciliation view for unmatched payments. — *Verify:* sandbox STK e2e per provider; orphan webhook lands in reconciliation view.
 - [ ] **T5.4** Swap Notification stub → real SMS API. — *Verify:* reminder SMS received on a real TZ number in staging.

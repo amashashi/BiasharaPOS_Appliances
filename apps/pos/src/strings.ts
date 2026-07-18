@@ -3,11 +3,12 @@ import type { Locale } from '@biashara/ui';
 
 const dict = {
   signIn: { sw: 'Ingia', en: 'Sign in' },
-  devSignIn: { sw: 'Ingia (mazingira ya majaribio)', en: 'Sign in (dev environment)' },
-  merchant: { sw: 'Duka', en: 'Merchant' },
+  phone: { sw: 'Namba ya simu', en: 'Phone number' },
+  pin: { sw: 'PIN (tarakimu 4)', en: 'PIN (4 digits)' },
   location: { sw: 'Tawi', en: 'Location' },
-  yourName: { sw: 'Jina lako', en: 'Your name' },
-  role: { sw: 'Wajibu', en: 'Role' },
+  chooseLocation: { sw: 'Chagua tawi la kuuzia', en: 'Choose the till location' },
+  noLocations: { sw: 'Duka halina tawi — wasiliana na mmiliki', en: 'No locations set up — contact the owner' },
+  continueBtn: { sw: 'Endelea', en: 'Continue' },
   signOut: { sw: 'Toka', en: 'Sign out' },
   searchPlaceholder: { sw: 'Tafuta bidhaa au skani…', en: 'Search or scan a product…' },
   noResults: { sw: 'Hakuna bidhaa', en: 'No products found' },

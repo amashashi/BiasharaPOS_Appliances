@@ -1,7 +1,8 @@
-/** POS API client (T2.6). Bearer token from the dev sign-in (D-028) until T5.1. */
+/** POS API client (T2.6). Real platform sign-in since T5.1 (D-034). */
 
 export interface Session {
   token: string;
+  refreshToken?: string;
   merchant: { id: string; name: string };
   locationId: string;
   locationName: string;
@@ -34,9 +35,46 @@ export class ApiError extends Error {
   }
 }
 
+/** Fired whenever the stored session changes outside React (refresh/sign-out). */
+export const SESSION_EVENT = 'biashara-session';
+
+/**
+ * Platform access tokens live 15 min; on a 401 we refresh ONCE and retry.
+ * Single-flight: the platform ROTATES refresh tokens, so parallel refreshes
+ * with the same old token would be rejected and sign the cashier out.
+ */
+let refreshing: Promise<Session | null> | null = null;
+const tryRefresh = (): Promise<Session | null> => {
+  refreshing ??= (async () => {
+    const current = loadSession();
+    if (!current?.refreshToken) return null;
+    try {
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refreshToken: current.refreshToken }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      const pair = (await res.json()) as { token: string; refreshToken: string };
+      const next = { ...current, token: pair.token, refreshToken: pair.refreshToken };
+      saveSession(next);
+      window.dispatchEvent(new Event(SESSION_EVENT));
+      return next;
+    } catch {
+      saveSession(null); // refresh dead → sign out
+      window.dispatchEvent(new Event(SESSION_EVENT));
+      return null;
+    }
+  })().finally(() => {
+    refreshing = null;
+  });
+  return refreshing;
+};
+
 async function call<T>(
   path: string,
   opts: { method?: string; body?: unknown; token?: string } = {},
+  retried = false,
 ): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method: opts.method ?? 'GET',
@@ -46,6 +84,10 @@ async function call<T>(
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
+  if (res.status === 401 && opts.token && !retried) {
+    const next = await tryRefresh();
+    if (next) return call<T>(path, { ...opts, token: next.token }, true);
+  }
   if (!res.ok) {
     let message = `${res.status}`;
     try {
@@ -60,20 +102,19 @@ async function call<T>(
   return (type.includes('text/html') ? res.text() : res.json()) as Promise<T>;
 }
 
-// ── dev auth (stub era) ──
-export const devContext = () =>
+// ── auth ──
+/** Phone + PIN sign-in against the real platform (T5.1). */
+export const login = (phone: string, pin: string) =>
   call<{
-    enabled: boolean;
-    roles: string[];
-    merchants: Array<{ id: string; name: string; locations: Array<{ id: string; name: string }> }>;
-  }>('/auth/dev/context');
+    token: string;
+    refreshToken: string;
+    merchant: { id: string; name: string };
+    displayName: string;
+    role: string;
+    locations: Array<{ id: string; name: string }>;
+  }>('/auth/login', { method: 'POST', body: { phone, pin } });
 
-export const devLogin = (merchantId: string, name: string, role: string) =>
-  call<{ token: string; merchant: { id: string; name: string }; displayName: string; role: string }>(
-    '/auth/dev/login',
-    { method: 'POST', body: { merchantId, name, role } },
-  );
-
+/** Stub-payments simulator (D-028 remnant; dies at T5.3 with the payments swap). */
 export const devResolveMm = (intentId: string, outcome: 'CONFIRMED' | 'FAILED') =>
   call('/auth/dev/mm-resolve', { method: 'POST', body: { intentId, outcome } });
 

@@ -1,20 +1,27 @@
 /**
- * POS checkout (T2.6): dev sign-in (stub era, D-028) → search/cart/customer →
+ * POS checkout (T2.6): platform sign-in (T5.1, D-034) → search/cart/customer →
  * cash or mobile-money payment → fiscal receipt print view. Tokens only.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePersistedLocale } from '@biashara/ui';
-import { loadSession, saveSession, type Session } from './api.js';
-import { DevLogin } from './screens/DevLogin.js';
+import { loadSession, saveSession, SESSION_EVENT, type Session } from './api.js';
+import { Login } from './screens/Login.js';
 import { Checkout } from './screens/Checkout.js';
 
 export function App(): JSX.Element {
   const [session, setSession] = useState<Session | null>(loadSession());
   const [locale, setLocale] = usePersistedLocale(); // default 'en'; survives refresh
 
+  // token refresh / forced sign-out happens inside api.ts — mirror it into state
+  useEffect(() => {
+    const sync = (): void => setSession(loadSession());
+    window.addEventListener(SESSION_EVENT, sync);
+    return () => window.removeEventListener(SESSION_EVENT, sync);
+  }, []);
+
   if (!session) {
     return (
-      <DevLogin
+      <Login
         locale={locale}
         onSignIn={(s) => {
           saveSession(s);
