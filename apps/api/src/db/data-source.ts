@@ -39,6 +39,7 @@ import { Deliveries1784250000000 } from './migrations/1784250000000-deliveries.j
 import { DeliveryProof1784260000000 } from './migrations/1784260000000-delivery-proof.js';
 import { PlatformIdentity1784270000000 } from './migrations/1784270000000-platform-identity.js';
 import { PaymentWebhookEvents1784280000000 } from './migrations/1784280000000-payment-webhook-events.js';
+import { OrderClientRef1784290000000 } from './migrations/1784290000000-order-client-ref.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
@@ -63,6 +64,7 @@ export const migrations = [
   DeliveryProof1784260000000,
   PlatformIdentity1784270000000,
   PaymentWebhookEvents1784280000000,
+  OrderClientRef1784290000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {

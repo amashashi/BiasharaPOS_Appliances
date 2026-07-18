@@ -173,6 +173,13 @@ export const listMm = (s: Session, orderId: string) =>
     { token: s.token },
   );
 
+/** Replay queued offline sales (T5.5) — idempotent by clientRef server-side. */
+export const syncOutbox = (s: Session, operations: unknown[]) =>
+  call<{ results: Array<{ clientRef: string; status: 'created' | 'duplicate' | 'failed'; error?: string }> }>(
+    '/sync/outbox',
+    { method: 'POST', body: { operations }, token: s.token },
+  );
+
 /** Receipt HTML, or null while the fiscal queue is still working (404). */
 export const getReceiptHtml = async (
   s: Session,

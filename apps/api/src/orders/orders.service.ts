@@ -25,6 +25,8 @@ export interface CreateOrderInput {
   note?: unknown;
   lines?: Array<{ productId?: unknown; qty?: unknown; unitPriceTzs?: unknown }>;
   serviceLines?: Array<{ kind?: unknown; priceTzs?: unknown; note?: unknown }>;
+  /** Offline idempotency key (T5.5): set only when replaying via /sync/outbox. */
+  clientRef?: unknown;
 }
 
 export interface OrderTotals {
@@ -165,6 +167,11 @@ export class OrdersService {
       serviceLines.push({ kind, priceTzs, note: trimmed(s.note) });
     }
 
+    const clientRef = trimmed(input.clientRef);
+    if (clientRef !== null && !UUID_RE.test(clientRef)) {
+      errors.push({ field: 'clientRef', message: 'clientRef must be a uuid' });
+    }
+
     if (errors.length) throw new BadRequestException({ message: 'Validation failed', errors });
 
     const orderId = await this.ds.transaction(async (mgr) => {
@@ -190,6 +197,7 @@ export class OrdersService {
           locationId: locationId as string,
           note: trimmed(input.note),
           createdByUserId: actorUserId,
+          clientRef,
         }),
       );
       for (const line of lines) {
