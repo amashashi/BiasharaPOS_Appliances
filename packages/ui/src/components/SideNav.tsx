@@ -78,12 +78,12 @@ export function SideNav({ items, value, onChange, locale, businessName, userLine
           const active = item.id === value;
           const dimmed = Boolean(item.comingSoon);
           if (item.href) {
+            // same-tab navigation (owner decision 2026-07-18): the till takes
+            // over the screen; the browser back button returns to the office
             return (
               <a
                 key={item.id}
                 href={item.href}
-                target="_blank"
-                rel="noreferrer"
                 style={{
                   display: 'flex',
                   alignItems: 'center',

@@ -203,3 +203,5 @@
 - **Locale: default ENGLISH, choice persists across refresh** (D-032). `packages/ui/i18n` gained `DEFAULT_LOCALE='en'` + pure `readLocale`/`loadLocale`/`saveLocale` (guarded storage access — safe for the API's React-free subpath) and a `usePersistedLocale` hook; both apps (POS + back office) now use it (localStorage `biashara-locale-v1`, per origin). Swahili remains first-class (§7 full coverage) — only the *initial pick* changed.
 
 **Verified:** ui/backoffice/pos builds + lint green; suite 153 (142 api + 5 pos + 6 ui — new locale-rules test). **Live in-browser:** fresh visit renders English ("Arrears", "Days overdue", menu Dashboard/Make a Sale/Catalog/…); "Make a Sale" present as a link to :5173; toggling Kiswahili stores `sw` and a full page reload comes back in Kiswahili ("Madeni yaliyochelewa", MTEJA/ODA headers); storage cleared → English again.
+
+**Follow-up (owner):** "Make a Sale" now navigates in the SAME tab (no new browser window) — target removed from SideNav link-out items; browser back returns to the office. Verified in-pane: click → same tab lands on the POS sign-in; tab count stays 1.
