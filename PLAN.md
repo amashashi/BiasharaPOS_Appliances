@@ -49,7 +49,7 @@
 
 ### M4 — Delivery workflow
 - [x] **T4.1** Delivery module: create/schedule delivery from order (date, window, address, assignee). — *Verify:* order screen shows scheduled delivery; double-booking same order prevented.
-- [ ] **T4.2** Dispatch list (mobile-friendly page for delivery staff): today's jobs, order contents, customer phone, mark DISPATCHED. — *Verify:* delivery user role sees only assigned jobs.
+- [x] **T4.2** Dispatch list (mobile-friendly page for delivery staff): today's jobs, order contents, customer phone, mark DISPATCHED. — *Verify:* delivery user role sees only assigned jobs.
 - [ ] **T4.3** Proof-of-delivery: confirm serials on handover (scan/check), capture photo and/or customer-OTP confirm; units → DELIVERED; failed-delivery path with reason. — *Verify:* e2e — confirmed delivery flips serials + order status; failed delivery reschedules.
 
 ### M5 — Real platform integration & offline

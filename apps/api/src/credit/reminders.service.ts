@@ -55,7 +55,8 @@ export class RemindersService {
     @Inject(AuditService) private readonly audit: AuditService,
   ) {}
 
-  async dispatchDue(asOf: string = todayIso()): Promise<DispatchSummary> {
+  /** `merchantId` optionally scopes the sweep (per-merchant dispatch / test isolation); default = all. */
+  async dispatchDue(asOf: string = todayIso(), merchantId?: string): Promise<DispatchSummary> {
     const due = (await this.ds.query(
       `SELECT r."id"           AS "scheduleRowId",
               a."id"           AS "agreementId",
@@ -73,11 +74,12 @@ export class RemindersService {
          JOIN customers c         ON c."id" = a."customerId" AND c."phone" IS NOT NULL
          JOIN sales_orders o      ON o."id" = a."orderId"
         WHERE r."status" <> 'PAID'
+          AND ($2::uuid IS NULL OR a."merchantId" = $2::uuid)
           AND ($1::date - r."dueDate")::int IN (
                 SELECT jsonb_array_elements_text(m."reminderOffsetsDays")::int
               )
         ORDER BY a."merchantId", r."dueDate", r."id"`,
-      [asOf],
+      [asOf, merchantId ?? null],
     )) as DueReminder[];
 
     const summary: DispatchSummary = {

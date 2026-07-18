@@ -13,11 +13,12 @@ const field: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-/** Stub-era back-office sign-in (D-028) — always OWNER. Deleted at T5.1. */
+/** Stub-era back-office sign-in (D-028). Role picker so DELIVERY staff can reach dispatch. Deleted at T5.1. */
 export function DevLogin({ onSignIn }: { onSignIn: (s: Session) => void }) {
   const [merchants, setMerchants] = useState<Array<{ id: string; name: string }>>([]);
   const [merchantId, setMerchantId] = useState('');
   const [name, setName] = useState('');
+  const [role, setRole] = useState('OWNER');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -35,7 +36,7 @@ export function DevLogin({ onSignIn }: { onSignIn: (s: Session) => void }) {
     setBusy(true);
     setError(null);
     try {
-      const res = await devLogin(merchantId, name);
+      const res = await devLogin(merchantId, name, role);
       onSignIn({ token: res.token, merchant: res.merchant, displayName: res.displayName, role: res.role });
     } catch (e) {
       setError((e as Error).message);
@@ -59,6 +60,11 @@ export function DevLogin({ onSignIn }: { onSignIn: (s: Session) => void }) {
         </select>
         <label style={{ display: 'block', margin: `${space.s3}px 0 ${space.s1}px`, color: color.ink2, fontSize: fontSize.sm }}>Your name</label>
         <input style={field} value={name} placeholder="Asha" onChange={(e) => setName(e.target.value)} />
+        <label style={{ display: 'block', margin: `${space.s3}px 0 ${space.s1}px`, color: color.ink2, fontSize: fontSize.sm }}>Role</label>
+        <select style={field} value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="OWNER">OWNER</option>
+          <option value="DELIVERY">DELIVERY</option>
+        </select>
         <div style={{ marginTop: space.s4 }}>
           <Button pos loading={busy} style={{ width: '100%' }} onClick={() => void submit()}>Sign in</Button>
         </div>
