@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health/health.controller.js';
-import { DevAuthController } from './auth/dev.controller.js';
+import { PlatformAuthController } from './auth/login.controller.js';
+import { MmResolveDevController } from './platform/mm-resolve.controller.js';
 import { PlatformModule } from './platform/platform.module.js';
 import { DbModule } from './db/db.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
@@ -15,7 +16,7 @@ import { AuthGuard } from './auth/auth.guard.js';
   imports: [
     PlatformModule, DbModule, CatalogModule, InventoryModule, OrdersModule, CreditModule, DeliveryModule,
   ],
-  controllers: [HealthController, DevAuthController],
+  controllers: [HealthController, PlatformAuthController, MmResolveDevController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AppModule {}

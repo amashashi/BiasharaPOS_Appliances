@@ -36,6 +36,7 @@ import { CreditAgreements1784230000000 } from './migrations/1784230000000-credit
 import { Reminders1784240000000 } from './migrations/1784240000000-reminders.js';
 import { Deliveries1784250000000 } from './migrations/1784250000000-deliveries.js';
 import { DeliveryProof1784260000000 } from './migrations/1784260000000-delivery-proof.js';
+import { PlatformIdentity1784270000000 } from './migrations/1784270000000-platform-identity.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
@@ -58,6 +59,7 @@ export const migrations = [
   Reminders1784240000000,
   Deliveries1784250000000,
   DeliveryProof1784260000000,
+  PlatformIdentity1784270000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {

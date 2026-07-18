@@ -1,7 +1,8 @@
-/** Back-office API client (T3.3). Dev sign-in (D-028) until real identity (T5.1). */
+/** Back-office API client (T3.3). Real platform sign-in since T5.1 (D-034). */
 
 export interface Session {
   token: string;
+  refreshToken?: string;
   merchant: { id: string; name: string };
   displayName: string;
   role: string;
@@ -9,6 +10,8 @@ export interface Session {
 
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000/api';
 const SESSION_KEY = 'backoffice-session-v1';
+/** Fired whenever the stored session changes outside React (refresh/sign-out). */
+export const SESSION_EVENT = 'biashara-session';
 
 export const loadSession = (): Session | null => {
   try {
@@ -23,7 +26,45 @@ export const saveSession = (s: Session | null): void => {
   else localStorage.removeItem(SESSION_KEY);
 };
 
-async function call<T>(path: string, opts: { method?: string; body?: unknown; token?: string } = {}): Promise<T> {
+/**
+ * Platform access tokens live 15 min; on a 401 we refresh ONCE and retry.
+ * Single-flight: concurrent 401s share one refresh — the platform ROTATES
+ * refresh tokens, so a second parallel refresh with the old token would be
+ * rejected and sign the user out.
+ */
+let refreshing: Promise<Session | null> | null = null;
+const tryRefresh = (): Promise<Session | null> => {
+  refreshing ??= (async () => {
+    const current = loadSession();
+    if (!current?.refreshToken) return null;
+    try {
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refreshToken: current.refreshToken }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      const pair = (await res.json()) as { token: string; refreshToken: string };
+      const next = { ...current, token: pair.token, refreshToken: pair.refreshToken };
+      saveSession(next);
+      window.dispatchEvent(new Event(SESSION_EVENT));
+      return next;
+    } catch {
+      saveSession(null); // refresh dead → sign out
+      window.dispatchEvent(new Event(SESSION_EVENT));
+      return null;
+    }
+  })().finally(() => {
+    refreshing = null;
+  });
+  return refreshing;
+};
+
+async function call<T>(
+  path: string,
+  opts: { method?: string; body?: unknown; token?: string } = {},
+  retried = false,
+): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method: opts.method ?? 'GET',
     headers: {
@@ -32,6 +73,10 @@ async function call<T>(path: string, opts: { method?: string; body?: unknown; to
     },
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
+  if (res.status === 401 && opts.token && !retried) {
+    const next = await tryRefresh();
+    if (next) return call<T>(path, { ...opts, token: next.token }, true);
+  }
   if (!res.ok) {
     let message = `${res.status}`;
     try {
@@ -45,14 +90,16 @@ async function call<T>(path: string, opts: { method?: string; body?: unknown; to
   return res.json() as Promise<T>;
 }
 
-export const devContext = () =>
-  call<{ merchants: Array<{ id: string; name: string }> }>('/auth/dev/context');
-
-export const devLogin = (merchantId: string, name: string, role = 'OWNER') =>
-  call<{ token: string; merchant: { id: string; name: string }; displayName: string; role: string }>(
-    '/auth/dev/login',
-    { method: 'POST', body: { merchantId, name, role } },
-  );
+/** Phone + PIN sign-in against the real platform (T5.1). */
+export const login = (phone: string, pin: string) =>
+  call<{
+    token: string;
+    refreshToken: string;
+    merchant: { id: string; name: string };
+    displayName: string;
+    role: string;
+    locations: Array<{ id: string; name: string }>;
+  }>('/auth/login', { method: 'POST', body: { phone, pin } });
 
 export interface DispatchJob {
   id: string;
