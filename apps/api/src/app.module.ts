@@ -8,10 +8,13 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { InventoryModule } from './inventory/inventory.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { CreditModule } from './credit/credit.module.js';
+import { DeliveryModule } from './delivery/delivery.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
 
 @Module({
-  imports: [PlatformModule, DbModule, CatalogModule, InventoryModule, OrdersModule, CreditModule],
+  imports: [
+    PlatformModule, DbModule, CatalogModule, InventoryModule, OrdersModule, CreditModule, DeliveryModule,
+  ],
   controllers: [HealthController, DevAuthController],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
 })

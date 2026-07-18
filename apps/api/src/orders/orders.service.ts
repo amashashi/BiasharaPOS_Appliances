@@ -264,13 +264,29 @@ export class OrdersService {
             lines: { product: true },
             serviceLines: true,
             payments: true,
+            deliveries: true,
             customer: true,
             location: true,
           },
         })
       : null;
     if (!order) throw new NotFoundException('Order not found');
-    return { ...order, numberFormatted: formatOrderNumber(order.number), totals: this.totals(order) };
+    // the order screen shows the current delivery (the live one, else latest) — T4.1
+    const delivery =
+      (order.deliveries ?? [])
+        .slice()
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .find((d) => d.status !== 'FAILED') ??
+      (order.deliveries ?? [])
+        .slice()
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0] ??
+      null;
+    return {
+      ...order,
+      numberFormatted: formatOrderNumber(order.number),
+      totals: this.totals(order),
+      delivery,
+    };
   }
 
   async list(
