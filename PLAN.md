@@ -55,7 +55,9 @@
 ### M5 — Real platform integration & offline
 - [x] **T5.1** Swap Identity stub → real platform OAuth/JWT (staging). — *Verify:* login via platform staging credentials; roles map correctly.
 - [ ] **T5.2** Swap Fiscal stub → real Fiscal API (staging/TRA sandbox); confirm installment fiscal treatment against compliance answer (brief open question #1). — *Verify:* staging payment produces verifiable VFD receipt; compliance decision recorded in DECISIONS.md.
-- [ ] **T5.3** Swap Payments stub → real mobile-money API (staging): M-Pesa, Mixx by Yas, Airtel push + webhooks; reconciliation view for unmatched payments. — *Verify:* sandbox STK e2e per provider; orphan webhook lands in reconciliation view.
+- [ ] **T5.3** Swap Payments stub → real mobile-money API: **via the ClickPesa aggregator** (M-Pesa, Mixx by Yas, Airtel) — the platform has no push API (D-035). Split:
+  - [x] **T5.3a** Reconciliation view for unmatched/unapplied payments + orphan-webhook capture (rail-agnostic). — *Verify:* orphan webhook is captured (not 404-looped) and a confirmed-but-unapplied payment lands in the reconciliation view; resolve action clears it.
+  - [ ] **T5.3b** ClickPesa adapter: token + checksum + initiate-USSD-push + signed webhook parse; env-branched binding. — *Verify:* full flow against a fake ClickPesa server; **live sandbox STK e2e per provider blocked on owner-provisioned ClickPesa sandbox credentials** (D-035).
 - [ ] **T5.4** Swap Notification stub → real SMS API. — *Verify:* reminder SMS received on a real TZ number in staging.
 - [ ] **T5.5** POS offline outbox: IndexedDB queue for cash sales/payments with client UUIDs; service worker replay; idempotent `/sync/outbox` endpoint. — *Verify:* airplane-mode test — 3 sales offline, reconnect, exactly 3 server orders, no dupes on double-replay.
 - [ ] **T5.6** Offline conflict handling: serial-conflict and stale-price exceptions surface in back-office exception queue with resolve actions. — *Verify:* engineered conflict (same serial sold online + offline) lands in queue; resolving releases/corrects correctly.

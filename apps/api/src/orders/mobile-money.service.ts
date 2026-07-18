@@ -5,7 +5,7 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
-import { DataSource, type EntityManager } from 'typeorm';
+import { DataSource, IsNull, type EntityManager } from 'typeorm';
 import type {
   MobileMoneyProvider,
   PaymentConfirmation,
@@ -16,6 +16,7 @@ import { PAYMENTS_SERVICE } from '../platform/tokens.js';
 import { AuditService } from '../db/audit.service.js';
 import { SalesOrder } from '../db/entities/sales-order.entity.js';
 import { PaymentIntent } from '../db/entities/payment-intent.entity.js';
+import { PaymentWebhookEvent, type WebhookReason } from '../db/entities/payment-webhook-event.entity.js';
 import { PaymentsService } from './payments.service.js';
 import type { FieldError } from '../catalog/product.rules.js';
 
@@ -115,11 +116,13 @@ export class MobileMoneyService implements OnModuleInit {
   }
 
   /**
-   * Platform webhook entry (idempotent by intent). CONFIRMED money applies
-   * through applyPayment when it still fits the balance; when it no longer
-   * fits (e.g. cash settled the order while the push was pending), the
-   * intent stays CONFIRMED with no applied payment — the T5.3
-   * reconciliation queue's case — and NOTHING is silently dropped.
+   * Platform/aggregator webhook entry (idempotent by intent). CONFIRMED money
+   * applies through applyPayment when it still fits the balance; when it no
+   * longer fits (e.g. cash settled the order while the push was pending), the
+   * intent stays CONFIRMED with no applied payment and the row lands in the
+   * reconciliation queue (D-027). A webhook for a ref we don't recognize is
+   * an ORPHAN — recorded and acknowledged, never 404'd, so a real aggregator's
+   * retries don't loop and no money is silently dropped (T5.3a).
    */
   async processConfirmation(confirmation: PaymentConfirmation) {
     const { intentId, status, providerRef } = confirmation;
@@ -134,7 +137,21 @@ export class MobileMoneyService implements OnModuleInit {
         .setLock('pessimistic_write')
         .where('i.intentId = :intentId', { intentId })
         .getOne();
-      if (!intent) throw new NotFoundException(`Unknown payment intent "${intentId}"`);
+      if (!intent) {
+        // orphan: a webhook for a reference we never issued — capture, don't 404
+        await this.recordWebhookEvent(mgr, {
+          merchantId: null,
+          matchedIntentId: null,
+          intentRef: intentId,
+          provider: null,
+          providerRef: providerRef ?? null,
+          amountTzs: null,
+          status,
+          reason: 'UNMATCHED',
+          rawPayload: confirmation as unknown as Record<string, unknown>,
+        });
+        return { orphan: true as const };
+      }
       if (intent.status !== 'PENDING') {
         return { intent, replay: true, paymentId: intent.appliedPaymentId }; // idempotent replay
       }
@@ -176,6 +193,21 @@ export class MobileMoneyService implements OnModuleInit {
 
       // money confirmed but the balance moved — keep it visible, apply nothing
       await mgr.getRepository(PaymentIntent).save(intent);
+      await this.recordWebhookEvent(mgr, {
+        merchantId: intent.merchantId,
+        matchedIntentId: intent.id,
+        intentRef: intentId,
+        provider: intent.provider,
+        providerRef: providerRef ?? null,
+        amountTzs: intent.amountTzs,
+        status,
+        reason: 'UNAPPLIED_BALANCE',
+        rawPayload: {
+          ...(confirmation as unknown as Record<string, unknown>),
+          balanceTzs: totalTzs - paidTzs,
+          orderId: intent.orderId,
+        },
+      });
       await this.audit.record(
         {
           merchantId: intent.merchantId,
@@ -196,6 +228,10 @@ export class MobileMoneyService implements OnModuleInit {
       return { intent, replay: false, paymentId: null };
     });
 
+    if (result.orphan) {
+      return { intentId, status, orphan: true, appliedPaymentId: null };
+    }
+
     // fiscalize the applied payment (after commit), exactly like cash
     if (!result.replay && result.paymentId) {
       await this.payments.enqueueFiscal(result.intent.merchantId, WEBHOOK_ACTOR, result.paymentId);
@@ -206,6 +242,41 @@ export class MobileMoneyService implements OnModuleInit {
       appliedPaymentId: result.intent.appliedPaymentId,
       replay: result.replay,
     };
+  }
+
+  /**
+   * Insert a reconciliation row idempotently. The partial unique index keeps at
+   * most one OPEN row per matched intent, so an aggregator retrying the same
+   * unapplied confirmation is a no-op; UNMATCHED orphans (no intent) aren't
+   * covered by the index, so we de-dup them by (intentRef, status) best-effort.
+   */
+  private async recordWebhookEvent(
+    mgr: EntityManager,
+    ev: {
+      merchantId: string | null;
+      matchedIntentId: string | null;
+      intentRef: string;
+      provider: PaymentIntent['provider'] | null;
+      providerRef: string | null;
+      amountTzs: number | null;
+      status: string;
+      reason: WebhookReason;
+      rawPayload: Record<string, unknown>;
+    },
+  ): Promise<void> {
+    if (ev.matchedIntentId === null) {
+      const dupe = await mgr.getRepository(PaymentWebhookEvent).findOne({
+        where: { intentRef: ev.intentRef, status: ev.status, resolvedAt: IsNull(), matchedIntentId: IsNull() },
+      });
+      if (dupe) return;
+    }
+    const repo = mgr.getRepository(PaymentWebhookEvent);
+    try {
+      await repo.save(repo.create({ ...ev, resolvedAt: null, resolvedByUserId: null, resolutionNote: null }));
+    } catch (e) {
+      // conflict on the open-intent partial index → an aggregator retry, already queued
+      if ((e as { code?: string }).code !== '23505') throw e;
+    }
   }
 
   async listForOrder(merchantId: string, orderId: string) {

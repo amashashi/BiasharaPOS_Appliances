@@ -174,6 +174,7 @@ export type NavIconName =
   | 'orders'
   | 'credit'
   | 'delivery'
+  | 'reconciliation'
   | 'design';
 
 /** Small outward arrow marking link-out items. */
@@ -231,6 +232,11 @@ function NavIcon({ name }: { name: NavIconName }) {
         <path d="M2 6h11v10H2zM13 9h5l3 3v4h-8" />
         <circle cx="6" cy="18" r="1.8" />
         <circle cx="17" cy="18" r="1.8" />
+      </>
+    ),
+    reconciliation: (
+      <>
+        <path d="M12 3v18M7 21h10M6 6h12M6 6 3 12h6L6 6ZM18 6l-3 6h6l-3-6Z" />
       </>
     ),
     design: (
