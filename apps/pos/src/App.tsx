@@ -3,14 +3,14 @@
  * cash or mobile-money payment → fiscal receipt print view. Tokens only.
  */
 import { useState } from 'react';
-import type { Locale } from '@biashara/ui';
+import { usePersistedLocale } from '@biashara/ui';
 import { loadSession, saveSession, type Session } from './api.js';
 import { DevLogin } from './screens/DevLogin.js';
 import { Checkout } from './screens/Checkout.js';
 
 export function App(): JSX.Element {
   const [session, setSession] = useState<Session | null>(loadSession());
-  const [locale, setLocale] = useState<Locale>('sw');
+  const [locale, setLocale] = usePersistedLocale(); // default 'en'; survives refresh
 
   if (!session) {
     return (

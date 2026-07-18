@@ -14,8 +14,12 @@ import { Showcase } from './Showcase.js';
  * no router dependency.
  */
 
+/** The POS app is a separate offline-first PWA; "Make a Sale" links out to it. */
+const POS_URL = (import.meta.env.VITE_POS_URL as string | undefined) ?? 'http://localhost:5173';
+
 const MODULES: NavItem[] = [
   { id: 'dashboard', label: { sw: 'Dashibodi', en: 'Dashboard' }, icon: 'dashboard', comingSoon: 'M6' },
+  { id: 'sale', label: { sw: 'Fanya Mauzo', en: 'Make a Sale' }, icon: 'sale', href: POS_URL },
   { id: 'catalog', label: { sw: 'Katalogi', en: 'Catalog' }, icon: 'catalog', comingSoon: 'M6' },
   { id: 'stock', label: { sw: 'Stoo', en: 'Stock' }, icon: 'stock', comingSoon: 'M6' },
   { id: 'orders', label: { sw: 'Oda', en: 'Orders' }, icon: 'orders', comingSoon: 'M6' },

@@ -13,6 +13,15 @@
 
 ---
 
+### D-032 — Default UI language is English; the choice persists per device
+**Date:** 2026-07-18 · **Mode:** Builder (product-owner decision)
+**Decision:** Both apps start in English (`DEFAULT_LOCALE='en'`) and remember the user's toggle in localStorage (`biashara-locale-v1`, per origin/device) — a refresh never resets the language. Swahili remains first-class per DESIGN_SYSTEM.md §7 (full coverage, labels designed for Swahili length); only the initial selection changed from the sw-first default the screens shipped with.
+**Why:** Owner instruction 2026-07-18. Per-device persistence (not per-account) because the language of a shared till is a property of the shop counter, not of whoever is signed in.
+**Rejected:** browser-language detection (Tanzanian Windows/Android devices commonly report en-US regardless of the operator's preference — an explicit toggle is more honest); per-account persistence (server round-trip for a preference that belongs to the device).
+**Status:** active
+
+---
+
 ### D-030 — Schedule application is a transaction hook on the payment door, not a separate step
 **Date:** 2026-07-17 · **Mode:** Builder
 **Decision:** Payments apply to a credit schedule via a hook registered on `PaymentsService` (`registerAppliedHook`), fired inside the payment's transaction for every ledger row — positive (payment) and negative (reversal). The credit module registers a `ScheduleApplicationService` that distributes the delta oldest-due-first (reversals newest-paid-first) and settles/reopens the agreement. Application is a side effect of paying through the existing endpoints; there is no `/schedule/apply` call and no schedule-side balance (the order ledger is the one source of money truth — deposit+schedule=total per D-029, so overpayment is already caught by the order-balance guard).

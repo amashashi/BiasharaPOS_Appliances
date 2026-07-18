@@ -195,3 +195,11 @@
 **Verified:** builds + lint green; full suite 152 (142 api + 5 pos + 5 ui — new dd/MM/yyyy formatter test). **Live in the browser (backoffice on Neon dev):** signed in → sidebar renders all 7 modules with Swahili labels + active state; Credit module shows the arrears table with **3 seeded overdue agreements, dates as 05/08/2026 (not ISO)**, MoneyDisplay amounts, StatusBadge arrears ramp (74d/38d solid-red-fill, 17d red-tint), total TZS 1,530,000; hash-routing swaps Design→Showcase and Catalog→placeholder while the sidebar persists. Screenshots in session log.
 
 **Note:** the audit workflow (5 dimensions × verify) hit the session usage limit mid-run — 1 finding survived adversarial verification (the PDF header); the dd/MM/yyyy fix I carried proactively. A full re-audit is worth running after the limit resets to catch anything the killed verifiers would have surfaced.
+
+## 2026-07-18 — "Make a Sale" in the nav + English default locale with persistence ✅
+
+**Done (owner requests):**
+- **"Fanya Mauzo / Make a Sale"** joins the sidebar right after Dashboard — matching the handoff NAV list where it's a first-class destination (id `pos`). Since selling lives in the separate offline-first POS PWA, it renders as a link-out (`SideNav` NavItem gained `href`: anchor, new tab, outward-arrow mark, cart outline icon) pointing at `VITE_POS_URL` (default `http://localhost:5173`).
+- **Locale: default ENGLISH, choice persists across refresh** (D-032). `packages/ui/i18n` gained `DEFAULT_LOCALE='en'` + pure `readLocale`/`loadLocale`/`saveLocale` (guarded storage access — safe for the API's React-free subpath) and a `usePersistedLocale` hook; both apps (POS + back office) now use it (localStorage `biashara-locale-v1`, per origin). Swahili remains first-class (§7 full coverage) — only the *initial pick* changed.
+
+**Verified:** ui/backoffice/pos builds + lint green; suite 153 (142 api + 5 pos + 6 ui — new locale-rules test). **Live in-browser:** fresh visit renders English ("Arrears", "Days overdue", menu Dashboard/Make a Sale/Catalog/…); "Make a Sale" present as a link to :5173; toggling Kiswahili stores `sw` and a full page reload comes back in Kiswahili ("Madeni yaliyochelewa", MTEJA/ODA headers); storage cleared → English again.
