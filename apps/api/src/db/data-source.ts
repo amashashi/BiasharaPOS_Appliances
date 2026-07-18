@@ -18,6 +18,7 @@ import { FiscalReceipt } from './entities/fiscal-receipt.entity.js';
 import { PaymentIntent } from './entities/payment-intent.entity.js';
 import { CreditAgreement } from './entities/credit-agreement.entity.js';
 import { CreditScheduleRow } from './entities/credit-schedule-row.entity.js';
+import { ReminderLog } from './entities/reminder-log.entity.js';
 import { AuditSubscriber } from './audit.subscriber.js';
 import { BaseEntities1784120000000 } from './migrations/1784120000000-base-entities.js';
 import { AuditEvents1784130000000 } from './migrations/1784130000000-audit-events.js';
@@ -31,11 +32,12 @@ import { Payments1784200000000 } from './migrations/1784200000000-payments.js';
 import { FiscalReceipts1784210000000 } from './migrations/1784210000000-fiscal-receipts.js';
 import { PaymentIntents1784220000000 } from './migrations/1784220000000-payment-intents.js';
 import { CreditAgreements1784230000000 } from './migrations/1784230000000-credit-agreements.js';
+import { Reminders1784240000000 } from './migrations/1784240000000-reminders.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
   Customer, SalesOrder, SalesOrderLine, SalesOrderServiceLine, Payment, FiscalReceipt,
-  PaymentIntent, CreditAgreement, CreditScheduleRow,
+  PaymentIntent, CreditAgreement, CreditScheduleRow, ReminderLog,
 ];
 export const migrations = [
   BaseEntities1784120000000,
@@ -50,6 +52,7 @@ export const migrations = [
   FiscalReceipts1784210000000,
   PaymentIntents1784220000000,
   CreditAgreements1784230000000,
+  Reminders1784240000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {

@@ -44,7 +44,7 @@
 - [x] **T3.1** CreditAgreement module: create from order (type, deposit, schedule generator — equal monthly or custom rows); INSTALLMENT releases goods, LAYAWAY holds units RESERVED. — *Verify:* both types created from same order fixture; layaway blocks delivery until settled (test).
 - [x] **T3.2** Payment application to schedules: cash + mobile-money payments apply oldest-due-first; partial payments; settlement closes agreement. — *Verify:* property-style tests on application order; overpayment rejected or applied per spec.
 - [x] **T3.3** Arrears engine: nightly job computes overdue status/amounts; arrears dashboard API + back-office screen (sortable by days overdue, amount). — *Verify:* time-travel test (fake clock) moves an agreement into arrears; dashboard reflects next "morning".
-- [ ] **T3.4** Reminders: reminder policy per merchant (e.g., T-2 days, due day, +3 days overdue) dispatched via `NotificationService`; per-agreement reminder log. — *Verify:* fake-clock test dispatches exactly the configured reminders; log visible on agreement screen.
+- [x] **T3.4** Reminders: reminder policy per merchant (e.g., T-2 days, due day, +3 days overdue) dispatched via `NotificationService`; per-agreement reminder log. — *Verify:* fake-clock test dispatches exactly the configured reminders; log visible on agreement screen.
 - [ ] **T3.5** Customer statement: printable statement per agreement (schedule, payments, balance). — *Verify:* statement totals equal ledger; renders as PDF.
 
 ### M4 — Delivery workflow

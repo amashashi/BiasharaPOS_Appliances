@@ -73,3 +73,40 @@ export const fetchArrears = (s: Session, asOf: string, sort: 'days' | 'amount') 
     `/credit/arrears?asOf=${asOf}&sort=${sort}`,
     { token: s.token },
   );
+
+export interface ScheduleRowView {
+  seq: number;
+  dueDate: string;
+  amountTzs: number;
+  paidTzs: number;
+  status: 'PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE';
+}
+
+export interface ReminderView {
+  id: string;
+  offsetDays: number;
+  dueDate: string;
+  msisdn: string;
+  templateKey: string;
+  amountTzs: number;
+  status: 'PENDING' | 'SENT' | 'FAILED';
+  error: string | null;
+  sentAt: string;
+}
+
+export interface AgreementDetail {
+  id: string;
+  type: string;
+  status: string;
+  principalTzs: number;
+  depositTzs: number;
+  financedTzs: number;
+  customer: { name: string; phone: string | null };
+  schedule: ScheduleRowView[];
+  reminders: ReminderView[];
+  createdAt: string;
+  settledAt: string | null;
+}
+
+export const fetchAgreement = (s: Session, orderId: string) =>
+  call<AgreementDetail>(`/orders/${orderId}/credit-agreement`, { token: s.token });
