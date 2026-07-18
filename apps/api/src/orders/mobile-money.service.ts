@@ -58,6 +58,21 @@ export class MobileMoneyService implements OnModuleInit {
     }
   }
 
+  /**
+   * Inbound webhook entry. A real rail (ClickPesa, T5.3b) posts its own envelope;
+   * the adapter's `parseWebhook` verifies the signature and maps it to our
+   * PaymentConfirmation before anything touches the ledger. The stub posts the
+   * canonical shape directly, so it has no parseWebhook and the body passes
+   * through unchanged.
+   */
+  async handleWebhook(raw: unknown) {
+    const rail = this.rail as Partial<{ parseWebhook: (raw: unknown) => PaymentConfirmation }>;
+    const confirmation = typeof rail.parseWebhook === 'function'
+      ? rail.parseWebhook(raw)
+      : ((raw ?? {}) as PaymentConfirmation);
+    return this.processConfirmation(confirmation);
+  }
+
   async initiate(merchantId: string, orderId: string, actorUserId: string, input: InitiatePushInput) {
     const errors: FieldError[] = [];
     const provider = String(input.provider ?? '').trim().toUpperCase() as MobileMoneyProvider;
