@@ -299,3 +299,13 @@
 **Note:** the concrete TRA window is the open compliance question that also blocks T5.2 — `FISCAL_TRA_WINDOW_HOURS` defaults to 24h until answered.
 
 **M5 status:** the offline half is complete (T5.5 outbox, T5.6 conflicts, T5.7 fiscalization) and identity (T5.1) + payments-adapter (T5.3a/b) are in. Remaining in M5: **T5.4 (real SMS)** — not built, will need an SMS-provider decision + creds like T5.3's ClickPesa; and the credential/answer-blocked items T5.2 (real fiscal, TRA answer) and T5.3 live sandbox (ClickPesa creds).
+
+## 2026-07-19 — T5.4 Real SMS (Beem Africa) ✅ (live send pending creds)
+
+**Done (D-039):** `BeemNotificationService` — the real SMS rail behind the `NotificationService` port (the platform has no SMS API, only an internal Twilio client). `POST /v1/send` with Basic auth, `source_addr`/`encoding`/`message`/`recipients:[{recipient_id, dest_addr(255…, no +)}]`, success = `successful:true`/`code:100`, throws on any failure so the reminder dispatcher logs FAILED. The port carries a `templateKey`+params (not text), so the adapter **renders** the three reminder templates (`reminder.upcoming|due|overdue`) bilingual sw/en (`sms-templates.ts`), default Swahili (`NOTIFICATION_LOCALE`). Env-branched binding `NOTIFICATION_MODE=beem` (`BEEM_*` config); tests keep the recording stub. `.env.example` documents it. No migration, no frontend (reminders are the T3.4 cron).
+
+**Verified:** notifications.beem.spec (5) — renders all 3 templates in sw + en (each names order/amount/merchant), unknown template throws; sends a rendered, Basic-authed request with a `+`-stripped `dest_addr` and the sender id; throws on a provider rejection (code 103) and on an unreachable endpoint; config guard. The `RemindersService`→port composition is already covered by reminders.spec (it calls `sendSms` with exactly these keys/params). Full suite **220** (204 api + 6 ui + 10 pos), lint + builds clean. **Live-boot smoke** in `NOTIFICATION_MODE=beem`: module wires the Beem adapter, health 200.
+
+**Blocked:** the live verify (a reminder SMS received on a real TZ number) needs owner-provisioned Beem creds (`api_key`, `secret_key`, registered `sender_id`) — same shape as T5.3's ClickPesa sandbox. Adapter is faithful to docs.beem.africa + fake-server-verified.
+
+**M5 status:** identity (T5.1), payments/ClickPesa (T5.3a/b), the offline trilogy (T5.5–T5.7), and SMS/Beem (T5.4) are all built. Remaining in M5 is only the credential/answer-blocked live verification: **T5.2** (real fiscal — TRA answer), **T5.3 live sandbox** (ClickPesa creds), **T5.4 live send** (Beem creds). All adapter code is in and fake-server-verified.
