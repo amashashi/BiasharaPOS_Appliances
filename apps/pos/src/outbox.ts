@@ -9,7 +9,8 @@ export interface OutboxOp {
   clientRef: string;
   locationId: string;
   customer?: { name: string; phone?: string };
-  lines: Array<{ productId: string; qty: number }>;
+  /** unitPriceTzs = the price shown offline (stale-price check on replay, T5.6); serials = scanned units (serial-conflict check). */
+  lines: Array<{ productId: string; qty: number; unitPriceTzs: number; serials?: string[] }>;
   payment: { amountTzs: number };
 }
 

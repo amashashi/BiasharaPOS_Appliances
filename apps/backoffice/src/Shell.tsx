@@ -7,6 +7,7 @@ import type { Session } from './api.js';
 import { Arrears } from './screens/Arrears.js';
 import { Dispatch } from './screens/Dispatch.js';
 import { Reconciliation } from './screens/Reconciliation.js';
+import { Exceptions } from './screens/Exceptions.js';
 import { Showcase } from './Showcase.js';
 
 /**
@@ -28,6 +29,7 @@ const ALL_MODULES: NavItem[] = [
   { id: 'credit', label: { sw: 'Mikopo', en: 'Credit' }, icon: 'credit' },
   { id: 'deliveries', label: { sw: 'Uwasilishaji', en: 'Deliveries' }, icon: 'delivery' },
   { id: 'reconciliation', label: { sw: 'Ulinganishaji', en: 'Reconciliation' }, icon: 'reconciliation' },
+  { id: 'exceptions', label: { sw: 'Migogoro', en: 'Exceptions' }, icon: 'exceptions' },
   { id: 'design', label: { sw: 'Muundo', en: 'Design' }, icon: 'design' },
 ];
 
@@ -122,6 +124,7 @@ export function Shell({
         {moduleId === 'credit' && <Arrears session={session} locale={locale} />}
         {moduleId === 'deliveries' && <Dispatch session={session} locale={locale} />}
         {moduleId === 'reconciliation' && <Reconciliation session={session} locale={locale} />}
+        {moduleId === 'exceptions' && <Exceptions session={session} locale={locale} />}
         {moduleId === 'design' && <Showcase />}
         {current?.comingSoon && <ComingSoon item={current} locale={locale} />}
       </main>

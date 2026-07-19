@@ -60,7 +60,7 @@
   - [x] **T5.3b** ClickPesa adapter: token + checksum + initiate-USSD-push + signed webhook parse; env-branched binding (`PAYMENTS_MODE=clickpesa`). — *Verify:* ✅ full flow against a fake ClickPesa server + live-boot smoke; **live sandbox STK e2e per provider still blocked on owner-provisioned ClickPesa sandbox credentials** (see Blocked, D-035).
 - [ ] **T5.4** Swap Notification stub → real SMS API. — *Verify:* reminder SMS received on a real TZ number in staging.
 - [x] **T5.5** POS offline outbox: IndexedDB queue for cash sales/payments with client UUIDs; app-orchestrated replay (D-036, not SW Background Sync); idempotent `/sync/outbox` endpoint. — *Verify:* ✅ airplane-mode e2e — 3 sales offline, reconnect, exactly 3 server orders (1 payment each), no dupes on double-replay.
-- [ ] **T5.6** Offline conflict handling: serial-conflict and stale-price exceptions surface in back-office exception queue with resolve actions. — *Verify:* engineered conflict (same serial sold online + offline) lands in queue; resolving releases/corrects correctly.
+- [x] **T5.6** Offline conflict handling: serial-conflict and stale-price exceptions surface in back-office exception queue with resolve actions. — *Verify:* ✅ engineered conflict (same serial sold online + offline) lands in queue; reassigning an available serial reserves it to the order (corrects), stale price accepts.
 - [ ] **T5.7** Offline fiscalization: queued payments fiscalize on replay; aging alert if fiscal queue exceeds TRA window. — *Verify:* replayed sale gets VFD receipt; forced fiscal outage triggers aging alert.
 
 ### M6 — Back office, reporting & pilot readiness

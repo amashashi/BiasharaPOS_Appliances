@@ -12,6 +12,7 @@ import { PaymentsService } from './payments.service.js';
 import { MobileMoneyService } from './mobile-money.service.js';
 import { ReconciliationService } from './reconciliation.service.js';
 import { SyncService } from './sync.service.js';
+import { SyncExceptionService } from './sync-exception.service.js';
 
 /**
  * Orders domain module (M2): quotes & orders (T2.1), serial reservation & pick
@@ -21,7 +22,7 @@ import { SyncService } from './sync.service.js';
 @Module({
   imports: [InventoryModule, FiscalModule, PlatformModule],
   controllers: [OrdersController, WebhooksController, ReconciliationController, SyncController],
-  providers: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService],
-  exports: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService],
+  providers: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService, SyncExceptionService],
+  exports: [OrdersService, FulfillmentService, PaymentsService, MobileMoneyService, ReconciliationService, SyncService, SyncExceptionService],
 })
 export class OrdersModule {}

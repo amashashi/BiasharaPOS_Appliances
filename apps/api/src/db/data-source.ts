@@ -17,6 +17,7 @@ import { Payment } from './entities/payment.entity.js';
 import { FiscalReceipt } from './entities/fiscal-receipt.entity.js';
 import { PaymentIntent } from './entities/payment-intent.entity.js';
 import { PaymentWebhookEvent } from './entities/payment-webhook-event.entity.js';
+import { SyncException } from './entities/sync-exception.entity.js';
 import { CreditAgreement } from './entities/credit-agreement.entity.js';
 import { CreditScheduleRow } from './entities/credit-schedule-row.entity.js';
 import { ReminderLog } from './entities/reminder-log.entity.js';
@@ -40,11 +41,12 @@ import { DeliveryProof1784260000000 } from './migrations/1784260000000-delivery-
 import { PlatformIdentity1784270000000 } from './migrations/1784270000000-platform-identity.js';
 import { PaymentWebhookEvents1784280000000 } from './migrations/1784280000000-payment-webhook-events.js';
 import { OrderClientRef1784290000000 } from './migrations/1784290000000-order-client-ref.js';
+import { SyncExceptions1784300000000 } from './migrations/1784300000000-sync-exceptions.js';
 
 export const entities = [
   Merchant, Location, UserRef, AuditEvent, Product, Grn, GrnLine, SerializedUnit, StockLevel,
   Customer, SalesOrder, SalesOrderLine, SalesOrderServiceLine, Payment, FiscalReceipt,
-  PaymentIntent, PaymentWebhookEvent, CreditAgreement, CreditScheduleRow, ReminderLog, Delivery,
+  PaymentIntent, PaymentWebhookEvent, SyncException, CreditAgreement, CreditScheduleRow, ReminderLog, Delivery,
 ];
 export const migrations = [
   BaseEntities1784120000000,
@@ -65,6 +67,7 @@ export const migrations = [
   PlatformIdentity1784270000000,
   PaymentWebhookEvents1784280000000,
   OrderClientRef1784290000000,
+  SyncExceptions1784300000000,
 ];
 
 export function createDataSource(url = process.env.DATABASE_URL): DataSource {
