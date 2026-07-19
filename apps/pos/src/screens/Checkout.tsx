@@ -135,6 +135,7 @@ export function Checkout({
       // capture the price shown offline so replay can flag a stale price (T5.6)
       lines: lines.map((l) => ({ productId: l.product.id, qty: l.qty, unitPriceTzs: l.product.priceTzs })),
       payment: { amountTzs },
+      soldAt: new Date().toISOString(), // the real sale time — fiscal aging measures from here (T5.7)
     };
     await idbOutbox.put({ clientRef, op, queuedAt: Date.now() });
     setPhase({ step: 'offlineSaved' });

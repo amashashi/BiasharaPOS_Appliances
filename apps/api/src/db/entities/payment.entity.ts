@@ -44,6 +44,14 @@ export class Payment {
   @CreateDateColumn()
   at!: Date;
 
+  /**
+   * When the money was actually collected (T5.7). Equals `at` for online sales;
+   * for a replayed offline sale it's the offline sale time. Null on pre-T5.7
+   * rows — readers COALESCE(occurredAt, at). Fiscal aging measures from here.
+   */
+  @Column({ type: 'timestamptz', nullable: true })
+  occurredAt!: Date | null;
+
   /** Monotonic insertion order (bigserial) — `at` is transaction-stable. */
   @Column({ type: 'bigint', insert: false, update: false, nullable: true })
   seq!: string;

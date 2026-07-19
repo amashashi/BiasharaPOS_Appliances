@@ -251,3 +251,14 @@ export const resolveException = (
     body,
     token: s.token,
   });
+
+// ── fiscal aging alert (T5.7) ──
+export interface FiscalAging {
+  windowHours: number;
+  count: number;
+  oldestAgeHours: number;
+  items: Array<{ paymentId: string; orderId: string; orderNumber: string; amountTzs: number; occurredAt: string; ageHours: number }>;
+}
+
+export const fetchFiscalAging = (s: Session) =>
+  call<FiscalAging>('/fiscal/aging', { token: s.token });

@@ -19,6 +19,8 @@ export interface OutboxOperation {
   /** Per-line the POS captured the offered price (stale-price check) and any scanned serials (conflict check). */
   lines?: Array<{ productId?: unknown; qty?: unknown; unitPriceTzs?: unknown; serials?: unknown }>;
   payment?: { amountTzs?: unknown };
+  /** When the sale was actually made offline (ISO); drives fiscal aging (T5.7). */
+  soldAt?: unknown;
 }
 
 export type SyncOutcome =
@@ -73,11 +75,15 @@ export class SyncService {
       return { clientRef, status: 'failed', error: 'payment.amountTzs must be a positive whole number of TZS' };
     }
 
+    // the sale's real (offline) time drives fiscal aging (T5.7); fall back to now
+    const soldAt = typeof op.soldAt === 'string' ? new Date(op.soldAt) : undefined;
+    const occurredAt = soldAt && !Number.isNaN(soldAt.getTime()) ? soldAt : undefined;
+
     // ONE outer catch so any throw (incl. a create race or a converge repair)
     // degrades this op to 'failed' without aborting the rest of the batch.
     try {
       const existing = await this.ds.getRepository(SalesOrder).findOneBy({ merchantId, clientRef });
-      if (existing) return await this.converge(merchantId, actorUserId, existing, op, amountTzs, clientRef);
+      if (existing) return await this.converge(merchantId, actorUserId, existing, op, amountTzs, occurredAt, clientRef);
 
       const order = await this.orders.create(merchantId, actorUserId, {
         type: 'ORDER',
@@ -86,14 +92,14 @@ export class SyncService {
         lines: op.lines, // carries unitPriceTzs (offered price) per line
         clientRef,
       });
-      await this.ensurePaid(merchantId, actorUserId, order.id, amountTzs);
+      await this.ensurePaid(merchantId, actorUserId, order.id, amountTzs, occurredAt);
       const conflicts = await this.detectConflicts(merchantId, order.id, op);
       return { clientRef, status: 'created', order: { id: order.id, numberFormatted: order.numberFormatted }, conflicts };
     } catch (e) {
       // a concurrent replay of the same clientRef won the create race — converge as a duplicate
       if ((e as { code?: string }).code === '23505') {
         const raced = await this.ds.getRepository(SalesOrder).findOneBy({ merchantId, clientRef });
-        if (raced) return await this.converge(merchantId, actorUserId, raced, op, amountTzs, clientRef);
+        if (raced) return await this.converge(merchantId, actorUserId, raced, op, amountTzs, occurredAt, clientRef);
       }
       return { clientRef, status: 'failed', error: e instanceof Error ? this.reason(e) : 'sync failed' };
     }
@@ -101,9 +107,9 @@ export class SyncService {
 
   /** Converge an already-created sale: settle the cash if missing, (re-)detect conflicts. Both idempotent. */
   private async converge(
-    merchantId: string, actorUserId: string, order: SalesOrder, op: OutboxOperation, amountTzs: number, clientRef: string,
+    merchantId: string, actorUserId: string, order: SalesOrder, op: OutboxOperation, amountTzs: number, occurredAt: Date | undefined, clientRef: string,
   ): Promise<SyncOutcome> {
-    await this.ensurePaid(merchantId, actorUserId, order.id, amountTzs);
+    await this.ensurePaid(merchantId, actorUserId, order.id, amountTzs, occurredAt);
     const conflicts = await this.detectConflicts(merchantId, order.id, op);
     return { clientRef, status: 'duplicate', order: { id: order.id, numberFormatted: formatOrderNumber(order.number) }, conflicts };
   }
@@ -113,9 +119,10 @@ export class SyncService {
    * payments inside the lock, and apply only if there are none. The lock (not an
    * unlocked check-then-act) is what makes two concurrent replays of the same
    * clientRef safe even for a partial/deposit amount that would otherwise both
-   * "fit" the balance and double-credit.
+   * "fit" the balance and double-credit. `occurredAt` carries the offline sale
+   * time so fiscal aging (T5.7) measures from when the money was collected.
    */
-  private async ensurePaid(merchantId: string, actorUserId: string, orderId: string, amountTzs: number): Promise<void> {
+  private async ensurePaid(merchantId: string, actorUserId: string, orderId: string, amountTzs: number, occurredAt?: Date): Promise<void> {
     const paymentId = await this.ds.transaction(async (mgr) => {
       const order = await mgr
         .getRepository(SalesOrder)
@@ -128,7 +135,7 @@ export class SyncService {
       if (paidCount > 0) return null; // already settled by an earlier pass — never double-charge
       this.payments.assertPayable(order);
       const { payment } = await this.payments.applyPayment(mgr, order, {
-        method: 'CASH', amountTzs, note: null, actorUserId, recordedByUserId: actorUserId,
+        method: 'CASH', amountTzs, note: null, actorUserId, recordedByUserId: actorUserId, occurredAt,
       });
       return payment.id;
     });

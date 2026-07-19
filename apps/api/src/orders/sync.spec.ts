@@ -156,6 +156,18 @@ describe('Offline outbox sync (T5.5, real Postgres)', () => {
     expect(await ds.getRepository(Payment).countBy({ orderId: created.body.id })).toBe(1);
   });
 
+  it('a replayed sale records the offline sale time as occurredAt (fiscal aging basis, T5.7)', async () => {
+    const soldAt = new Date(Date.now() - 40 * 3_600_000); // sold 40h ago, offline; replayed now
+    const ref = randomUUID();
+    const res = await postOutbox([{ clientRef: ref, locationId, lines: [{ productId: cable.id, qty: 1 }], payment: { amountTzs: 15000 }, soldAt: soldAt.toISOString() }]).expect(200);
+    const orderId = res.body.results[0].order.id as string;
+    const payment = await ds.getRepository(Payment).findOneByOrFail({ orderId });
+    expect(payment.occurredAt).not.toBeNull();
+    expect(Math.abs((payment.occurredAt as Date).getTime() - soldAt.getTime())).toBeLessThan(1000);
+    // ...whereas `at` (the ledger write time) is now, not 40h ago
+    expect(payment.at.getTime()).toBeGreaterThan(soldAt.getTime() + 30 * 3_600_000);
+  });
+
   it('scoping: DELIVERY role is rejected; CASHIER may sync', async () => {
     const deliveryToken = new StubIdentityService().sign({ sub: 'u-deo', mid: merchantId, name: 'Deo', roles: ['DELIVERY'] });
     await request(http).post('/sync/outbox').set('Authorization', `Bearer ${deliveryToken}`).send({ operations: [] }).expect(403);

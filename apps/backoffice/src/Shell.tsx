@@ -3,7 +3,7 @@ import {
   Button, SideNav, color, font, fontSize, fontWeight, radius, space,
   type Locale, type NavItem,
 } from '@biashara/ui';
-import type { Session } from './api.js';
+import { fetchFiscalAging, type FiscalAging, type Session } from './api.js';
 import { Arrears } from './screens/Arrears.js';
 import { Dispatch } from './screens/Dispatch.js';
 import { Reconciliation } from './screens/Reconciliation.js';
@@ -121,6 +121,7 @@ export function Shell({
         }
       />
       <main style={{ flex: 1, minWidth: 0 }}>
+        {session.role === 'OWNER' && <FiscalAgingBanner session={session} locale={locale} />}
         {moduleId === 'credit' && <Arrears session={session} locale={locale} />}
         {moduleId === 'deliveries' && <Dispatch session={session} locale={locale} />}
         {moduleId === 'reconciliation' && <Reconciliation session={session} locale={locale} />}
@@ -128,6 +129,32 @@ export function Shell({
         {moduleId === 'design' && <Showcase />}
         {current?.comingSoon && <ComingSoon item={current} locale={locale} />}
       </main>
+    </div>
+  );
+}
+
+/**
+ * Fiscal aging alert (T5.7): a red strip when any payment is overdue for
+ * fiscalization (past the TRA window) — a compliance risk the OWNER must see on
+ * every screen. Silent when the fiscal queue is caught up. Re-checks each minute.
+ */
+function FiscalAgingBanner({ session, locale }: { session: Session; locale: Locale }) {
+  const [aging, setAging] = useState<FiscalAging | null>(null);
+  useEffect(() => {
+    const load = (): void => void fetchFiscalAging(session).then(setAging).catch(() => undefined);
+    load();
+    const h = setInterval(load, 60_000);
+    return () => clearInterval(h);
+  }, [session]);
+
+  if (!aging || aging.count === 0) return null;
+  const msg = locale === 'sw'
+    ? `${aging.count} malipo hayajapata risiti ya TRA (zaidi ya saa ${aging.windowHours}; kongwe: saa ${aging.oldestAgeHours})`
+    : `${aging.count} payment(s) overdue for TRA fiscalization (> ${aging.windowHours}h; oldest: ${aging.oldestAgeHours}h)`;
+  return (
+    <div role="alert" style={{ display: 'flex', alignItems: 'center', gap: space.s2, background: color.red, color: color.white, padding: `${space.s2}px ${space.s4}px`, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
+      <span aria-hidden>⚠️</span>
+      {msg}
     </div>
   );
 }
