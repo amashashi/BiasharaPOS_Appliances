@@ -8,6 +8,8 @@ import { StubIdentityService } from './stubs/identity.stub.js';
 import { StubNotificationService } from './stubs/notifications.stub.js';
 import { PlatformIdentityService } from './real/identity.platform.js';
 import { ClickPesaPaymentsService } from './real/clickpesa.payments.js';
+import { BeemNotificationService } from './real/notifications.beem.js';
+import type { SmsLocale } from './real/sms-templates.js';
 
 /**
  * Identity went real in T5.1 (D-034): IDENTITY_MODE=platform binds the thin
@@ -47,16 +49,36 @@ const paymentsProvider =
     : { provide: PAYMENTS_SERVICE, useClass: StubPaymentsService };
 
 /**
- * Platform adapter module (D-004). M0–M4 bound only stubs; T5.1 swapped
- * identity for the real adapter — T5.2–T5.4 swap the rest the same way.
- * Consumers inject by token and never notice.
+ * SMS went real in T5.4 (D-039): NOTIFICATION_MODE=beem binds the Beem Africa
+ * adapter (the platform has no SMS API, only an internal Twilio client).
+ * Anything else — including tests — keeps the recording stub.
+ */
+const notificationProvider =
+  process.env.NOTIFICATION_MODE === 'beem'
+    ? {
+        provide: NOTIFICATION_SERVICE,
+        useFactory: () =>
+          new BeemNotificationService({
+            baseUrl: process.env.BEEM_BASE_URL ?? 'https://apisms.beem.africa',
+            apiKey: process.env.BEEM_API_KEY ?? '',
+            secretKey: process.env.BEEM_SECRET_KEY ?? '',
+            senderId: process.env.BEEM_SENDER_ID ?? '',
+            locale: (process.env.NOTIFICATION_LOCALE as SmsLocale) === 'en' ? 'en' : 'sw',
+          }),
+      }
+    : { provide: NOTIFICATION_SERVICE, useClass: StubNotificationService };
+
+/**
+ * Platform adapter module (D-004). M0–M4 bound only stubs; T5.1–T5.4 swapped
+ * identity, payments, and SMS for real adapters. Consumers inject by token and
+ * never notice.
  */
 @Module({
   providers: [
     { provide: FISCAL_SERVICE, useClass: StubFiscalService },
     paymentsProvider,
     identityProvider,
-    { provide: NOTIFICATION_SERVICE, useClass: StubNotificationService },
+    notificationProvider,
   ],
   exports: [FISCAL_SERVICE, PAYMENTS_SERVICE, IDENTITY_SERVICE, NOTIFICATION_SERVICE],
 })

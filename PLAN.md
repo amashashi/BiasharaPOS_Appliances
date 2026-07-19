@@ -58,7 +58,7 @@
 - [ ] **T5.3** Swap Payments stub → real mobile-money API: **via the ClickPesa aggregator** (M-Pesa, Mixx by Yas, Airtel) — the platform has no push API (D-035). Split:
   - [x] **T5.3a** Reconciliation view for unmatched/unapplied payments + orphan-webhook capture (rail-agnostic). — *Verify:* orphan webhook is captured (not 404-looped) and a confirmed-but-unapplied payment lands in the reconciliation view; resolve action clears it.
   - [x] **T5.3b** ClickPesa adapter: token + checksum + initiate-USSD-push + signed webhook parse; env-branched binding (`PAYMENTS_MODE=clickpesa`). — *Verify:* ✅ full flow against a fake ClickPesa server + live-boot smoke; **live sandbox STK e2e per provider still blocked on owner-provisioned ClickPesa sandbox credentials** (see Blocked, D-035).
-- [ ] **T5.4** Swap Notification stub → real SMS API. — *Verify:* reminder SMS received on a real TZ number in staging.
+- [x] **T5.4** Swap Notification stub → real SMS API (**Beem Africa**, D-039; adapter renders the bilingual reminder templates). — *Verify:* ✅ adapter fake-server-tested (render + Basic-auth send + errors) + live-boot smoke; **live send to a real TZ number blocked on owner-provisioned Beem creds** (see Blocked).
 - [x] **T5.5** POS offline outbox: IndexedDB queue for cash sales/payments with client UUIDs; app-orchestrated replay (D-036, not SW Background Sync); idempotent `/sync/outbox` endpoint. — *Verify:* ✅ airplane-mode e2e — 3 sales offline, reconnect, exactly 3 server orders (1 payment each), no dupes on double-replay.
 - [x] **T5.6** Offline conflict handling: serial-conflict and stale-price exceptions surface in back-office exception queue with resolve actions. — *Verify:* ✅ engineered conflict (same serial sold online + offline) lands in queue; reassigning an available serial reserves it to the order (corrects), stale price accepts.
 - [x] **T5.7** Offline fiscalization: queued payments fiscalize on replay; aging alert if fiscal queue exceeds TRA window. — *Verify:* ✅ replayed sale gets VFD receipt; an un-fiscalized payment past the TRA window (`occurredAt`-based) triggers the aging alert + back-office banner, and clears when the receipt arrives.
@@ -77,6 +77,7 @@
 ## Blocked
 - [ ] **T5.2 dependency** — *Blocked on:* TRA compliance answer on installment fiscalization (product owner to obtain; needed before M5, not before M0–M4 since fiscal is stubbed).
 - [ ] **T5.3 live sandbox e2e** — *Blocked on:* owner-provisioned ClickPesa sandbox credentials (`client-id`, `api-key`, checksum key). The adapter (T5.3b) is built + fake-server-verified; the per-provider STK e2e (M-Pesa/Mixx/Airtel) runs once creds are set (D-035).
+- [ ] **T5.4 live send** — *Blocked on:* owner-provisioned Beem credentials (`api_key`, `secret_key`, registered `sender_id`). The adapter is built + fake-server-verified; a reminder SMS to a real TZ number runs once creds are set (D-039).
 
 ---
 **Legend:** `[ ]` todo · `[x]` done · `[~]` in progress · `[!]` blocked
