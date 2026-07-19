@@ -12,6 +12,8 @@ export interface OutboxOp {
   /** unitPriceTzs = the price shown offline (stale-price check on replay, T5.6); serials = scanned units (serial-conflict check). */
   lines: Array<{ productId: string; qty: number; unitPriceTzs: number; serials?: string[] }>;
   payment: { amountTzs: number };
+  /** When the sale was actually made offline (ISO) — drives fiscal aging on replay (T5.7). */
+  soldAt: string;
 }
 
 export interface OutboxItem {

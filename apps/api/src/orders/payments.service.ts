@@ -128,6 +128,8 @@ export class PaymentsService {
       note: string | null;
       actorUserId: string;
       recordedByUserId: string;
+      /** Actual collection time (T5.7); defaults to now. Offline replays pass the offline sale time. */
+      occurredAt?: Date;
     },
   ): Promise<{ payment: Payment; summary: PaymentSummary }> {
     const { totalTzs, paidTzs } = await this.orderSummary(mgr, order);
@@ -151,6 +153,7 @@ export class PaymentsService {
         reversesPaymentId: null,
         note: opts.note,
         recordedByUserId: opts.recordedByUserId,
+        occurredAt: opts.occurredAt ?? new Date(),
       }),
     );
     const balanceAfter = balanceTzs - opts.amountTzs;
