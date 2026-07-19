@@ -132,7 +132,8 @@ export function Checkout({
       clientRef,
       locationId: session.locationId,
       ...customerPayload(),
-      lines: lines.map((l) => ({ productId: l.product.id, qty: l.qty })),
+      // capture the price shown offline so replay can flag a stale price (T5.6)
+      lines: lines.map((l) => ({ productId: l.product.id, qty: l.qty, unitPriceTzs: l.product.priceTzs })),
       payment: { amountTzs },
     };
     await idbOutbox.put({ clientRef, op, queuedAt: Date.now() });

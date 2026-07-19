@@ -13,7 +13,7 @@ const memStore = (items: OutboxItem[]): OutboxStore => {
 };
 const item = (clientRef: string, amountTzs: number): OutboxItem => ({
   clientRef,
-  op: { clientRef, locationId: 'loc', lines: [{ productId: 'p', qty: 1 }], payment: { amountTzs } },
+  op: { clientRef, locationId: 'loc', lines: [{ productId: 'p', qty: 1, unitPriceTzs: amountTzs }], payment: { amountTzs } },
   queuedAt: 0,
 });
 

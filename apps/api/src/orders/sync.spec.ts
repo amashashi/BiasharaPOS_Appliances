@@ -134,6 +134,28 @@ describe('Offline outbox sync (T5.5, real Postgres)', () => {
     expect(await ordersFor([good.clientRef])).toHaveLength(1);
   });
 
+  it('a malformed cash amount fails the op WITHOUT stranding an unpaid order (review fix C)', async () => {
+    const ref = randomUUID();
+    const res = await postOutbox([{ clientRef: ref, locationId, lines: [{ productId: cable.id, qty: 1 }], payment: {} }]).expect(200);
+    expect(res.body.results[0].status).toBe('failed');
+    expect(res.body.results[0].error).toMatch(/amountTzs/);
+    // the amount is validated BEFORE the order is created — nothing is committed
+    expect(await ordersFor([ref])).toHaveLength(0);
+  });
+
+  it('a partial (deposit) amount is applied exactly once across replays — no double-credit (review fix D)', async () => {
+    const ref = randomUUID();
+    // pre-create the order with no payment (a first replay that crashed before settling)
+    const created = await asOwner(request(http).post('/orders'))
+      .send({ type: 'ORDER', locationId, lines: [{ productId: cable.id, qty: 4 }], clientRef: ref }) // total 60,000
+      .expect(201);
+    const partial = { clientRef: ref, locationId, lines: [{ productId: cable.id, qty: 4 }], payment: { amountTzs: 20000 } };
+    // replay the same partial-payment op twice — the second must not add a second ledger row
+    await postOutbox([partial]).expect(200);
+    await postOutbox([partial]).expect(200);
+    expect(await ds.getRepository(Payment).countBy({ orderId: created.body.id })).toBe(1);
+  });
+
   it('scoping: DELIVERY role is rejected; CASHIER may sync', async () => {
     const deliveryToken = new StubIdentityService().sign({ sub: 'u-deo', mid: merchantId, name: 'Deo', roles: ['DELIVERY'] });
     await request(http).post('/sync/outbox').set('Authorization', `Bearer ${deliveryToken}`).send({ operations: [] }).expect(403);

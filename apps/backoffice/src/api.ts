@@ -221,3 +221,33 @@ export const resolveReconciliation = (s: Session, id: string, note: string) =>
     body: { note },
     token: s.token,
   });
+
+// ── offline sync exceptions (T5.6) ──
+export interface SyncExceptionRow {
+  id: string;
+  kind: 'SERIAL_CONFLICT' | 'STALE_PRICE';
+  detail: {
+    productId?: string;
+    lineId?: string;
+    serial?: string;
+    foundStatus?: string;
+    offeredTzs?: number;
+    catalogTzs?: number;
+  };
+  createdAt: string;
+  order: { id: string; numberFormatted: string } | null;
+}
+
+export const fetchExceptions = (s: Session) =>
+  call<{ items: SyncExceptionRow[] }>('/sync/exceptions', { token: s.token });
+
+export const resolveException = (
+  s: Session,
+  id: string,
+  body: { action: 'reassign' | 'accept' | 'acknowledge'; serial?: string; note?: string },
+) =>
+  call<{ id: string; status: string }>(`/sync/exceptions/${id}/resolve`, {
+    method: 'POST',
+    body,
+    token: s.token,
+  });
