@@ -262,3 +262,18 @@ export interface FiscalAging {
 
 export const fetchFiscalAging = (s: Session) =>
   call<FiscalAging>('/fiscal/aging', { token: s.token });
+
+// ── dashboard (T6.1) ──
+export interface DashboardOverview {
+  date: string;
+  dailySales: { totalTzs: number; count: number; byMethod: Array<{ method: string; count: number; totalTzs: number }> };
+  stock: {
+    serialized: { inStock: number; byStatus: Record<string, number>; aging: { fresh: number; aging: number; stale: number }; valueTzs: number };
+    nonSerializedQty: number;
+  };
+  arrears: { agreements: number; arrearsTzs: number };
+  deliveries: { planned: number; dispatched: number; delivered: number; failed: number };
+}
+
+export const fetchDashboard = (s: Session, date: string) =>
+  call<DashboardOverview>(`/dashboard?date=${date}`, { token: s.token });

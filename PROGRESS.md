@@ -309,3 +309,13 @@
 **Blocked:** the live verify (a reminder SMS received on a real TZ number) needs owner-provisioned Beem creds (`api_key`, `secret_key`, registered `sender_id`) — same shape as T5.3's ClickPesa sandbox. Adapter is faithful to docs.beem.africa + fake-server-verified.
 
 **M5 status:** identity (T5.1), payments/ClickPesa (T5.3a/b), the offline trilogy (T5.5–T5.7), and SMS/Beem (T5.4) are all built. Remaining in M5 is only the credential/answer-blocked live verification: **T5.2** (real fiscal — TRA answer), **T5.3 live sandbox** (ClickPesa creds), **T5.4 live send** (Beem creds). All adapter code is in and fake-server-verified.
+
+## 2026-07-20 — T6.1 Owner dashboards ✅ — M6 begins
+
+**Done:** `GET /dashboard?date=` (OWNER) — four at-a-glance aggregates for a day, every figure a straight aggregate over the system-of-record tables. **Daily sales** by method (count + total; counts a payment on its COLLECTION day via `COALESCE(occurredAt, at)::date`, so offline replays land on their sale day — T5.7; reversals excluded). **Stock** — serialized units by state, IN_STOCK aging buckets (fresh <30d / aging 30–90d / stale >90d), value at cost, non-serialized qty. **Arrears** — reuses `ArrearsService.dashboard().totals` (one source of arrears truth, no drift). **Deliveries** for the date by status. New `DashboardModule` (imports CreditModule for ArrearsService). Back-office **Dashboard** screen (4 cards + date picker) — now the OWNER's default landing (was 'coming soon M6'); the deferred T1.4 stock-view UI (D-022) folds in here.
+
+**Verified (real Postgres):** dashboard.spec (4) — **verify clause: every aggregate reconciles against an independent raw query on a seeded fixture** (daily sales by method incl. reversal/off-day exclusion, stock status + aging + value + non-serialized, arrears, deliveries by status); defaults to today; OWNER-only (CASHIER 403). Full suite **224** (208 api + 6 ui + 10 pos), lint + builds clean. **Browser-verified** (OWNER Arnold, real dev data): dashboard for 2026-07-18 shows sales TZS 1,000,000 (7, Cash), 2 in-stock, arrears TZS 1,530,000 / 3 agreements, deliveries 1/1/1/0 — **cross-checked identical to raw SQL** (sales 1,000,000/7; deliveries PLANNED/DISPATCHED/DELIVERED 1 each). Screenshot tool flaky this session; page text captured.
+
+**Note (known limitation):** the day boundary uses the DB session timezone (UTC on Neon); a proper merchant-TZ (EAT, UTC+3) boundary is a later refinement — a payment in the 00:00–03:00 EAT window currently counts on the previous UTC day.
+
+**M6 status:** T6.1 done. Remaining M6: T6.2 (onboarding), T6.3 (i18n pass), + pilot readiness. M5's credential/answer-blocked items still pending (T5.2 TRA answer, T5.3 ClickPesa creds, T5.4 Beem creds).
