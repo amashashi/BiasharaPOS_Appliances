@@ -64,7 +64,7 @@
 - [x] **T5.7** Offline fiscalization: queued payments fiscalize on replay; aging alert if fiscal queue exceeds TRA window. — *Verify:* ✅ replayed sale gets VFD receipt; an un-fiscalized payment past the TRA window (`occurredAt`-based) triggers the aging alert + back-office banner, and clears when the receipt arrives.
 
 ### M6 — Back office, reporting & pilot readiness
-- [ ] **T6.1** Dashboards: daily sales (by method), stock summary + aging, arrears summary, deliveries today. — *Verify:* numbers reconcile against raw queries on seeded fixture.
+- [x] **T6.1** Dashboards: daily sales (by method), stock summary + aging, arrears summary, deliveries today. — *Verify:* ✅ numbers reconcile against raw queries on seeded fixture (dashboard.spec) + live raw cross-check; OWNER default landing.
 - [ ] **T6.2** Merchant onboarding flow: platform identity handshake, locations, staff invites/roles, fiscal + payment config check-list, catalog import. — *Verify:* fresh merchant to first sale in ≤ 30 min following the runbook, no engineer involved.
 - [ ] **T6.3** i18n pass: Swahili + English complete for POS + credit screens. — *Verify:* locale switch shows no untranslated keys (lint check).
 - [ ] **T6.4** Design-system QA pass: audit all screens against `DESIGN_SYSTEM.md` — contrast (≥4.5:1), status-badge vocabulary used consistently, money always via MoneyDisplay, 80mm receipt + A4 statement print styles correct with VFD QR uncropped, logo usage rules respected. — *Verify:* checklist signed off; violations filed and fixed or waived.

@@ -4,6 +4,7 @@ import {
   type Locale, type NavItem,
 } from '@biashara/ui';
 import { fetchFiscalAging, type FiscalAging, type Session } from './api.js';
+import { Dashboard } from './screens/Dashboard.js';
 import { Arrears } from './screens/Arrears.js';
 import { Dispatch } from './screens/Dispatch.js';
 import { Reconciliation } from './screens/Reconciliation.js';
@@ -21,7 +22,7 @@ import { Showcase } from './Showcase.js';
 const POS_URL = (import.meta.env.VITE_POS_URL as string | undefined) ?? 'http://localhost:5173';
 
 const ALL_MODULES: NavItem[] = [
-  { id: 'dashboard', label: { sw: 'Dashibodi', en: 'Dashboard' }, icon: 'dashboard', comingSoon: 'M6' },
+  { id: 'dashboard', label: { sw: 'Dashibodi', en: 'Dashboard' }, icon: 'dashboard' },
   { id: 'sale', label: { sw: 'Fanya Mauzo', en: 'Make a Sale' }, icon: 'sale', href: POS_URL },
   { id: 'catalog', label: { sw: 'Katalogi', en: 'Catalog' }, icon: 'catalog', comingSoon: 'M6' },
   { id: 'stock', label: { sw: 'Stoo', en: 'Stock' }, icon: 'stock', comingSoon: 'M6' },
@@ -37,7 +38,7 @@ const ALL_MODULES: NavItem[] = [
 const modulesFor = (role: string): NavItem[] =>
   role === 'DELIVERY' ? ALL_MODULES.filter((m) => m.id === 'deliveries') : ALL_MODULES;
 
-const defaultModuleFor = (role: string): string => (role === 'DELIVERY' ? 'deliveries' : 'credit');
+const defaultModuleFor = (role: string): string => (role === 'DELIVERY' ? 'deliveries' : 'dashboard');
 
 const readHash = (modules: NavItem[], fallback: string): string => {
   const id = window.location.hash.replace(/^#\/?/, '');
@@ -122,6 +123,7 @@ export function Shell({
       />
       <main style={{ flex: 1, minWidth: 0 }}>
         {session.role === 'OWNER' && <FiscalAgingBanner session={session} locale={locale} />}
+        {moduleId === 'dashboard' && <Dashboard session={session} locale={locale} />}
         {moduleId === 'credit' && <Arrears session={session} locale={locale} />}
         {moduleId === 'deliveries' && <Dispatch session={session} locale={locale} />}
         {moduleId === 'reconciliation' && <Reconciliation session={session} locale={locale} />}
