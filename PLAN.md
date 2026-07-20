@@ -66,7 +66,7 @@
 ### M6 — Back office, reporting & pilot readiness
 - [x] **T6.1** Dashboards: daily sales (by method), stock summary + aging, arrears summary, deliveries today. — *Verify:* ✅ numbers reconcile against raw queries on seeded fixture (dashboard.spec) + live raw cross-check; OWNER default landing.
 - [ ] **T6.2** Merchant onboarding flow: platform identity handshake, locations, staff invites/roles, fiscal + payment config check-list, catalog import. — *Verify:* fresh merchant to first sale in ≤ 30 min following the runbook, no engineer involved.
-- [ ] **T6.3** i18n pass: Swahili + English complete for POS + credit screens. — *Verify:* locale switch shows no untranslated keys (lint check).
+- [x] **T6.3** i18n pass: Swahili + English complete for POS + credit screens. — *Verify:* ✅ 160 bilingual pairs, 0 untranslated; `scripts/check-i18n.mjs` in `npm run lint` fails CI on any untranslated key (negative-tested).
 - [ ] **T6.4** Design-system QA pass: audit all screens against `DESIGN_SYSTEM.md` — contrast (≥4.5:1), status-badge vocabulary used consistently, money always via MoneyDisplay, 80mm receipt + A4 statement print styles correct with VFD QR uncropped, logo usage rules respected. — *Verify:* checklist signed off; violations filed and fixed or waived.
 - [ ] **T6.5** UAT with 3–5 design-partner dealers: seeded real catalogs, scripted day-in-the-life (receive, sell, installment, delivery, outage drill), issue log triaged. — *Verify:* every P0/P1 from UAT fixed or explicitly waived by product owner; pilot go/no-go recorded.
 

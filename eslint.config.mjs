@@ -12,6 +12,12 @@ export default tseslint.config(
     },
   },
   {
+    // Node build/CI scripts: Node globals, console allowed.
+    files: ['scripts/**/*.{mjs,js}'],
+    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    rules: { 'no-console': 'off' },
+  },
+  {
     // DESIGN_SYSTEM.md §8: no raw hex colors in feature code — tokens only.
     // packages/ui/src/tokens.ts is the single sanctioned home for hex values.
     files: ['apps/**/*.{ts,tsx}', 'packages/ui/src/components/**/*.{ts,tsx}'],
