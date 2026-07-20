@@ -319,3 +319,11 @@
 **Note (known limitation):** the day boundary uses the DB session timezone (UTC on Neon); a proper merchant-TZ (EAT, UTC+3) boundary is a later refinement — a payment in the 00:00–03:00 EAT window currently counts on the previous UTC day.
 
 **M6 status:** T6.1 done. Remaining M6: T6.2 (onboarding), T6.3 (i18n pass), + pilot readiness. M5's credential/answer-blocked items still pending (T5.2 TRA answer, T5.3 ClickPesa creds, T5.4 Beem creds).
+
+## 2026-07-20 — T6.3 i18n completeness pass ✅
+
+**Done:** Audited every bilingual `{ sw, en }` string across POS + back-office (+ ui): **160 pairs, 0 untranslated** — Swahili and English are both present (the `satisfies Dict` type already guarantees that) and actually different. The only hardcoded user-facing strings are provider brand names (M-Pesa, Mixx by Yas, Airtel Money — correctly not translated) and the internal design Showcase (not a customer screen). New **`scripts/check-i18n.mjs`** lint: scans tracked sources for `sw/en` pairs and fails if the Swahili is empty or identical to the English (a forgotten translation that would show English after switching to Swahili), with an `ALLOW` set for legitimately-identical pairs. Wired into `npm run lint` (`eslint . && node scripts/check-i18n.mjs`) so it gates in CI; a scoped eslint block lets the Node script use `process`/`console`.
+
+**Verified:** `npm run lint` green (eslint clean + "i18n check OK — 160 bilingual pairs, all translated"). **Negative-tested:** injecting an untranslated key (sw = en = "Sign in") makes the check report the exact `file:line` + sw/en and **exit 1** (CI-failing); reverting returns exit 0. CI runs `npm run lint`, so the guard is live. Full suite unchanged (224).
+
+**Out of scope (noted):** API validation/error messages are English-only (the API has no user locale); translating those is a separate, larger concern than the T6.3 "POS + credit screens" verify clause, which is about the screens' locale switch — now guarded.

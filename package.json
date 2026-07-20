@@ -10,7 +10,8 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-i18n.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "dev:api": "npm run dev --workspace apps/api",
     "dev:pos": "npm run dev --workspace apps/pos",
     "dev:backoffice": "npm run dev --workspace apps/backoffice"
